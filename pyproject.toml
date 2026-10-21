@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pmv-turismo"
+version = "0.1.0"
+description = "PMV IA Turismo (Valencia)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "pyyaml",
+  "requests",
+  "numpy",
+  "fastapi",
+  "pydantic>=2",
+  "uvicorn",
+]
+
+[project.optional-dependencies]
+# Only needed to (re)generate embeddings: pulls in torch.
+embeddings = ["sentence-transformers>=3.1.0", "torch>=2.3"]
+dev = ["pytest", "httpx"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

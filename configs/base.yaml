@@ -1,0 +1,147 @@
+modules:
+  ingestion:
+    enabled: true
+  catalog:
+    enabled: true
+  embeddings:
+    enabled: true
+  recommendation:
+    enabled: true
+  planning:
+    enabled: true
+  api:
+    enabled: true
+  evaluation:
+    enabled: true
+
+data:
+  raw_dir: data/raw
+  processed_dir: data/processed
+
+ingestion:
+  fetch_images: true
+  require_description: true
+  osm:
+    enabled: true
+  overpass_urls:
+    - https://overpass-api.de/api/interpreter
+    - https://overpass.kumi.systems/api/interpreter
+    - https://lz4.overpass-api.de/api/interpreter
+    - https://overpass.openstreetmap.ru/api/interpreter
+  request_timeout_seconds: 180
+  area_name: Valencia
+  area_admin_level: 8
+  area_boundary: administrative
+  area_relation_id: 344953
+  bbox: null
+  tag_filters:
+    - key: tourism
+      values: ["attraction", "museum", "gallery", "artwork", "viewpoint", "information", "picnic_site", "theme_park", "zoo", "aquarium"]
+    - key: historic
+      values: ["*"]
+    - key: heritage
+      values: ["*"]
+    - key: memorial
+      values: ["*"]
+    - key: leisure
+      values: ["park", "garden", "nature_reserve"]
+    - key: natural
+      values: ["peak", "beach", "waterfall"]
+    # - key: amenity
+    #   values: ["restaurant", "cafe", "bar", "fast_food", "toilets", "parking", "drinking_water"]
+    # - key: shop
+    #   values: ["souvenir", "gift", "local_products"]
+    - key: man_made
+      values: ["tower", "lighthouse", "windmill", "bridge"]
+    - key: building
+      values: ["cathedral"]
+    - key: amenity
+      values: ["place_of_worship"]
+  dedup:
+    enabled: true
+    max_distance_m: 80
+    min_name_similarity: 0.82
+    prefer_sources: ["osm"]
+    report_path: data/processed/dedup_matches.csv
+  google_places:
+    enabled: false
+    # api_key: from the GOOGLE_PLACES_API_KEY environment variable (.env)
+    radius_m: 250
+    min_name_similarity: 0.75
+
+embeddings:
+  model_id: google/embeddinggemma-300m
+  device: cpu
+  batch_size: 16
+  normalize: true
+  show_progress: true
+  output_path: data/processed/embeddings.jsonl
+
+parameters:
+  planning:
+    max_stops_per_day: 6
+    visit_time_minutes: 60
+    max_total_minutes: 420
+    max_candidates: 20
+    # Next stop maximises score / (1 + travel_minutes / travel_penalty_minutes)
+    travel_penalty_minutes: 15
+    respect_opening_hours: true
+    # start_time: "10:00"   # default: current time (Europe/Madrid)
+    start_location:
+      name: "Plaza del Ayuntamiento"
+      lat: 39.4699
+      lon: -0.3763
+    routing:
+      provider: openrouteservice
+      # api_key: from the ORS_API_KEY environment variable (.env)
+      profile: foot-walking
+      endpoint: https://api.openrouteservice.org
+      # Para usar OSRM público en vez de ORS, comenta las dos líneas anteriores y usa:
+      # provider: osrm
+      # endpoint: https://router.project-osrm.org
+      # profile: foot
+
+recommendation:
+  top_n: 30
+  # alpha/beta/gamma are normalised to sum 1 (semantic / popularity / distance)
+  alpha: 0.5
+  beta: 0.3
+  gamma: 0.2
+  lambda_geo: 0.5
+  theta_mmr: 0.7
+  hidden_gems_bias: 0.0
+  multi_interest_enabled: true
+  multi_interest_k: 3
+  dislike_weight: 0.5
+  filter_opening_hours: true
+  active_learning_affinity_weight: 0.7
+  active_learning_uncertainty_weight: 0.3
+  active_learning_pool_multiplier: 4
+  # CLI only: `--step recommendation` needs seed likes (POI ids) and a style
+  liked_pois: []
+  style: explorer
+  # Weight overrides per user-selectable style
+  styles:
+    explorer:
+      alpha: 0.4
+      beta: 0.2
+      gamma: 0.2
+      theta_mmr: 0.5
+      hidden_gems_bias: 0.5
+    conservative:
+      alpha: 0.6
+      beta: 0.25
+      gamma: 0.35
+      theta_mmr: 0.8
+      hidden_gems_bias: 0.0
+    hidden_gems:
+      alpha: 0.45
+      beta: 0.4
+      gamma: 0.15
+      theta_mmr: 0.7
+      hidden_gems_bias: 1.0
+
+evaluation:
+  k: 10
+  seed: 42
+  synthetic_users: 40
