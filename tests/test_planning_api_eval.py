@@ -121,6 +121,7 @@ def test_evaluation_report(config, workspace):
     metrics = report["metrics"]
     assert {"style:explorer", "semantic_mean", "popularity", "random"} <= set(metrics)
     assert metrics["semantic_mean"]["hit@3"] >= metrics["random"]["hit@3"]
+    assert set(report["onboarding"]) == {"active_learning", "random"}
     assert (workspace / "processed" / "evaluation_report.txt").exists()
 
 

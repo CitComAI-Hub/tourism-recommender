@@ -121,9 +121,13 @@ recommendation:
   multi_interest_k: 3
   dislike_weight: 0.5
   filter_opening_hours: true
-  active_learning_affinity_weight: 0.7
-  active_learning_uncertainty_weight: 0.3
-  active_learning_pool_multiplier: 4
+  # Onboarding: Beta posterior of P(like) smoothed over embedding similarity,
+  # ranked by mean + exploration * std (UCB). Bandwidth: cosine scale over
+  # which a swipe propagates; prior_strength: swipes needed to beat the prior.
+  active_learning_bandwidth: 0.1
+  active_learning_prior_strength: 2.0
+  active_learning_exploration: 1.0
+  active_learning_popularity_weight: 0.15
   # CLI only: `--step recommendation` needs seed likes (POI ids) and a style
   liked_pois: []
   style: explorer
@@ -156,3 +160,5 @@ evaluation:
   k: 10
   seed: 42
   synthetic_users: 40
+  # Card counts per onboarding round in the simulation (match the frontend)
+  onboarding_rounds: [6, 4, 4]

@@ -72,6 +72,13 @@ sintéticos deterministas generados por categoría (`evaluation.synthetic_users`
 desactiva el filtro de horarios. Salida: `data/processed/evaluation.json` y
 `evaluation_report.txt`.
 
+También simula el onboarding: usuarios con un gusto oculto (categorías o
+regiones del espacio de embeddings) responden a las rondas
+(`evaluation.onboarding_rounds`, por defecto 6, 4 y 4 tarjetas) con un 10% de
+ruido, y se mide la precisión@k de las recomendaciones generadas con esos
+likes/dislikes, los likes recogidos y la fracción de usuarios que terminan sin
+ningún like. Compara el active learning con rondas aleatorias.
+
 Ojo: los likes sintéticos se basan en categorías y el texto de los embeddings
 incluye la categoría, así que los métodos semánticos salen favorecidos. Sirve
 para comparar variantes entre sí, no como métrica de producto.

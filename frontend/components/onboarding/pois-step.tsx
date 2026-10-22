@@ -115,12 +115,15 @@ export function POIsStep({
     [selectedCategories, likedPOIs, dislikedPOIs, t]
   );
 
+  // The rounds restart from scratch, so earlier answers must not steer them
+  // (they would turn round 1 into a refinement round over unseen cards).
   useEffect(() => {
     setDislikedPOIs([]);
     onDislikedPOIsChange?.([]);
+    onLikedPOIsChange([]);
     setCurrentRound(0);
     void loadRound(0, false, []);
-  }, [selectedCategories, onDislikedPOIsChange]);
+  }, [selectedCategories, onDislikedPOIsChange, onLikedPOIsChange]);
 
   useEffect(() => {
     if (isLoading || isLoadingMore) return;
@@ -249,7 +252,7 @@ export function POIsStep({
         />
       </div>
 
-      {isLoading && (
+      {(isLoading || (isLoadingMore && !currentPOI)) && (
         <div className="relative h-[420px] mb-6 flex items-center justify-center">
           <Loader2 className="w-6 h-6 animate-spin text-primary" />
         </div>

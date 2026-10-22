@@ -106,6 +106,27 @@ def test_active_learning_rounds(config):
     assert not set(seen) & {p["id"] for p in second}
 
 
+def test_active_learning_explores_after_dislikes(config):
+    pois = load_poi_list(Path(config["data"]["processed_dir"]) / "poi.jsonld")
+    index = load_embedding_index(embeddings_path(config))
+
+    seen = [poi_id("m1"), poi_id("p1")]
+    picks = select_active_learning_pois(pois, index, k=2, disliked_poi_ids=seen, seen_poi_ids=seen)
+    assert {p["category"][0] for p in picks} <= {"place_of_worship", "viewpoint"}
+
+
+def test_active_learning_refines_liked_region(config):
+    pois = load_poi_list(Path(config["data"]["processed_dir"]) / "poi.jsonld")
+    index = load_embedding_index(embeddings_path(config))
+
+    seen = [poi_id("m1"), poi_id("p1"), poi_id("c1")]
+    picks = select_active_learning_pois(
+        pois, index, k=1, liked_poi_ids=[poi_id("m1")],
+        disliked_poi_ids=[poi_id("p1"), poi_id("c1")], seen_poi_ids=seen,
+    )
+    assert picks[0]["category"][0] == "museum"
+
+
 @pytest.mark.parametrize("missing", [[], ["does-not-exist"]])
 def test_recommend_requires_known_likes(config, missing):
     with pytest.raises(ValueError):

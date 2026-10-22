@@ -9,6 +9,11 @@ POI lands. Methods compared:
 - `semantic_multi`: same, but with multi-interest vectors (ablation);
 - `popularity` and `random` baselines.
 
+`simulate_onboarding` replays the onboarding rounds with simulated users whose
+taste is hidden (a set of categories or 1-3 regions of the embedding space)
+and swipes with 10% noise, then scores the recommendations built from the
+collected likes/dislikes (precision@k on unseen POIs) against random rounds.
+
 Profiles are the stored user profiles (if any) plus deterministic synthetic
 profiles built from catalog categories. Synthetic likes are category-driven
 and POI embeddings include the category text, so absolute numbers favour
@@ -27,7 +32,7 @@ import numpy as np
 
 from pmv_turismo.common import haversine_km, load_poi_list, poi_coordinates, processed_dir, write_json_atomic
 from pmv_turismo.embeddings import EmbeddingIndex, embeddings_path, load_embedding_index
-from pmv_turismo.recommendation import apply_style, available_styles, recommend
+from pmv_turismo.recommendation import apply_style, available_styles, recommend, select_active_learning_pois
 
 
 def synthetic_profiles(pois: List[Dict[str, Any]], n_users: int, seed: int) -> Dict[str, Dict[str, Any]]:
@@ -70,11 +75,101 @@ def _ild(ids: List[str], index: EmbeddingIndex) -> float:
     return float(1.0 - (sim.sum() - n) / (n * (n - 1)))
 
 
+def _hidden_tastes(
+    pois: List[Dict[str, Any]], index: EmbeddingIndex, n_users: int, seed: int
+) -> List[Dict[str, Any]]:
+    """Users alternate between category tastes and embedding-region tastes."""
+    rng = random.Random(seed)
+    ids = [str(p["id"]) for p in pois if index.index_of(str(p.get("id") or "")) is not None]
+    category = {str(p["id"]): str((p.get("category") or ["unknown"])[0]) for p in pois}
+    units = index.units[np.asarray(index.indices_of(ids))]
+    counts: Dict[str, int] = defaultdict(int)
+    for pid in ids:
+        counts[category[pid]] += 1
+    big = sorted(c for c, n in counts.items() if n >= 4)
+    users: List[Dict[str, Any]] = []
+    for i in range(n_users):
+        if i % 2 == 0 and len(big) >= 2:
+            tastes = set(rng.sample(big, rng.choice([1, 2])))
+            truth = {pid for pid in ids if category[pid] in tastes}
+            others = [c for c in big if c not in tastes]
+            selected = sorted(tastes | set(rng.sample(others, min(len(others), rng.choice([0, 1, 2])))))
+        else:
+            anchors = rng.sample(range(len(ids)), min(len(ids), rng.choice([1, 2, 3])))
+            sim = np.max(units @ units[anchors].T, axis=1)
+            truth = {ids[j] for j in np.flatnonzero(sim >= np.quantile(sim, 0.8))}
+            # Half of them pick the categories of their taste, the rest skip the filter.
+            selected = sorted({category[pid] for pid in truth}) if rng.random() < 0.5 else []
+        users.append({"truth": truth, "categories": selected})
+    return users
+
+
+def simulate_onboarding(
+    config: dict,
+    pois: List[Dict[str, Any]],
+    index: EmbeddingIndex,
+    rounds: List[int],
+    n_users: int,
+    seed: int,
+    k: int,
+    noise: float = 0.1,
+) -> Dict[str, Dict[str, float]]:
+    """Replay the onboarding rounds with simulated users and score the outcome."""
+    rec_cfg = config.get("recommendation", {})
+    al_kwargs = {
+        "bandwidth": float(rec_cfg.get("active_learning_bandwidth", 0.1)),
+        "prior_strength": float(rec_cfg.get("active_learning_prior_strength", 2.0)),
+        "exploration": float(rec_cfg.get("active_learning_exploration", 1.0)),
+        "popularity_weight": float(rec_cfg.get("active_learning_popularity_weight", 0.15)),
+    }
+    style_cfg = apply_style(config, rec_cfg.get("style"))
+    users = _hidden_tastes(pois, index, n_users, seed)
+
+    def active(cands: List[Dict[str, Any]], size: int, liked, disliked, seen, rng) -> List[Dict[str, Any]]:
+        return select_active_learning_pois(cands, index, size, liked, disliked, seen, **al_kwargs)
+
+    def random_rounds(cands: List[Dict[str, Any]], size: int, liked, disliked, seen, rng) -> List[Dict[str, Any]]:
+        unseen = [p for p in cands if str(p["id"]) not in set(seen)]
+        return rng.sample(unseen, min(size, len(unseen)))
+
+    report: Dict[str, Dict[str, float]] = {}
+    for name, selector in (("active_learning", active), ("random", random_rounds)):
+        rng = random.Random(seed)
+        precision, likes, no_likes = [], [], 0
+        for user in users:
+            truth, cats = user["truth"], set(user["categories"])
+            cands = [p for p in pois if not cats or str((p.get("category") or [""])[0]) in cats]
+            liked: List[str] = []
+            disliked: List[str] = []
+            seen: List[str] = []
+            for size in rounds:
+                for poi in selector(cands, size, liked, disliked, seen, rng):
+                    pid = str(poi["id"])
+                    seen.append(pid)
+                    (liked if (pid in truth) != (rng.random() < noise) else disliked).append(pid)
+            likes.append(len(liked))
+            if not liked:
+                no_likes += 1
+                precision.append(0.0)
+                continue
+            result = recommend(style_cfg, poi_data=pois, liked_poi_ids=liked, disliked_poi_ids=disliked,
+                               include_liked=False)
+            ranked = [str(r["id"]) for r in result["results"] if str(r["id"]) not in set(seen)][:k]
+            precision.append(float(np.mean([pid in truth for pid in ranked])) if ranked else 0.0)
+        report[name] = {
+            f"precision@{k}": round(float(np.mean(precision)), 4),
+            "likes": round(float(np.mean(likes)), 3),
+            "no_likes": round(no_likes / max(1, len(users)), 4),
+        }
+    return report
+
+
 def run_evaluation(config: dict) -> Dict[str, Any]:
     eval_cfg = config.get("evaluation", {})
     k = int(eval_cfg.get("k", 10))
     seed = int(eval_cfg.get("seed", 42))
     n_synthetic = int(eval_cfg.get("synthetic_users", 40))
+    onboarding_rounds = [int(x) for x in eval_cfg.get("onboarding_rounds", [6, 4, 4])]
     out_dir = processed_dir(config)
 
     pois = load_poi_list(out_dir / "poi.jsonld")
@@ -180,6 +275,10 @@ def run_evaluation(config: dict) -> Dict[str, Any]:
         "synthetic_profiles": sum(1 for uid in profiles if uid.startswith("synthetic_")),
         "evaluations": len(per_method[next(iter(per_method))]["hit"]),
         "metrics": summary,
+        "onboarding_rounds": onboarding_rounds,
+        "onboarding": simulate_onboarding(
+            base, pois, index, onboarding_rounds, n_synthetic, seed, k
+        ),
     }
     write_json_atomic(out_dir / "evaluation.json", report)
     (out_dir / "evaluation_report.txt").write_text(format_report(report), encoding="utf-8")
@@ -198,4 +297,14 @@ def format_report(report: Dict[str, Any]) -> str:
     for name, metrics in report["metrics"].items():
         cells = ["-" if metrics[c] is None else f"{metrics[c]:.3f}" for c in columns]
         lines.append(f"{name:<22}" + "".join(f"{c:>14}" for c in cells))
+    if report.get("onboarding"):
+        onboarding_columns = [f"precision@{k}", "likes", "no_likes"]
+        lines += [
+            "",
+            f"Onboarding simulation: rounds {report['onboarding_rounds']}, 10% swipe noise",
+            "",
+            f"{'method':<22}" + "".join(f"{c:>14}" for c in onboarding_columns),
+        ]
+        for name, metrics in report["onboarding"].items():
+            lines.append(f"{name:<22}" + "".join(f"{metrics[c]:>14.3f}" for c in onboarding_columns))
     return "\n".join(lines) + "\n"

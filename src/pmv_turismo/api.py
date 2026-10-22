@@ -330,11 +330,10 @@ def get_poi_sample(
         liked_poi_ids=parse_csv_ids(liked_pois),
         disliked_poi_ids=parse_csv_ids(disliked_pois),
         seen_poi_ids=parse_csv_ids(seen_pois),
-        dislike_weight=float(rec_cfg.get("dislike_weight", 0.5)),
-        affinity_weight=float(rec_cfg.get("active_learning_affinity_weight", 0.7)),
-        uncertainty_weight=float(rec_cfg.get("active_learning_uncertainty_weight", 0.3)),
-        pool_multiplier=int(rec_cfg.get("active_learning_pool_multiplier", 4)),
-        multi_interest_k=int(rec_cfg.get("multi_interest_k", 3)),
+        bandwidth=float(rec_cfg.get("active_learning_bandwidth", 0.1)),
+        prior_strength=float(rec_cfg.get("active_learning_prior_strength", 2.0)),
+        exploration=float(rec_cfg.get("active_learning_exploration", 1.0)),
+        popularity_weight=float(rec_cfg.get("active_learning_popularity_weight", 0.15)),
     )
 
 

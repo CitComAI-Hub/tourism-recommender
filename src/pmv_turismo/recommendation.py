@@ -161,6 +161,34 @@ def greedy_diverse_selection(
 # Onboarding (active learning)
 # --------------------------------------------------------------------------- #
 
+def _popularity(pois: List[Dict[str, Any]]) -> np.ndarray:
+    """Popularity in [0, 1] from `relevance` (inverse popularity); 0.5 if missing."""
+    return np.asarray(
+        [1.0 - float(r) if isinstance(r := p.get("relevance"), (int, float)) else 0.5 for p in pois],
+        dtype=np.float32,
+    )
+
+
+def preference_posterior(
+    cand_units: np.ndarray,
+    labelled_units: np.ndarray,
+    labels: np.ndarray,
+    bandwidth: float,
+    prior_strength: float,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Mean and std of P(like) per candidate from similarity-weighted feedback.
+
+    Each answered POI adds a soft count to a Beta(prior/2, prior/2) on every
+    candidate, weighted by exp((cos - 1) / bandwidth): near neighbours inherit
+    the label, distant regions stay at 0.5 with high uncertainty.
+    """
+    w = np.exp((cand_units @ labelled_units.T - 1.0) / bandwidth)
+    a = 0.5 * prior_strength + w @ labels
+    b = 0.5 * prior_strength + w @ (1.0 - labels)
+    n = a + b
+    return a / n, np.sqrt(a * b / (n * n * (n + 1.0)))
+
+
 def select_active_learning_pois(
     pois: List[Dict[str, Any]],
     index: EmbeddingIndex,
@@ -168,17 +196,20 @@ def select_active_learning_pois(
     liked_poi_ids: Optional[List[str]] = None,
     disliked_poi_ids: Optional[List[str]] = None,
     seen_poi_ids: Optional[List[str]] = None,
-    dislike_weight: float = 0.5,
-    affinity_weight: float = 0.7,
-    uncertainty_weight: float = 0.3,
-    pool_multiplier: int = 4,
-    multi_interest_k: int = 3,
+    bandwidth: float = 0.1,
+    prior_strength: float = 2.0,
+    exploration: float = 1.0,
+    popularity_weight: float = 0.15,
 ) -> List[Dict[str, Any]]:
     """Select onboarding POIs by rounds.
 
-    Round 1 (no feedback): diverse selection favouring well-known POIs.
-    Later rounds: rank unseen POIs by affinity + uncertainty with respect to the
-    user's interest vectors, then pick a diverse subset of the best pool.
+    Round 1 (no feedback): representative (close to the rest of the pool) and
+    well-known POIs, spread out with MMR so each answer covers a region.
+    Later rounds: optimistic (UCB) ranking on a Bayesian estimate of P(like):
+    liked regions are refined, unexplored ones probed and disliked ones
+    dropped. Ranking on affinity alone (the previous approach) kept showing
+    neighbours of the first like, did worse than random in simulation and
+    left users who disliked round 1 without any like.
     """
     if k <= 0 or not pois:
         return []
@@ -199,34 +230,22 @@ def select_active_learning_pois(
         return []
 
     cand_units = index.units[np.asarray(cand_idx)]
+    popularity = _popularity(candidates)
     liked_idx = index.indices_of([str(x) for x in (liked_poi_ids or []) if x])
     disliked_idx = index.indices_of([str(x) for x in (disliked_poi_ids or []) if x])
 
     if not liked_idx and not disliked_idx:
-        # Cold start: popularity (`relevance` is inverse popularity) + diversity.
-        popularity = np.asarray(
-            [1.0 - float(p.get("relevance", 0.5) or 0.5) for p in candidates], dtype=np.float32
-        )
-        picks = greedy_diverse_selection(cand_units, popularity, k, theta=0.5)
+        representativeness = _minmax(np.mean(cand_units @ cand_units.T, axis=1))
+        quality = 0.5 * representativeness + 0.5 * popularity
+        picks = greedy_diverse_selection(cand_units, quality, k, theta=0.5)
         return [candidates[i] for i in picks]
 
-    dislike_units = index.units[np.asarray(disliked_idx)] if disliked_idx else None
-    if liked_idx:
-        interests = build_interest_vectors(index.units[np.asarray(liked_idx)], multi_interest_k)
-        closest = np.max(cand_units @ interests.T, axis=1)
-        affinity = semantic_scores(cand_units, interests, dislike_units, dislike_weight)
-        uncertainty = _minmax(1.0 - closest)
-    else:
-        # Only dislikes: move away from them, everything else is equally uncertain.
-        affinity = _minmax(-np.max(cand_units @ dislike_units.T, axis=1))
-        uncertainty = np.full(len(candidates), 0.5, dtype=np.float32)
-
-    score = affinity_weight * affinity + uncertainty_weight * uncertainty
-    pool_size = min(len(candidates), max(k, k * max(1, pool_multiplier)))
-    pool = np.argsort(-score)[:pool_size]
-    picks = greedy_diverse_selection(cand_units[pool], score[pool], k, theta=0.5)
-    chosen = sorted((int(pool[i]) for i in picks), key=lambda i: -score[i])
-    return [candidates[i] for i in chosen]
+    labelled = index.units[np.asarray(liked_idx + disliked_idx)]
+    labels = np.asarray([1.0] * len(liked_idx) + [0.0] * len(disliked_idx), dtype=np.float32)
+    mean, std = preference_posterior(cand_units, labelled, labels, bandwidth, prior_strength)
+    score = mean + exploration * std + popularity_weight * popularity
+    picks = greedy_diverse_selection(cand_units, _minmax(score), k, theta=0.6)
+    return [candidates[i] for i in sorted(picks, key=lambda i: -score[i])]
 
 
 # --------------------------------------------------------------------------- #
