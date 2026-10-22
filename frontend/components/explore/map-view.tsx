@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Location, POI } from "@/lib/api";
 import { VALENCIA_CENTER } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
+import { TILE_URL, TILE_ATTRIBUTION } from "@/lib/map-tiles";
 
 interface MapViewProps {
   pois: POI[];
@@ -79,8 +80,8 @@ export function MapView({
       13
     );
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | <a href="https://carto.com/attributions">CARTO</a>',
+    L.tileLayer(TILE_URL, {
+      attribution: TILE_ATTRIBUTION,
       maxZoom: 19,
     }).addTo(map);
 

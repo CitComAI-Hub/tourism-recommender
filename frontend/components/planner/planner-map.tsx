@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { POI, Itinerary, Location } from "@/lib/api";
+import { TILE_URL, TILE_ATTRIBUTION } from "@/lib/map-tiles";
 
 interface PlannerMapProps {
   places: POI[];
@@ -201,8 +202,8 @@ export function PlannerMap({ places, itinerary, startLocation }: PlannerMapProps
 
     const map = L.map(mapRef.current).setView(mapCenter, start ? 13 : 2);
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | <a href="https://carto.com/attributions">CARTO</a>',
+    L.tileLayer(TILE_URL, {
+      attribution: TILE_ATTRIBUTION,
       maxZoom: 19,
     }).addTo(map);
 
