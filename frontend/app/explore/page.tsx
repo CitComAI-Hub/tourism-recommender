@@ -81,6 +81,7 @@ export default function ExplorePage() {
         const data = await getRecommendations({
           user_id: userId || undefined,
           profile: profile || undefined,
+          liked_pois: likedPOIs.length ? likedPOIs : undefined,
           limit: MAX_RECOMMENDATIONS,
           requested_at: new Date().toISOString(),
           user_mobility: plannerPreferences.mobility,
@@ -110,7 +111,7 @@ export default function ExplorePage() {
     };
 
     fetchRecommendations();
-  }, [userId, profile, onboardingComplete, isHydrated, router]);
+  }, [userId, profile, likedPOIs, onboardingComplete, isHydrated, router]);
 
   const handleToggleAccept = (poi: POI) => {
     const isAccepted = acceptedRecommendations.some(p => p.id === poi.id);
