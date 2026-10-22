@@ -385,8 +385,9 @@ def recommend(
         s_sem = _minmax(-np.max(cand_units @ dislike_units.T, axis=1))
     else:
         s_sem = np.full(len(records), 0.5, dtype=np.float32)
-    if interest_text_weight > 0:
-        s_query = _minmax(cand_units @ encode_query(config, interests_text))
+    query_unit = encode_query(config, interests_text) if interest_text_weight > 0 else None
+    if query_unit is not None:
+        s_query = _minmax(cand_units @ query_unit)
         s_sem = (1.0 - interest_text_weight) * s_sem + interest_text_weight * s_query
 
     # `relevance` is an inverse popularity signal (high = less popular).

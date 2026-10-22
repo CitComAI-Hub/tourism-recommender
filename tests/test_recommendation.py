@@ -170,3 +170,10 @@ def test_active_learning_cold_start_follows_interests(config, churches_query):
 
     picks = select_active_learning_pois(pois, index, k=1, interest_unit=churches_query, interest_weight=1.0)
     assert picks[0]["category"][0] == "place_of_worship"
+
+
+def test_interests_ignored_without_embedding_model(config, monkeypatch):
+    monkeypatch.setattr("pmv_turismo.recommendation.encode_query", lambda config, text: None)
+    config["recommendation"]["user_profile"] = {"interests": "iglesias"}
+    output = recommend(config, liked_poi_ids=[poi_id("m1")])
+    assert output["results"]

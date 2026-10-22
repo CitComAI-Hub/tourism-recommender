@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import threading
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -10,6 +11,8 @@ import numpy as np
 from pmv_turismo.common import POI_URN_PREFIX, load_poi_list, processed_dir
 
 DEFAULT_MODEL_ID = "google/embeddinggemma-300m"
+
+logger = logging.getLogger(__name__)
 
 
 def _format_poi_text(poi: Dict[str, Any]) -> str:
@@ -91,11 +94,13 @@ _MODEL_LOCK = threading.Lock()
 _QUERY_CACHE: Dict[Tuple[str, str], np.ndarray] = {}
 
 
-def encode_query(config: dict, text: str) -> np.ndarray:
+def encode_query(config: dict, text: str) -> Optional[np.ndarray]:
     """Unit vector for a free-text interest, in the same space as the POIs.
 
     The model is loaded on first use and kept in memory; vectors are cached
-    per text so repeated requests from the same profile are free.
+    per text so repeated requests from the same profile are free. Returns
+    None when the optional `embeddings` extra is not installed, so callers
+    simply ignore the text.
     """
     emb_cfg = config.get("embeddings", {})
     model_id = emb_cfg.get("model_id", DEFAULT_MODEL_ID)
@@ -106,8 +111,11 @@ def encode_query(config: dict, text: str) -> np.ndarray:
     model_key = (model_id, emb_cfg.get("device", "cpu"))
     with _MODEL_LOCK:
         if model_key not in _MODEL_CACHE:
-            from sentence_transformers import SentenceTransformer
-
+            try:
+                from sentence_transformers import SentenceTransformer
+            except ImportError:
+                logger.warning("sentence-transformers not installed; free-text interests are ignored")
+                return None
             _MODEL_CACHE[model_key] = SentenceTransformer(model_id, device=model_key[1], trust_remote_code=True)
     model = _MODEL_CACHE[model_key]
     encode = model.encode_query if hasattr(model, "encode_query") else model.encode
