@@ -15,8 +15,11 @@ def _format_poi_text(poi: Dict[str, Any]) -> str:
     """Build the text to embed using name, description, and categories."""
     name = str(poi.get("name") or "").strip()
     desc = str(poi.get("description") or "").strip()
-    categories_raw = poi.get("category") or []
-    category_str = ", ".join(str(c) for c in categories_raw if c) or "unknown"
+    categories = [str(c) for c in (poi.get("category") or []) if c]
+    subcategory = poi.get("subcategory")
+    if subcategory and subcategory not in categories:
+        categories.append(str(subcategory).replace("_", " "))
+    category_str = ", ".join(categories) or "unknown"
     return f"Name: {name}\nDescription: {desc}\nCategory: {category_str}"
 
 

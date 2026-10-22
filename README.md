@@ -94,9 +94,45 @@ Puedes activar o desactivar fuentes fácilmente en [configs/base.yaml](configs/b
 - `ingestion.osm.enabled`: OSM (Overpass)
 - `ingestion.opendatasoft.enabled`: OpenDataSoft (monumentos Valencia)
 
-Nota: no hay dato de origen sobre la duración de las visitas. La ingesta asigna
-una estimación determinista por categoría (p. ej. museo 90 min, obra de arte 10
-min) y marca `durationEstimated: true`.
+### Pipeline de ingesta y calidad de datos
+1. **OSM (Overpass):** elementos con nombre dentro del municipio. La descripción
+   se toma de `description:es` > `description` > `description:ca` > `description:en`;
+   la dirección incluye número y código postal; las imágenes de OSM solo se
+   aceptan si vienen de Wikimedia Commons.
+2. **Deduplicación** por nombre y distancia. De cada grupo se queda como
+   principal el mejor registro (con Wikidata, way/relation antes que node,
+   paneles informativos al final); los demás solo rellenan huecos.
+3. Se descartan los `tourism=information` que no son oficinas de turismo
+   (paneles, mapas, postes): no son destinos.
+4. **Enriquecimiento** (en paralelo, `ingestion.workers`): artículo de
+   Wikipedia (preferencia por español), descripción si la de OSM es demasiado
+   corta (<80 caracteres; el extracto se corta en una frase completa), foto de
+   Wikidata (P18) o de Commons solo si el título del fichero nombra el lugar,
+   y popularidad = visitas de los últimos `pageview_days` días sumadas en las
+   ediciones de Wikipedia de `pageview_languages`. Las peticiones van en lotes
+   (50 entidades de Wikidata, 20 extractos o 50 artículos por llamada), con
+   límite de ritmo por servidor y reintentos ante 429/5xx.
+5. **Categorías:** `category` es una de las categorías canónicas que usa el
+   frontend (`museum`, `historic`, `beach`...) y `subcategory` conserva el
+   valor de OSM (`bridge`, `castle`, `gallery`...).
+6. **Relevancia:** percentil inverso de popularidad dentro de la categoría
+   (contra todo el catálogo si la categoría tiene menos de 5 POIs).
+7. **Duración y horarios:** no hay dato de origen sobre la duración, así que
+   se estima de forma determinista por subcategoría (`durationEstimated: true`).
+   Si no hay horario en OSM se genera uno conservador (`synthetic: true`);
+   los lugares al aire libre (puentes, obras de arte, parques...) son 24/7.
+
+Cada ejecución escribe `data/processed/ingestion_report.json` con los
+descartes por motivo y un resumen de calidad (cobertura de imágenes,
+direcciones, horarios reales, longitud de las descripciones). Para cumplir la
+política de Wikimedia, define `PMV_HTTP_CONTACT` (URL o e-mail de contacto),
+que se añade al User-Agent.
+
+Si alguna petición falla tras los reintentos, la ingesta termina con error y
+**no sobrescribe** `poi.jsonld` (salvo `ingestion.allow_partial: true`): un
+límite de peticiones de Wikimedia no puede vaciar el catálogo en silencio.
+
+Tras reingestar hay que regenerar los embeddings (`--step embeddings`).
 
 ### Planificación con ruteo
 La planificación usa OpenRouteService para distancias/tiempos reales. Configura en [configs/base.yaml](configs/base.yaml):

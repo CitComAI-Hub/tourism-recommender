@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 from pathlib import Path
 
 from pmv_turismo.common import processed_dir
@@ -64,6 +65,7 @@ def _run_planning(config: dict) -> None:
 
 def main() -> None:
     args = parse_args()
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     config = Config.load(args.config).data
     modules = config.get("modules", {})
     steps = [

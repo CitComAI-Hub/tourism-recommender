@@ -1,44 +1,193 @@
 from __future__ import annotations
 
+import csv
 import json
+import logging
 import math
+import os
+import re
+import threading
+import time
 import unicodedata
-import calendar
-from datetime import date, timedelta
+from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-from urllib.parse import quote
+from urllib.parse import quote, unquote, urlparse
 
 import requests
 
-# Simple in-process caches to avoid repeated external calls during one run
+logger = logging.getLogger(__name__)
+
+# Wikimedia asks for a descriptive User-Agent; set PMV_HTTP_CONTACT (URL or
+# e-mail) to include contact information as their policy recommends.
+USER_AGENT = "pmv-turismo-ingestion/0.2" + (
+    f" ({os.environ['PMV_HTTP_CONTACT']})" if os.environ.get("PMV_HTTP_CONTACT") else ""
+)
+
+class FetchError(RuntimeError):
+    """An external source could not be reached after retries.
+
+    Distinct from "the source has no data": a POI that fails to enrich must
+    not be dropped silently as if it had no description.
+    """
+
+
+_HOST_MIN_INTERVAL_S = 0.25  # at most ~4 requests/second per host...
+_HOST_MIN_INTERVAL_OVERRIDES = {"wikimedia.org": 0.05}  # ...the pageviews REST API allows more
+_host_lock = threading.Lock()
+_host_next_slot: Dict[str, float] = {}
+_session = requests.Session()
+
+
+def _wait_for_host(host: str) -> None:
+    with _host_lock:
+        now = time.monotonic()
+        slot = max(now, _host_next_slot.get(host, 0.0))
+        _host_next_slot[host] = slot + _HOST_MIN_INTERVAL_OVERRIDES.get(host, _HOST_MIN_INTERVAL_S)
+    if slot > now:
+        time.sleep(slot - now)
+
+
+def _http_get_json(
+    url: str,
+    params: Dict[str, Any] | None = None,
+    timeout_seconds: int = 20,
+    retries: int = 5,
+    not_found_ok: bool = False,
+) -> Any:
+    """GET with per-host throttling and retries on 429/5xx (honours Retry-After).
+
+    Returns None for 404 when `not_found_ok`; raises FetchError otherwise.
+    """
+    host = urlparse(url).netloc
+    delay = 2.0
+    last_error = ""
+    for attempt in range(retries):
+        _wait_for_host(host)
+        try:
+            resp = _session.get(url, params=params, headers={"User-Agent": USER_AGENT}, timeout=timeout_seconds)
+        except requests.RequestException as exc:
+            last_error = str(exc)
+        else:
+            if resp.status_code == 404 and not_found_ok:
+                return None
+            if resp.status_code < 400:
+                return resp.json()
+            last_error = f"HTTP {resp.status_code}"
+            if resp.status_code not in (429, 500, 502, 503, 504):
+                break
+            retry_after = resp.headers.get("Retry-After", "")
+            if retry_after.isdigit():
+                delay = max(delay, float(retry_after))
+        if attempt < retries - 1:
+            logger.warning("%s (%s), retrying in %.0fs", host, last_error, min(delay, 60.0))
+            time.sleep(min(delay, 60.0))
+            delay *= 2
+    raise FetchError(f"{host}: {last_error}")
+
+
+# In-process caches (only successful responses are cached)
 _commons_cache: Dict[str, str | None] = {}
 _wikidata_entity_cache: Dict[str, Dict[str, Any]] = {}
-_pageviews_cache: Dict[Tuple[str, str, str, str], int] = {}
 _gplaces_hours_cache: Dict[str, str | None] = {}
 
+# Wikipedia editions whose pageviews are summed as the popularity signal.
+DEFAULT_PAGEVIEW_LANGUAGES = ["es", "ca", "en", "fr", "de", "it", "pt", "nl", "ru", "pl", "ja", "zh"]
 
-def _fetch_wikidata_entity(entity_id: str, timeout_seconds: int = 10) -> Dict[str, Any] | None:
-    if not entity_id or not entity_id.startswith("Q"):
-        return None
-    if entity_id in _wikidata_entity_cache:
-        return _wikidata_entity_cache[entity_id]
-    try:
-        resp = requests.get(
-            f"https://www.wikidata.org/wiki/Special:EntityData/{entity_id}.json",
-            timeout=timeout_seconds,
-            headers={"User-Agent": "rp-turismo-ingestion/0.1"},
+
+def _chunks(items: List[str], size: int) -> List[List[str]]:
+    return [items[i:i + size] for i in range(0, len(items), size)]
+
+
+def _fetch_wikidata_entities(qids: List[str], timeout_seconds: int = 20) -> Dict[str, Dict[str, Any]]:
+    """Sitelinks and claims for many items, 50 per request."""
+    wanted = sorted({q for q in qids if q and q.startswith("Q")} - set(_wikidata_entity_cache))
+    for chunk in _chunks(wanted, 50):
+        data = _http_get_json(
+            "https://www.wikidata.org/w/api.php",
+            params={"action": "wbgetentities", "ids": "|".join(chunk), "props": "sitelinks|claims", "format": "json"},
+            timeout_seconds=timeout_seconds,
         )
-        resp.raise_for_status()
-        data = resp.json()
-        ent = data.get("entities", {}).get(entity_id)
-        _wikidata_entity_cache[entity_id] = ent or {}
-        return ent or {}
-    except Exception:
-        _wikidata_entity_cache[entity_id] = {}
-        return None
+        entities = (data or {}).get("entities") or {}
+        for qid in chunk:
+            ent = entities.get(qid) or {}
+            _wikidata_entity_cache[qid] = {} if "missing" in ent else ent
+    return {q: _wikidata_entity_cache.get(q) or {} for q in qids if q}
+
+
+def _mw_pages_by_title(
+    api_url: str, titles: List[str], params: Dict[str, Any], batch_size: int, timeout_seconds: int
+) -> Dict[str, Dict[str, Any]]:
+    """Run a MediaWiki `action=query` over many titles in batches.
+
+    Returns {requested title: page}, following title normalisation, redirects
+    and `continue` pagination (props such as extracts merge across pages).
+    """
+    result: Dict[str, Dict[str, Any]] = {}
+    for chunk in _chunks(sorted(set(titles)), batch_size):
+        base = {**params, "action": "query", "format": "json", "formatversion": 2,
+                "redirects": 1, "titles": "|".join(chunk)}
+        pages: Dict[str, Dict[str, Any]] = {}
+        normalized: Dict[str, str] = {}
+        redirects: Dict[str, str] = {}
+        cont: Dict[str, Any] = {}
+        while True:
+            data = _http_get_json(api_url, params={**base, **cont}, timeout_seconds=timeout_seconds) or {}
+            query = data.get("query") or {}
+            normalized.update({n["from"]: n["to"] for n in query.get("normalized", [])})
+            redirects.update({r["from"]: r["to"] for r in query.get("redirects", [])})
+            for page in query.get("pages", []):
+                merged = pages.setdefault(page.get("title", ""), {})
+                for key, value in page.items():
+                    if isinstance(value, dict) and isinstance(merged.get(key), dict):
+                        merged[key].update(value)
+                    elif value is not None and key not in merged:
+                        merged[key] = value
+            if "continue" not in data:
+                break
+            cont = data["continue"]
+        for title in chunk:
+            final = normalized.get(title, title)
+            final = redirects.get(final, final)
+            if final in pages and "missing" not in pages[final]:
+                result[title] = pages[final]
+    return result
+
+
+def _fetch_wikipedia_extracts(
+    lang: str, titles: List[str], max_chars: int = 900, timeout_seconds: int = 20
+) -> Dict[str, str]:
+    """Plain-text lead sections, 20 articles per request, cut at a full sentence."""
+    pages = _mw_pages_by_title(
+        f"https://{lang}.wikipedia.org/w/api.php",
+        titles,
+        {"prop": "extracts", "exintro": 1, "explaintext": 1, "exlimit": "max"},
+        batch_size=20,
+        timeout_seconds=timeout_seconds,
+    )
+    return {
+        title: _shorten_to_sentence(page["extract"], max_chars)
+        for title, page in pages.items()
+        if page.get("extract")
+    }
+
+
+def _fetch_pageviews(lang: str, titles: List[str], days: int = 60, timeout_seconds: int = 20) -> Dict[str, int]:
+    """Total pageviews over the last `days` days, 50 articles per request."""
+    pages = _mw_pages_by_title(
+        f"https://{lang}.wikipedia.org/w/api.php",
+        titles,
+        {"prop": "pageviews", "pvipmetric": "pageviews", "pvipdays": days},
+        batch_size=50,
+        timeout_seconds=timeout_seconds,
+    )
+    return {
+        title: sum(int(v or 0) for v in (page.get("pageviews") or {}).values())
+        for title, page in pages.items()
+    }
 
 
 def _extract_wikidata_filename(ent: Dict[str, Any] | None) -> str | None:
@@ -60,27 +209,8 @@ def _extract_wikidata_filename(ent: Dict[str, Any] | None) -> str | None:
         except Exception:
             return None
 
-    return first_value("P18") or first_value("P154")
-
-
-def _fetch_wikidata_image(entity_id: str, width: int = 1200, timeout_seconds: int = 10) -> str | None:
-    ent = _fetch_wikidata_entity(entity_id, timeout_seconds=timeout_seconds)
-    filename = _extract_wikidata_filename(ent)
-    if not filename:
-        return None
-
-    return f"https://commons.wikimedia.org/wiki/Special:FilePath/{quote(filename)}?width={width}"
-
-
-def _fetch_wikidata_description(entity_id: str, lang: str = "es", timeout_seconds: int = 10) -> str | None:
-    ent = _fetch_wikidata_entity(entity_id, timeout_seconds=timeout_seconds)
-    if not ent:
-        return None
-    desc = (ent.get("descriptions", {}) or {}).get(lang, {})
-    text = desc.get("value") if isinstance(desc, dict) else None
-    if text:
-        return text
-    return None
+    # P18 = image. P154 (logo) is not used: a logo is not a picture of the place.
+    return first_value("P18")
 
 
 def _build_overpass_query(
@@ -144,20 +274,55 @@ def _build_overpass_query(
     )
 
 
-# Tag keys that define a POI category, by priority. Generic values such as
+# Tag keys that define a POI subcategory, by priority. Generic values such as
 # `tourism=yes` carry no category, so the first specific value wins and the
 # key itself (e.g. "historic") is only used as a fallback.
 _CATEGORY_KEYS = ("tourism", "amenity", "leisure", "historic", "memorial", "man_made", "natural", "building")
 _CATEGORY_FALLBACK_KEYS = ("historic", "memorial", "man_made", "natural", "leisure", "tourism")
 
-# Estimated visit length per category (minutes). Replaced by real data when available.
-_VISIT_MINUTES_BY_CATEGORY = {
+# OSM subcategory -> canonical category shared with the frontend
+# (frontend/lib/poi-categories.ts). Anything not listed (castles, palaces,
+# bridges, gates, towers, memorials...) is cultural heritage: "historic".
+_CANONICAL_CATEGORY = {
+    "museum": "museum", "gallery": "museum",
+    "arts_centre": "arts_centre",
+    "park": "park", "picnic_site": "park",
+    "garden": "garden",
+    "nature_reserve": "nature_reserve", "peak": "nature_reserve", "waterfall": "nature_reserve",
+    "beach": "beach",
+    "attraction": "attraction", "theme_park": "attraction", "viewpoint": "attraction",
+    "artwork": "artwork",
+    "place_of_worship": "place_of_worship", "cathedral": "place_of_worship", "church": "place_of_worship",
+    "chapel": "place_of_worship", "monastery": "place_of_worship", "convent": "place_of_worship",
+    "marketplace": "marketplace",
+    "information": "information",
+    "aquarium": "aquarium",
+    "zoo": "zoo",
+}
+DEFAULT_CANONICAL_CATEGORY = "historic"
+
+# Estimated visit length (minutes) by subcategory, then canonical category.
+_VISIT_MINUTES = {
     "museum": 90, "gallery": 60, "arts_centre": 60, "zoo": 180, "aquarium": 150, "theme_park": 240,
     "park": 45, "garden": 30, "nature_reserve": 90, "picnic_site": 45, "beach": 120,
-    "attraction": 45, "marketplace": 45, "place_of_worship": 30, "cathedral": 45,
-    "viewpoint": 15, "artwork": 10, "memorial": 10, "information": 10, "historic": 20,
+    "attraction": 45, "marketplace": 45, "place_of_worship": 30, "cathedral": 45, "monastery": 45,
+    "viewpoint": 15, "artwork": 10, "memorial": 10, "monument": 10, "information": 10,
+    "bridge": 10, "city_gate": 30, "castle": 45, "manor": 30, "tower": 30, "building": 20,
+    "archaeological_site": 30, "train_station": 15, "historic": 20,
 }
 DEFAULT_VISIT_MINUTES = 30
+
+# Outdoor places that can be seen at any time.
+_ALWAYS_OPEN = {
+    "park", "garden", "nature_reserve", "picnic_site", "beach", "artwork", "memorial", "monument",
+    "bridge", "city_gate", "viewpoint", "peak", "waterfall",
+}
+
+# `tourism=information` worth keeping; boards, maps and guideposts are not destinations.
+_USEFUL_INFORMATION = {"office", "visitor_centre"}
+
+_DESCRIPTION_KEYS = ("description:es", "description", "description:ca", "description:en", "short_description")
+MIN_USEFUL_DESCRIPTION_CHARS = 80
 
 
 def _poi_category(tags: Dict[str, Any]) -> str | None:
@@ -171,8 +336,46 @@ def _poi_category(tags: Dict[str, Any]) -> str | None:
     return None
 
 
-def estimate_visit_minutes(category: Any) -> int:
-    return _VISIT_MINUTES_BY_CATEGORY.get(str(category or "").lower(), DEFAULT_VISIT_MINUTES)
+def canonical_category(subcategory: Any) -> str | None:
+    if not subcategory:
+        return None
+    return _CANONICAL_CATEGORY.get(str(subcategory).lower(), DEFAULT_CANONICAL_CATEGORY)
+
+
+def estimate_visit_minutes(subcategory: Any) -> int:
+    key = str(subcategory or "").lower()
+    return _VISIT_MINUTES.get(key) or _VISIT_MINUTES.get(canonical_category(key) or "", DEFAULT_VISIT_MINUTES)
+
+
+def _commons_file_url(filename: str, width: int = 1200) -> str:
+    return f"https://commons.wikimedia.org/wiki/Special:FilePath/{quote(filename)}?width={width}"
+
+
+def _osm_image(tags: Dict[str, Any]) -> str | None:
+    """Image from OSM tags, only when it points to Wikimedia Commons.
+
+    Other hosts are usually hotlinked thumbnails (e.g. Google) with unclear
+    licensing and short-lived URLs.
+    """
+    for key in ("wikimedia_commons", "image"):
+        value = str(tags.get(key) or "").strip()
+        if value.startswith("File:"):
+            return _commons_file_url(value[len("File:"):])
+    image = str(tags.get("image") or "").strip()
+    if image.startswith("https://") and urlparse(image).netloc.endswith("wikimedia.org"):
+        return image
+    return None
+
+
+def _osm_address(tags: Dict[str, Any]) -> str | None:
+    if tags.get("addr:full"):
+        return str(tags["addr:full"])
+    street = tags.get("addr:street")
+    if not street:
+        return None
+    address = f"{street}, {tags['addr:housenumber']}" if tags.get("addr:housenumber") else str(street)
+    locality = " ".join(str(tags[k]) for k in ("addr:postcode", "addr:city") if tags.get(k))
+    return f"{address}, {locality}" if locality else address
 
 
 def _extract_pois(elements: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -190,22 +393,38 @@ def _extract_pois(elements: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
         poi = {
             "id": f"{el.get('type')}:{el.get('id')}",
+            "osm_type": el.get("type"),
             "name": name,
             "lat": lat,
             "lon": lon,
             "category": _poi_category(tags),
-            "description": tags.get("description") or tags.get("short_description"),
-            "address": tags.get("addr:full") or tags.get("addr:street"),
-            "website": tags.get("website"),
-            "phone": tags.get("phone"),
+            "information": tags.get("information"),
+            "description": next((clean_text(tags[k]) for k in _DESCRIPTION_KEYS if tags.get(k)), None),
+            "address": _osm_address(tags),
+            "website": tags.get("website") or tags.get("contact:website"),
+            "phone": tags.get("phone") or tags.get("contact:phone"),
             "opening_hours": tags.get("opening_hours"),
-            "image": tags.get("image"),
+            "image": _osm_image(tags),
             "wikidata": tags.get("wikidata"),
             "wikipedia": tags.get("wikipedia"),
             "source": "osm",
         }
         pois.append(poi)
     return pois
+
+
+def _is_low_value_information(poi: Dict[str, Any]) -> bool:
+    return poi.get("category") == "information" and poi.get("information") not in _USEFUL_INFORMATION
+
+
+def _record_quality_rank(poi: Dict[str, Any]) -> Tuple[int, int, int]:
+    """Lower is better: the best record of a duplicate group becomes the primary
+    (keeps id, name, category and position); the rest only fill missing fields."""
+    return (
+        1 if _is_low_value_information(poi) else 0,
+        0 if poi.get("wikidata") else 1,
+        0 if poi.get("osm_type") in ("way", "relation") else 1,
+    )
 
 
 def _normalize_name(text: str) -> str:
@@ -393,18 +612,19 @@ def _merge_records(primary: Dict[str, Any], secondary: Dict[str, Any]) -> Dict[s
     return merged
 
 
-def _synthetic_opening_hours(category: Any) -> str:
+def _synthetic_opening_hours(subcategory: Any) -> str:
     """Return a conservative default schedule when a POI has no source hours."""
 
-    category_name = str(category or "").lower()
-    if category_name in {"park", "garden", "nature_reserve", "artwork"}:
-        return "Mo-Su 00:00-24:00"
-    if category_name in {"place_of_worship"}:
+    sub = str(subcategory or "").lower()
+    if sub in _ALWAYS_OPEN:
+        return "24/7"
+    category = canonical_category(sub)
+    if category == "place_of_worship":
         return "Mo-Su 08:00-20:00"
-    if category_name in {"museum", "aquarium", "zoo", "arts_centre", "attraction", "information"}:
+    if category in {"museum", "aquarium", "zoo", "arts_centre", "attraction", "information"}:
         return "Tu-Su 10:00-19:00; Mo off"
-    if category_name in {"marketplace"}:
-        return "Mo-Su 09:00-21:00"
+    if category == "marketplace":
+        return "Mo-Sa 08:00-15:00; Su off"
     return "Mo-Su 09:00-20:00"
 
 
@@ -421,7 +641,7 @@ def _deduplicate_pois(
                 return idx
         return len(prefer_sources)
 
-    remaining = sorted(pois, key=source_rank)
+    remaining = sorted(pois, key=lambda poi: (source_rank(poi), *_record_quality_rank(poi)))
     result: List[Dict[str, Any]] = []
     matches: List[Dict[str, Any]] = []
     while remaining:
@@ -467,109 +687,107 @@ def _deduplicate_pois(
     return result, matches
 
 
+_NAME_STOPWORDS = {
+    "de", "del", "dels", "la", "les", "el", "els", "los", "las", "lo", "y", "i", "a", "al", "en",
+    "the", "of", "and", "valencia", "file", "jpg", "jpeg", "png", "img", "dsc",
+}
+
+
+def _name_tokens(text: str) -> set[str]:
+    return {t for t in _normalize_name(text).split() if len(t) >= 3 and t not in _NAME_STOPWORDS}
+
+
+def _title_matches_name(file_title: str, name: str) -> bool:
+    """A Commons file is accepted only if its title mentions the POI.
+
+    Requires min(2, #name tokens) shared tokens: "Pont de Fusta" needs both
+    words, "El Palleter" only one.
+    """
+    name_tokens = _name_tokens(name)
+    if not name_tokens:
+        return False
+    title = unquote(file_title).replace("_", " ")
+    shared = name_tokens & _name_tokens(title)
+    return len(shared) >= min(2, len(name_tokens))
+
+
+def _commons_query(params: Dict[str, Any], name: str, timeout_seconds: int) -> str | None:
+    data = _http_get_json(
+        "https://commons.wikimedia.org/w/api.php",
+        params={**params, "prop": "imageinfo", "iiprop": "url", "iiurlwidth": 1200, "format": "json"},
+        timeout_seconds=timeout_seconds,
+    )
+    pages = ((data or {}).get("query") or {}).get("pages") or {}
+    # `pages` is keyed by page id: restore the relevance/distance order.
+    for page in sorted(pages.values(), key=lambda pg: pg.get("index", 0)):
+        if not _title_matches_name(str(page.get("title", "")), name):
+            continue
+        info = (page.get("imageinfo") or [{}])[0]
+        url = info.get("thumburl") or info.get("url")
+        if url:
+            return url.split("?", 1)[0]  # drop tracking params (utm_*)
+    return None
+
+
 def _fetch_commons_image(
     name: str,
     city_hint: str | None = None,
     lat: float | None = None,
     lon: float | None = None,
     timeout_seconds: int = 10,
-    radius_m: int = 800,
+    radius_m: int = 150,
 ) -> str | None:
+    """Find a Commons photo whose file title names the POI.
+
+    Nearby geotagged files are tried first, then a text search. Without the
+    title check, the nearest photo in a dense city centre is usually of a
+    different place.
+    """
     if not name:
         return None
     key = f"{name}::{city_hint or ''}::{lat},{lon}"
     if key in _commons_cache:
         return _commons_cache[key]
 
-    headers = {"User-Agent": "rp-turismo-ingestion/0.1"}
-
-    # First try geosearch (File namespace) for nearby geotagged media
+    queries: List[Dict[str, Any]] = []
     if lat is not None and lon is not None:
-        geo_params = {
-            "action": "query",
-            "generator": "geosearch",
-            "ggscoord": f"{lat}|{lon}",
-            "ggsradius": radius_m,
-            "ggsnamespace": 6,
-            "ggslimit": 1,
-            "prop": "imageinfo",
-            "iiprop": "url|extmetadata",
-            "iiurlwidth": 1200,
-            "format": "json",
-        }
-        try:
-            resp = requests.get("https://commons.wikimedia.org/w/api.php", params=geo_params, headers=headers, timeout=timeout_seconds)
-            resp.raise_for_status()
-            data = resp.json()
-            pages = data.get("query", {}).get("pages") or {}
-            first = next(iter(pages.values()), None)
-            info = (first or {}).get("imageinfo", [{}])[0]
-            url = info.get("thumburl") or info.get("url")
-            if url:
-                _commons_cache[key] = url
-                return url
-        except Exception:
-            pass
+        queries.append({
+            "action": "query", "generator": "geosearch", "ggscoord": f"{lat}|{lon}",
+            "ggsradius": radius_m, "ggsnamespace": 6, "ggslimit": 20,
+        })
+    queries.append({
+        "action": "query", "generator": "search", "gsrnamespace": 6, "gsrlimit": 10,
+        "gsrsearch": name if not city_hint else f"{name} {city_hint}",
+    })
 
-    # Fallback: search by name + city hint in File namespace
-    query = name if not city_hint else f"{name} {city_hint}"
-    search_params = {
-        "action": "query",
-        "generator": "search",
-        "gsrsearch": query,
-        "gsrlimit": 1,
-        "gsrnamespace": 6,
-        "prop": "imageinfo",
-        "iiprop": "url|extmetadata",
-        "iiurlwidth": 1200,
-        "format": "json",
-    }
-
-    try:
-        resp = requests.get("https://commons.wikimedia.org/w/api.php", params=search_params, headers=headers, timeout=timeout_seconds)
-        resp.raise_for_status()
-        data = resp.json()
-        pages = data.get("query", {}).get("pages") or {}
-        first = next(iter(pages.values()), None)
-        info = (first or {}).get("imageinfo", [{}])[0]
-        url = info.get("thumburl") or info.get("url")
-        _commons_cache[key] = url
-        return url
-    except Exception:
-        _commons_cache[key] = None
-        return None
+    url = None
+    for params in queries:
+        url = _commons_query(params, name, timeout_seconds)
+        if url:
+            break
+    _commons_cache[key] = url
+    return url
 
 
-def _fetch_wikipedia_extract(title: str, lang: str = "es", chars: int = 900, timeout_seconds: int = 10) -> str | None:
-    if not title:
-        return None
-    params = {
-        "action": "query",
-        "prop": "extracts",
-        "exintro": 1,
-        "explaintext": 1,
-        "exchars": chars,
-        "format": "json",
-        "redirects": 1,
-        "titles": title,
-    }
-    try:
-        resp = requests.get(
-            f"https://{lang}.wikipedia.org/w/api.php",
-            params=params,
-            headers={"User-Agent": "rp-turismo-ingestion/0.1"},
-            timeout=timeout_seconds,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-        pages = data.get("query", {}).get("pages", {})
-        first = next(iter(pages.values()), {})
-        extract = first.get("extract")
-        if extract:
-            return str(extract).strip()
-        return None
-    except Exception:
-        return None
+_INVISIBLE_CHARS = re.compile(r"[\u200b\u200c\u200d\u2060\ufeff\u00ad]")
+
+
+def clean_text(text: Any) -> str:
+    """Remove invisible characters (Wikipedia leaves zero-width spaces where
+    references were) and collapse whitespace, including before punctuation."""
+    text = _INVISIBLE_CHARS.sub("", str(text or ""))
+    text = " ".join(text.split())
+    return re.sub(r"\s+([.,;:!?])", r"\1", text).strip()
+
+
+def _shorten_to_sentence(text: str, max_chars: int = 900) -> str:
+    """Clean the text and cut at the last full sentence within max_chars."""
+    text = clean_text(text)
+    if len(text) <= max_chars:
+        return text
+    cut = text[:max_chars]
+    end = max(cut.rfind(". "), cut.rfind("! "), cut.rfind("? "))
+    return cut[: end + 1] if end > 0 else cut.rstrip() + "…"
 
 
 def _fetch_overpass_data(
@@ -579,7 +797,7 @@ def _fetch_overpass_data(
     errors: List[str] = []
     data = None
     headers = {
-        "User-Agent": "rp-turismo-ingestion/0.1",
+        "User-Agent": USER_AGENT,
         "Accept": "application/json",
         "Content-Type": "application/x-www-form-urlencoded",
     }
@@ -600,72 +818,49 @@ def _fetch_overpass_data(
     return data
 
 
-def _pageview_window(months: int = 12) -> Tuple[str, str]:
-    today = date.today()
-    last_full_month = (today.replace(day=1) - timedelta(days=1))
-    end_year, end_month = last_full_month.year, last_full_month.month
-    end_day = calendar.monthrange(end_year, end_month)[1]
-
-    start_month_index = end_month - (months - 1)
-    start_year = end_year
-    while start_month_index <= 0:
-        start_month_index += 12
-        start_year -= 1
-    start_date = date(start_year, start_month_index, 1)
-
-    start_str = f"{start_date.year}{start_date.month:02d}01"
-    end_str = f"{end_year}{end_month:02d}{end_day:02d}"
-    return start_str, end_str
+def _wikipedia_sitelinks(ent: Dict[str, Any] | None, languages: List[str]) -> List[Tuple[str, str]]:
+    """(lang, title) of the item's Wikipedia articles in the given languages."""
+    sitelinks = (ent or {}).get("sitelinks", {}) or {}
+    return [
+        (lang, sitelinks[f"{lang}wiki"]["title"])
+        for lang in languages
+        if (sitelinks.get(f"{lang}wiki") or {}).get("title")
+    ]
 
 
-def _fetch_pageviews(title: str, project: str, start: str, end: str, timeout_seconds: int = 10) -> int:
-    if not title or not project:
-        return 0
-    key = (title, project, start, end)
-    if key in _pageviews_cache:
-        return _pageviews_cache[key]
-
-    article = quote(title.replace(" ", "_"))
-    url = f"https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/{project}/all-access/user/{article}/monthly/{start}/{end}"
-    try:
-        resp = requests.get(url, headers={"User-Agent": "rp-turismo-ingestion/0.1"}, timeout=timeout_seconds)
-        resp.raise_for_status()
-        data = resp.json()
-        items = data.get("items", []) if isinstance(data, dict) else []
-        total = 0
-        for item in items:
-            try:
-                total += int(item.get("views", 0))
-            except Exception:
-                continue
-        _pageviews_cache[key] = total
-        return total
-    except Exception:
-        _pageviews_cache[key] = 0
-        return 0
+def _choose_article(poi: Dict[str, Any], ent: Dict[str, Any] | None) -> Tuple[str, str] | None:
+    """Wikipedia article (lang, title) for descriptions, preferring Spanish so they
+    share one language: eswiki sitelink > OSM `wikipedia` tag > cawiki > enwiki."""
+    sitelinks = (ent or {}).get("sitelinks", {}) or {}
+    if (sitelinks.get("eswiki") or {}).get("title"):
+        return "es", sitelinks["eswiki"]["title"]
+    tag = poi.get("wikipedia")
+    if isinstance(tag, str) and tag:
+        lang, sep, title = tag.partition(":")
+        if sep and title:
+            return lang or "es", title
+        if not sep:
+            return "es", tag
+    for lang in ("ca", "en"):
+        if (sitelinks.get(f"{lang}wiki") or {}).get("title"):
+            return lang, sitelinks[f"{lang}wiki"]["title"]
+    return None
 
 
-def _wikipedia_sitelinks(ent: Dict[str, Any] | None) -> List[Tuple[str, str]]:
-    if not ent:
-        return []
-    sitelinks = ent.get("sitelinks", {}) or {}
-    titles: List[Tuple[str, str]] = []
-    for key, val in sitelinks.items():
-        if not key.endswith("wiki"):
-            continue
-        if key.endswith("wikivoyage"):
-            continue
-        title = val.get("title") if isinstance(val, dict) else None
-        if not title:
-            continue
-        lang = key[:-4]
-        project = f"{lang}.wikipedia.org"
-        titles.append((title, project))
-    return titles
+_DEDUP_REPORT_FIELDS = [
+    "name_a", "source_a", "id_a", "lat_a", "lon_a",
+    "name_b", "source_b", "id_b", "lat_b", "lon_b",
+    "distance_m", "name_similarity",
+]
+MIN_CATEGORY_SIZE = 5
 
 
-def run_ingestion(config: dict) -> None:
-    """Ingestion pipeline for OSM Valencia monuments."""
+def run_ingestion(config: dict) -> Dict[str, Any]:
+    """OSM -> dedup -> enrichment (Wikidata/Wikipedia/Commons) -> NGSI-LD catalog.
+
+    Writes data/processed/poi.jsonld and ingestion_report.json (counts, drop
+    reasons and data-quality figures) and returns the report.
+    """
     ingestion_cfg = config.get("ingestion", {})
     data_cfg = config.get("data", {})
 
@@ -675,11 +870,13 @@ def run_ingestion(config: dict) -> None:
     processed_dir.mkdir(parents=True, exist_ok=True)
 
     timeout_seconds = int(ingestion_cfg.get("request_timeout_seconds", 120))
+    http_timeout = min(timeout_seconds, 20)
     fetch_images = bool(ingestion_cfg.get("fetch_images", True))
     require_description = bool(ingestion_cfg.get("require_description", False))
     city_hint = ingestion_cfg.get("image_city_hint", "Valencia")
+    workers = max(1, int(ingestion_cfg.get("workers", 4)))
     pois: List[Dict[str, Any]] = []
-    pageview_start, pageview_end = _pageview_window(months=12)
+    report: Dict[str, Any] = {"dropped": Counter()}
 
     if ingestion_cfg.get("osm", {}).get("enabled", True):
         overpass_urls = ingestion_cfg.get("overpass_urls") or [
@@ -695,7 +892,10 @@ def run_ingestion(config: dict) -> None:
         data = _fetch_overpass_data(overpass_urls, query, timeout_seconds)
         raw_path = raw_dir / "poi_raw_osm.json"
         raw_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-        pois.extend(_extract_pois(data.get("elements", [])))
+        elements = data.get("elements", [])
+        pois.extend(_extract_pois(elements))
+        report["osm_elements"] = len(elements)
+        report["osm_named"] = len(pois)
 
     dedup_cfg = ingestion_cfg.get("dedup", {})
     if dedup_cfg.get("enabled", False):
@@ -704,25 +904,16 @@ def run_ingestion(config: dict) -> None:
         prefer_sources = dedup_cfg.get("prefer_sources", ["osm"])
         pois, matches = _deduplicate_pois(pois, max_distance_m, min_name_similarity, prefer_sources)
         report_path = dedup_cfg.get("report_path", str(processed_dir / "dedup_matches.csv"))
-        report_headers = [
-            "name_a",
-            "source_a",
-            "id_a",
-            "lat_a",
-            "lon_a",
-            "name_b",
-            "source_b",
-            "id_b",
-            "lat_b",
-            "lon_b",
-            "distance_m",
-            "name_similarity",
-        ]
-        report_lines = [",".join(report_headers)]
-        for m in matches:
-            row = ["" if m.get(h) is None else str(m.get(h)).replace(",", " ") for h in report_headers]
-            report_lines.append(",".join(row))
-        Path(report_path).write_text("\n".join(report_lines), encoding="utf-8")
+        Path(report_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(report_path, "w", encoding="utf-8", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=_DEDUP_REPORT_FIELDS, extrasaction="ignore")
+            writer.writeheader()
+            writer.writerows(matches)
+        report["deduplicated"] = len(matches)
+
+    before = len(pois)
+    pois = [poi for poi in pois if not _is_low_value_information(poi)]
+    report["dropped"]["information_board"] = before - len(pois)
 
     gplaces_cfg = ingestion_cfg.get("google_places", {})
     if gplaces_cfg.get("enabled") and gplaces_cfg.get("api_key"):
@@ -752,148 +943,177 @@ def run_ingestion(config: dict) -> None:
                 else:
                     poi["source"] = "gplaces"
 
-    processed_path = processed_dir / "poi.jsonld"
-    entities: List[Dict[str, Any]] = []
-    popularity_entries: List[Tuple[int, str, float]] = []
+    failures: List[str] = []
+
+    def guarded(label: str, fn: Any, *args: Any) -> Any:
+        try:
+            return fn(*args)
+        except FetchError as exc:
+            failures.append(f"{label}: {exc}")
+            return None
+
+    logger.info("OSM: %d named POIs after dedup and filtering", len(pois))
+
+    # 1. Wikidata items (batched).
+    qids = [str(p["wikidata"]) for p in pois if p.get("wikidata")]
+    wikidata = guarded("wikidata", _fetch_wikidata_entities, qids, http_timeout) or {}
+    entity_of = {id(p): wikidata.get(str(p.get("wikidata"))) for p in pois}
+    article_of = {id(p): _choose_article(p, entity_of[id(p)]) for p in pois}
+    logger.info("Wikidata: %d items", len(wikidata))
+
+    # 2. Descriptions: Wikipedia lead when the OSM text is too short (batched per language).
+    wanted: Dict[str, List[str]] = {}
     for poi in pois:
-        name = poi.get("name")
-        lat = poi.get("lat")
-        lon = poi.get("lon")
-        if name is None or lat is None or lon is None:
+        article = article_of[id(poi)]
+        if article and len(poi.get("description") or "") < MIN_USEFUL_DESCRIPTION_CHARS:
+            wanted.setdefault(article[0], []).append(article[1])
+    extracts = {
+        lang: guarded(f"extracts:{lang}", _fetch_wikipedia_extracts, lang, titles, 900, http_timeout) or {}
+        for lang, titles in wanted.items()
+    }
+    kept: List[Dict[str, Any]] = []
+    for poi in pois:
+        article = article_of[id(poi)]
+        extract = extracts.get(article[0], {}).get(article[1]) if article else None
+        if extract and len(extract) > len(poi.get("description") or ""):
+            poi["description"] = extract
+        if require_description and not poi.get("description"):
+            report["dropped"]["no_description"] += 1
             continue
-        visit_minutes = estimate_visit_minutes(poi.get("category"))
-        image_url = poi.get("image")
-        description = poi.get("description")
-        wikidata_id = poi.get("wikidata")
-        entity_title = None
-        wikipedia_lang = "es"
+        kept.append(poi)
+    pois = kept
+    logger.info("Descriptions: %d extracts fetched, %d POIs kept", sum(map(len, extracts.values())), len(pois))
 
-        # Prefer an explicit Wikipedia tag from the source (format "lang:Title")
-        wikipedia_tag = poi.get("wikipedia")
-        if isinstance(wikipedia_tag, str) and wikipedia_tag:
-            if ":" in wikipedia_tag:
-                lang_candidate, title_candidate = wikipedia_tag.split(":", 1)
-                if title_candidate:
-                    wikipedia_lang = lang_candidate or "es"
-                    entity_title = title_candidate
-            else:
-                entity_title = wikipedia_tag
+    # 3. Popularity: pageviews summed over the configured Wikipedia editions (batched).
+    languages = [str(x) for x in ingestion_cfg.get("pageview_languages", DEFAULT_PAGEVIEW_LANGUAGES)]
+    pageview_days = int(ingestion_cfg.get("pageview_days", 60))
+    articles_of: Dict[int, set] = {}
+    by_lang: Dict[str, List[str]] = {}
+    for poi in pois:
+        articles = set(_wikipedia_sitelinks(entity_of[id(poi)], languages))
+        if article_of[id(poi)]:
+            articles.add(article_of[id(poi)])
+        articles_of[id(poi)] = articles
+        for lang, title in articles:
+            by_lang.setdefault(lang, []).append(title)
+    views_by_lang = {
+        lang: guarded(f"pageviews:{lang}", _fetch_pageviews, lang, titles, pageview_days, http_timeout) or {}
+        for lang, titles in by_lang.items()
+    }
+    logger.info("Pageviews: %d articles in %d editions", sum(map(len, by_lang.values())), len(by_lang))
+    popularity = [
+        math.log10(1 + sum(views_by_lang.get(lang, {}).get(title, 0) for lang, title in articles_of[id(poi)]))
+        for poi in pois
+    ]
 
-        ent = _fetch_wikidata_entity(wikidata_id, timeout_seconds=timeout_seconds) if wikidata_id else None
-        pageview_candidates: List[Tuple[str, str]] = []
-        if ent:
-            if not image_url and fetch_images:
-                filename = _extract_wikidata_filename(ent)
-                if filename:
-                    image_url = f"https://commons.wikimedia.org/wiki/Special:FilePath/{quote(filename)}?width=1200"
-            sitelinks = ent.get("sitelinks", {}) or {}
-            es_link = sitelinks.get("eswiki") or sitelinks.get("eswikivoyage")
-            en_link = sitelinks.get("enwiki")
-            if not entity_title:
-                entity_title = (es_link or en_link or {}).get("title")
-                if es_link:
-                    wikipedia_lang = "es"
-                elif en_link:
-                    wikipedia_lang = "en"
-            pageview_candidates.extend(_wikipedia_sitelinks(ent))
+    # 4. Images: OSM (Commons only) > Wikidata P18 > Commons search matching the name.
+    def find_image(poi: Dict[str, Any]) -> str | None:
+        if poi.get("image") or not fetch_images:
+            return poi.get("image")
+        filename = _extract_wikidata_filename(entity_of[id(poi)])
+        if filename:
+            return _commons_file_url(filename)
+        return guarded(
+            f"commons:{poi.get('name')}", _fetch_commons_image,
+            str(poi["name"]), city_hint, float(poi["lat"]), float(poi["lon"]), http_timeout,
+        )
 
-        if entity_title:
-            pageview_candidates.append((entity_title, f"{wikipedia_lang}.wikipedia.org"))
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        images = list(pool.map(find_image, pois))
 
-        total_views = 0
-        seen_candidates = set()
-        for title, project in pageview_candidates:
-            key = (title, project)
-            if key in seen_candidates:
-                continue
-            seen_candidates.add(key)
-            total_views += _fetch_pageviews(title, project, pageview_start, pageview_end, timeout_seconds=timeout_seconds)
+    entities = [_build_entity(poi, image) for poi, image in zip(pois, images)]
+    logger.info("Images: %d/%d POIs", sum(1 for i in images if i), len(pois))
+    _assign_relevance(entities, popularity)
+    report["pois"] = len(entities)
+    report["dropped"] = dict(report["dropped"])
+    report["fetch_errors"] = sorted(failures)[:50]
+    report["quality"] = _quality_summary(entities)
+    (processed_dir / "ingestion_report.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    # A partial catalog (sources rate-limited or down) must not replace a good one.
+    if failures and not ingestion_cfg.get("allow_partial", False):
+        raise RuntimeError(
+            f"{len(failures)} enrichment requests failed (see ingestion_report.json); "
+            "poi.jsonld was not updated. Retry later or set ingestion.allow_partial: true."
+        )
+    (processed_dir / "poi.jsonld").write_text(json.dumps(entities, ensure_ascii=False, indent=2), encoding="utf-8")
+    return report
 
-        popularity_log = math.log10(total_views + 1)
 
-        if not description and entity_title:
-            description = _fetch_wikipedia_extract(
-                entity_title,
-                lang=wikipedia_lang or "es",
-                chars=900,
-                timeout_seconds=timeout_seconds,
-            )
+def _build_entity(poi: Dict[str, Any], image_url: str | None) -> Dict[str, Any]:
+    """NGSI-LD PointOfInterest entity from an enriched OSM record."""
+    subcategory = poi.get("category")
+    category = canonical_category(subcategory)
+    entity = {
+        "id": f"urn:ngsi-ld:PointOfInterest:{poi.get('id')}",
+        "type": "PointOfInterest",
+        "name": str(poi["name"]),
+        "location": {"type": "Point", "coordinates": [float(poi["lon"]), float(poi["lat"])]},
+        "category": [category] if category else [],
+        "subcategory": subcategory,
+        "duration": estimate_visit_minutes(subcategory),
+        "durationEstimated": True,
+        "image": image_url,
+        "description": poi.get("description"),
+        "address": {"streetAddress": poi.get("address")} if poi.get("address") else None,
+        "source": "https://www.openstreetmap.org" if "osm" in str(poi.get("source")) else poi.get("source"),
+        "refSeeAlso": [v for v in [poi.get("website"), poi.get("wikidata"), poi.get("wikipedia")] if v],
+        "contactPoint": {"telephone": poi.get("phone")} if poi.get("phone") else None,
+        "openingHours": {
+            "value": poi.get("opening_hours") or _synthetic_opening_hours(subcategory),
+            "type": "Text",
+            "synthetic": not bool(poi.get("opening_hours")),
+        },
+        "@context": [
+            "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+            "https://raw.githubusercontent.com/smart-data-models/dataModel.PointOfInterest/master/context.jsonld",
+        ],
+    }
+    return {k: v for k, v in entity.items() if v not in (None, [], "")}
 
-        if require_description and not description:
-            continue
 
-        if not image_url and fetch_images:
-            image_url = _fetch_commons_image(
-                str(name),
-                city_hint=city_hint,
-                lat=float(lat) if lat is not None else None,
-                lon=float(lon) if lon is not None else None,
-                timeout_seconds=timeout_seconds,
-            )
-        entity = {
-            "id": f"urn:ngsi-ld:PointOfInterest:{poi.get('id')}",
-            "type": "PointOfInterest",
-            "name": str(name),
-            "location": {
-                "type": "Point",
-                "coordinates": [float(lon), float(lat)],
-            },
-            "category": [str(poi.get("category"))] if poi.get("category") else [],
-            "duration": visit_minutes,
-            "durationEstimated": True,
-            "image": image_url,
-            "description": description,
-            "address": {
-                "streetAddress": poi.get("address")
-            } if poi.get("address") else None,
-            "source": "https://www.openstreetmap.org" if poi.get("source") == "osm" else "https://valencia.opendatasoft.com",
-            "refSeeAlso": [v for v in [poi.get("website"), poi.get("wikidata"), poi.get("wikipedia")] if v],
-            "contactPoint": {
-                "telephone": poi.get("phone")
-            } if poi.get("phone") else None,
-            "openingHours": {
-                "value": poi.get("opening_hours") or _synthetic_opening_hours(poi.get("category")),
-                "type": "Text",
-                "synthetic": not bool(poi.get("opening_hours")),
-            },
-            "@context": [
-                "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
-                "https://raw.githubusercontent.com/smart-data-models/dataModel.PointOfInterest/master/context.jsonld",
-            ],
-        }
-        entity = {k: v for k, v in entity.items() if v not in (None, [], "")}
-        entities.append(entity)
+def _percentile_ranks(values: List[float]) -> List[float]:
+    """Mean-rank percentile in [0, 1] for each value (ties share the rank)."""
+    if len(values) == 1:
+        return [0.5]
+    order = sorted(values)
+    positions: Dict[float, List[int]] = {}
+    for i, v in enumerate(order):
+        positions.setdefault(v, []).append(i)
+    return [sum(positions[v]) / len(positions[v]) / (len(values) - 1) for v in values]
 
-        cat_key = None
-        if isinstance(entity.get("category"), list) and entity.get("category"):
-            cat_key = str(entity.get("category")[0])
-        elif entity.get("category"):
-            cat_key = str(entity.get("category"))
-        popularity_entries.append((len(entities) - 1, cat_key or "unknown", popularity_log))
 
-    def percentile_ranks(values: List[float]) -> Dict[float, float]:
-        if not values:
-            return {}
-        if len(values) == 1:
-            return {values[0]: 0.5}
-        sorted_vals = sorted(values)
-        ranks: Dict[float, float] = {}
-        n = len(sorted_vals)
-        for v in set(sorted_vals):
-            positions = [i for i, val in enumerate(sorted_vals) if val == v]
-            mean_pos = sum(positions) / len(positions)
-            ranks[v] = mean_pos / (n - 1)
-        return ranks
+def _assign_relevance(entities: List[Dict[str, Any]], popularity: List[float]) -> None:
+    """`relevance` = inverse popularity percentile within the canonical category.
 
-    per_category: Dict[str, List[Tuple[int, float]]] = {}
-    for idx, cat, log_score in popularity_entries:
-        per_category.setdefault(cat, []).append((idx, log_score))
+    0.05 = most popular of its category, 0.95 = least known. Categories with
+    fewer than MIN_CATEGORY_SIZE POIs are ranked against the whole catalog,
+    otherwise a lone POI would always get the uninformative 0.5.
+    """
+    by_category: Dict[str, List[int]] = {}
+    for idx, entity in enumerate(entities):
+        by_category.setdefault((entity.get("category") or ["unknown"])[0], []).append(idx)
+    global_ranks = _percentile_ranks(popularity) if popularity else []
+    for members in by_category.values():
+        if len(members) >= MIN_CATEGORY_SIZE:
+            ranks = _percentile_ranks([popularity[i] for i in members])
+        else:
+            ranks = [global_ranks[i] for i in members]
+        for idx, p in zip(members, ranks):
+            entities[idx]["relevance"] = round(1.0 - (0.05 + 0.9 * p), 4)
 
-    for cat, items in per_category.items():
-        ranks = percentile_ranks([v for _, v in items])
-        for idx, log_score in items:
-            p = ranks.get(log_score, 0.0)
-            score = max(0.0, min(1.0, 0.05 + 0.9 * p))
-            relevance = 1.0 - score
-            entities[idx]["relevance"] = relevance
-    processed_path.write_text(json.dumps(entities, ensure_ascii=False, indent=2), encoding="utf-8")
+
+def _quality_summary(entities: List[Dict[str, Any]]) -> Dict[str, Any]:
+    n = max(1, len(entities))
+    descriptions = [len(e.get("description") or "") for e in entities]
+    return {
+        "categories": dict(Counter((e.get("category") or ["none"])[0] for e in entities).most_common()),
+        "with_image_pct": round(100 * sum(1 for e in entities if e.get("image")) / n, 1),
+        "with_address_pct": round(100 * sum(1 for e in entities if e.get("address")) / n, 1),
+        "real_opening_hours_pct": round(
+            100 * sum(1 for e in entities if not (e.get("openingHours") or {}).get("synthetic")) / n, 1
+        ),
+        "description_chars_median": sorted(descriptions)[len(descriptions) // 2] if descriptions else 0,
+        "short_descriptions": sum(1 for d in descriptions if d < MIN_USEFUL_DESCRIPTION_CHARS),
+    }

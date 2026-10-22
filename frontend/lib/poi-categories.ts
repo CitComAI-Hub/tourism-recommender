@@ -11,6 +11,8 @@ import {
   PawPrint,
   Landmark,
   Church,
+  Castle,
+  Waves,
 } from "lucide-react";
 
 export const POI_CATEGORY_IDS = [
@@ -26,6 +28,8 @@ export const POI_CATEGORY_IDS = [
   "aquarium",
   "zoo",
   "arts_centre",
+  "historic",
+  "beach",
 ] as const;
 
 export type PoiCategoryId = (typeof POI_CATEGORY_IDS)[number];
@@ -43,6 +47,8 @@ export const POI_CATEGORY_META: Array<{ id: PoiCategoryId; icon: LucideIcon }> =
   { id: "aquarium", icon: Fish },
   { id: "zoo", icon: PawPrint },
   { id: "arts_centre", icon: Palette },
+  { id: "historic", icon: Castle },
+  { id: "beach", icon: Waves },
 ];
 
 export const POI_CATEGORY_FILTERS = [

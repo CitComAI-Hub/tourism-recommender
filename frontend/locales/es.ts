@@ -78,6 +78,8 @@ export const es = {
         aquarium: "Acuarios",
         zoo: "Zoológicos",
         arts_centre: "Centros de arte",
+        historic: "Patrimonio histórico",
+        beach: "Playas",
       },
     },
     pois: {
@@ -178,6 +180,8 @@ export const es = {
       aquarium: "Acuarios",
       zoo: "Zoológicos",
       arts_centre: "Centros de arte",
+      historic: "Patrimonio histórico",
+      beach: "Playas",
     },
     legend: {
       recommended: "Recomendado",

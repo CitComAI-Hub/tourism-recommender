@@ -29,6 +29,13 @@ ingestion:
     - https://lz4.overpass-api.de/api/interpreter
     - https://overpass.openstreetmap.ru/api/interpreter
   request_timeout_seconds: 180
+  # Parallel requests to Wikimedia APIs during enrichment
+  workers: 4
+  # Popularity = pageviews over the last N days summed over these Wikipedia editions
+  pageview_days: 60
+  pageview_languages: [es, ca, en, fr, de, it, pt, nl, ru, pl, ja, zh]
+  # Keep the previous catalog if any enrichment request fails
+  allow_partial: false
   area_name: Valencia
   area_admin_level: 8
   area_boundary: administrative
