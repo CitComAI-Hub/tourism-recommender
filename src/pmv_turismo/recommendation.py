@@ -275,9 +275,12 @@ def recommend(
     alpha = float(rec_cfg.get("alpha", 0.5))  # semantic weight
     beta = float(rec_cfg.get("beta", 0.3))  # quality weight
     gamma = float(rec_cfg.get("gamma", 0.2))  # geo weight
-    weight_sum = alpha + beta + gamma
+    preferred = {str(c).lower() for c in (profile or {}).get("preferred_categories") or [] if c}
+    # Bonus for the categories picked in onboarding; ignored without them.
+    delta = float(rec_cfg.get("category_weight", 0.0)) if preferred else 0.0
+    weight_sum = alpha + beta + gamma + delta
     if weight_sum > 0:
-        alpha, beta, gamma = alpha / weight_sum, beta / weight_sum, gamma / weight_sum
+        alpha, beta, gamma, delta = (w / weight_sum for w in (alpha, beta, gamma, delta))
     lambda_geo = float(rec_cfg.get("lambda_geo", 0.5))  # distance sensitivity
     theta_mmr = float(rec_cfg.get("theta_mmr", 0.7))
     hidden_gems_bias = float(rec_cfg.get("hidden_gems_bias", 0.0))
@@ -288,8 +291,8 @@ def recommend(
 
     liked_ids = [str(x) for x in (liked_poi_ids or rec_cfg.get("liked_pois") or []) if x]
     disliked_ids = [str(x) for x in (disliked_poi_ids or rec_cfg.get("disliked_pois") or []) if x]
-    if not liked_ids:
-        raise ValueError("liked_poi_ids is required to compute recommendations")
+    if not liked_ids and not preferred:
+        raise ValueError("liked_poi_ids or preferred categories are required to compute recommendations")
     liked_set, disliked_set = set(liked_ids), set(disliked_ids)
     visit_start = (requested_at or now_local()).astimezone(LOCAL_TZ).replace(second=0, microsecond=0)
 
@@ -299,13 +302,17 @@ def recommend(
         raise ValueError(str(exc)) from exc
 
     liked_idx = index.indices_of(liked_ids)
-    if not liked_idx:
+    if not liked_idx and not preferred:
         raise ValueError("No embeddings found for liked POIs; generate embeddings and retry")
-    liked_units = index.units[np.asarray(liked_idx)]
-    if multi_interest_enabled:
-        interest_units = build_interest_vectors(liked_units, multi_interest_k)
-    else:
-        interest_units = _unit_rows(np.mean(liked_units, axis=0, keepdims=True))
+    # Without likes (e.g. every onboarding card was rejected) the ranking falls
+    # back to preferred categories + popularity + distance, minus dislikes.
+    interest_units: Optional[np.ndarray] = None
+    if liked_idx:
+        liked_units = index.units[np.asarray(liked_idx)]
+        if multi_interest_enabled:
+            interest_units = build_interest_vectors(liked_units, multi_interest_k)
+        else:
+            interest_units = _unit_rows(np.mean(liked_units, axis=0, keepdims=True))
     disliked_idx = index.indices_of(disliked_ids)
     dislike_units = index.units[np.asarray(disliked_idx)] if disliked_idx else None
 
@@ -318,6 +325,7 @@ def recommend(
     emb_rows: List[int] = []
     relevances: List[float] = []
     distances: List[float] = []
+    in_preferred: List[float] = []
     for poi in poi_items:
         pid = str(poi.get("id") or "")
         if not pid or pid in disliked_set:
@@ -345,19 +353,25 @@ def recommend(
         emb_rows.append(emb_idx)
         relevances.append(max(0.0, min(1.0, float(relevance))) if isinstance(relevance, (int, float)) else 0.5)
         distances.append(d_km)
+        in_preferred.append(float(any(str(c).lower() in preferred for c in poi.get("category") or [])))
 
     output: Dict[str, Any] = {
         "profile": profile,
         "liked_pois": liked_ids,
         "disliked_pois": disliked_ids,
-        "semantic_interest_count": int(interest_units.shape[0]),
+        "semantic_interest_count": int(interest_units.shape[0]) if interest_units is not None else 0,
         "results": [],
     }
     if not records:
         return output
 
     cand_units = index.units[np.asarray(emb_rows)]
-    s_sem = semantic_scores(cand_units, interest_units, dislike_units, dislike_weight)
+    if interest_units is not None:
+        s_sem = semantic_scores(cand_units, interest_units, dislike_units, dislike_weight)
+    elif dislike_units is not None:
+        s_sem = _minmax(-np.max(cand_units @ dislike_units.T, axis=1))
+    else:
+        s_sem = np.full(len(records), 0.5, dtype=np.float32)
 
     # `relevance` is an inverse popularity signal (high = less popular).
     # hidden_gems_bias blends between favouring popular (0) and hidden (1) POIs.
@@ -367,7 +381,8 @@ def recommend(
     geo = np.asarray(distances, dtype=np.float32)
     s_geo = 1.0 / (1.0 + lambda_geo * geo) if has_location else np.ones_like(s_sem)
 
-    global_score = alpha * s_sem + beta * s_qual + gamma * s_geo
+    s_cat = np.asarray(in_preferred, dtype=np.float32)
+    global_score = alpha * s_sem + beta * s_qual + gamma * s_geo + delta * s_cat
     order = greedy_diverse_selection(cand_units, global_score, top_n, theta_mmr)
 
     results: List[Dict[str, Any]] = []
@@ -378,6 +393,7 @@ def recommend(
         enriched["score_semantic"] = float(s_sem[i])
         enriched["score_quality"] = float(s_qual[i])
         enriched["score_geo"] = float(s_geo[i])
+        enriched["score_category"] = float(s_cat[i])
         enriched["is_liked"] = str(records[i].get("id")) in liked_set
         # Exposed for the frontend, which reads `relevance` as "0 is best".
         enriched["relevance"] = float(1.0 - np.clip(global_score[i], 0.0, 1.0))

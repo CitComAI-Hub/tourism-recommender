@@ -131,3 +131,19 @@ def test_active_learning_refines_liked_region(config):
 def test_recommend_requires_known_likes(config, missing):
     with pytest.raises(ValueError):
         recommend(config, liked_poi_ids=missing)
+
+
+def test_recommend_falls_back_to_preferred_categories(config):
+    config["recommendation"].update({"theta_mmr": 1.0, "user_profile": {"preferred_categories": ["park"]}})
+    output = recommend(config, liked_poi_ids=[], disliked_poi_ids=[poi_id("m1")])
+    ids = [r["id"] for r in output["results"]]
+    assert output["semantic_interest_count"] == 0
+    assert poi_id("m1") not in ids
+    assert {r["category"][0] for r in output["results"][:3]} == {"park"}
+
+
+def test_preferred_categories_boost_ranking(config):
+    config["recommendation"].update({"category_weight": 2.0, "theta_mmr": 1.0, "top_n": 3})
+    config["recommendation"]["user_profile"] = {"preferred_categories": ["place_of_worship"]}
+    output = recommend(config, liked_poi_ids=[poi_id("m1")], include_liked=False)
+    assert all(r["category"][0] == "place_of_worship" for r in output["results"])

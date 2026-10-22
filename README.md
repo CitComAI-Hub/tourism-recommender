@@ -72,12 +72,22 @@ sintéticos deterministas generados por categoría (`evaluation.synthetic_users`
 desactiva el filtro de horarios. Salida: `data/processed/evaluation.json` y
 `evaluation_report.txt`.
 
-También simula el onboarding: usuarios con un gusto oculto (categorías o
-regiones del espacio de embeddings) responden a las rondas
-(`evaluation.onboarding_rounds`, por defecto 6, 4 y 4 tarjetas) con un 10% de
-ruido, y se mide la precisión@k de las recomendaciones generadas con esos
-likes/dislikes, los likes recogidos y la fracción de usuarios que terminan sin
-ningún like. Compara el active learning con rondas aleatorias.
+Además evalúa con **personas etiquetadas a mano** (`data/eval/personas.json`,
+18 perfiles turísticos). Cada persona tiene las categorías que elegiría en el
+onboarding y los POIs que querría visitar. Los juzgó un LLM (Claude) leyendo
+el nombre y la descripción de cada POI, sin usar los embeddings, así que no
+comparte los sesgos del recomendador. Dos protocolos, con precisión@k
+limitada al número de POIs relevantes restantes:
+- `direct_p@k`: 3 likes relevantes y 3 dislikes al azar, y se recomienda.
+- `onboarding_p@k`: la persona responde a las rondas de active learning
+  (`evaluation.onboarding_rounds`) con un 10% de ruido. También se reporta
+  la fracción que termina sin ningún like (`no_likes`).
+
+Compara los estilos con `popularity_in_categories` (lo más popular de las
+categorías elegidas, sin personalizar) y `random`. Las etiquetas son de un
+solo anotador y las categorías de cada persona se eligieron a la vez que sus
+POIs relevantes: tómalo como una aproximación, no como sustituto de usuarios
+reales.
 
 Ojo: los likes sintéticos se basan en categorías y el texto de los embeddings
 incluye la categoría, así que los métodos semánticos salen favorecidos. Sirve

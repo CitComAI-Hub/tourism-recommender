@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 import pytest
@@ -115,13 +116,21 @@ def test_api_get_does_not_create_user_dirs(client, workspace):
 
 
 def test_evaluation_report(config, workspace):
-    config["evaluation"] = {"k": 3, "seed": 1, "synthetic_users": 4}
+    personas = workspace / "personas.json"
+    personas.write_text(json.dumps({"personas": [{
+        "id": "museum_lover",
+        "categories": ["museum"],
+        "relevant": [{"id": poi_id(x)} for x in ("m1", "m2", "m3", "c1")],
+    }]}), encoding="utf-8")
+    config["evaluation"] = {"k": 3, "seed": 1, "synthetic_users": 4, "personas_path": str(personas)}
     report = run_evaluation(config)
     assert report["profiles"] == 4
     metrics = report["metrics"]
     assert {"style:explorer", "semantic_mean", "popularity", "random"} <= set(metrics)
     assert metrics["semantic_mean"]["hit@3"] >= metrics["random"]["hit@3"]
-    assert set(report["onboarding"]) == {"active_learning", "random"}
+    personas_report = report["personas"]
+    assert {"style:explorer", "popularity_in_categories", "random"} <= set(personas_report)
+    assert personas_report["style:explorer"]["direct_p@3"] >= personas_report["random"]["direct_p@3"]
     assert (workspace / "processed" / "evaluation_report.txt").exists()
 
 

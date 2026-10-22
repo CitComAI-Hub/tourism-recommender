@@ -1,0 +1,1094 @@
+{
+  "about": "Hand-labelled tourist personas for offline evaluation. Relevance was judged by an LLM (Claude) from each POI's name, description and category only, independently of the embeddings used by the recommender. Labels are binary: listed POIs are ones the persona would want to visit.",
+  "personas": [
+    {
+      "id": "classic_art",
+      "description": "Aficionada a la pintura y escultura clásicas; busca museos de bellas artes y templos con obra artística destacada.",
+      "categories": [
+        "museum",
+        "place_of_worship"
+      ],
+      "relevant": [
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:11026210",
+          "name": "Museu de Belles Arts de València"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:12997141042",
+          "name": "Museu del Patriarca"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:18681030",
+          "name": "Col·legi del Patriarca"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:4870255195",
+          "name": "Església del Patriarca"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:135630267",
+          "name": "Catedral de València"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:5126811958",
+          "name": "Museo Nacional de Cerámica y Artes Suntuarias González Martí"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:515082661",
+          "name": "Palau del Marqués de Dosaigües"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:11195454",
+          "name": "Casa Museu Benlluire"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:514601809",
+          "name": "Església de Sant Nicolau"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:183237709",
+          "name": "Església dels Sants Joans"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:13012356018",
+          "name": "Museu de la Ciutat de València"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:227916537",
+          "name": "Almodí"
+        }
+      ]
+    },
+    {
+      "id": "contemporary_art",
+      "description": "Interesado en arte contemporáneo, digital y urbano, y en arquitectura de autor reciente.",
+      "categories": [
+        "museum",
+        "artwork"
+      ],
+      "relevant": [
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:13198848139",
+          "name": "Institut Valencià d'Art Modern"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:1550827165",
+          "name": "Bombas Gens Centre d'Art Digital"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:15218690",
+          "name": "Museu Valencià de la Il·lustració i de la Modernitat"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:227916537",
+          "name": "Almodí"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:2048687600",
+          "name": "El Parotet"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:7272744221",
+          "name": "Fuente Pública"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:7051978512",
+          "name": "Mural Margarita Salas"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:3540456749",
+          "name": "La Dama Ibèrica"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:513681817",
+          "name": "Ciutat de les Arts i les Ciències"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:515329754",
+          "name": "Pont de l'Exposició"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:738978512",
+          "name": "Pont de l'Assut de l'Or"
+        }
+      ]
+    },
+    {
+      "id": "family_kids",
+      "description": "Familia con niños pequeños: animales, ciencia interactiva, parques amplios y playa.",
+      "categories": [
+        "aquarium",
+        "zoo",
+        "park",
+        "beach"
+      ],
+      "relevant": [
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:23433776",
+          "name": "Oceanogràfic de València"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:512393709",
+          "name": "Bioparc València"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:14693200",
+          "name": "Museu de les Ciències «Príncep Felip»"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:513681817",
+          "name": "Ciutat de les Arts i les Ciències"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:23807910",
+          "name": "Parc Central"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:9289283",
+          "name": "Jardins del Real"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:23807859",
+          "name": "El Paleontològic"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:2700282752",
+          "name": "Museo de los Soldaditos de Plomo L'Iber"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:150794807",
+          "name": "Platja de la Malva-rosa"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:150794803",
+          "name": "Platja del Cabanyal"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:623955259",
+          "name": "Parc de Capçalera"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:444067498",
+          "name": "Museo Fallero de València"
+        }
+      ]
+    },
+    {
+      "id": "nature",
+      "description": "Prefiere el aire libre: espacios naturales, jardines, parques grandes y playas tranquilas.",
+      "categories": [
+        "nature_reserve",
+        "park",
+        "garden",
+        "beach"
+      ],
+      "relevant": [
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:209610562",
+          "name": "Parc Natural de l'Albufera"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:187152775",
+          "name": "Platja del Saler"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:2169637",
+          "name": "Marjal de Rafalell i Vistabella"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:1459912044",
+          "name": "Platja de Pinedo"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:10115902",
+          "name": "Jardí Botànic de la Universitat de València"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:9289283",
+          "name": "Jardins del Real"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:623955259",
+          "name": "Parc de Capçalera"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:23548211",
+          "name": "Parc de l'Oest"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:8082828",
+          "name": "Jardí de Monforte"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:7970450",
+          "name": "Jardins de la Glorieta"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:18439297",
+          "name": "Parc de Marxalenes"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:11823737",
+          "name": "Parc de Benicalap"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:150794807",
+          "name": "Platja de la Malva-rosa"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:150794803",
+          "name": "Platja del Cabanyal"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:23807910",
+          "name": "Parc Central"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:23413023",
+          "name": "Jardins d'Aiora"
+        }
+      ]
+    },
+    {
+      "id": "medieval_history",
+      "description": "Apasionado de la Valencia medieval: murallas, gótico civil y religioso, palacios y restos de la época foral.",
+      "categories": [
+        "historic",
+        "place_of_worship"
+      ],
+      "relevant": [
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:9281502",
+          "name": "Torres dels Serrans"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:13073736",
+          "name": "Torres de Quart"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:23377876",
+          "name": "Llotja de la Seda"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:135630267",
+          "name": "Catedral de València"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:625039852",
+          "name": "el Micalet"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:218841695",
+          "name": "Banys de l'Almirall"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:11137438",
+          "name": "Palau de la Generalitat Valenciana"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:135638445",
+          "name": "Església de Santa Caterina"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:514000994",
+          "name": "Iglesia de San Juan del Hospital"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:512378878",
+          "name": "les Drassanes del Grau"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:11150998",
+          "name": "Museu de l'Almoina"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:513699154",
+          "name": "Cripta de la Carcel de San Vicente"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:807759872",
+          "name": "Torre de Sant Bartomeu"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:515350925",
+          "name": "Convent de Sant Doménec"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:1286369610",
+          "name": "Palau de Benicarló"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:11289994",
+          "name": "Reial Monestir de la Santíssima Trinitat"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:516051598",
+          "name": "Pont dels Serrans"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:515337491",
+          "name": "Pont de la Trinitat"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:556834653",
+          "name": "Jaume I"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:150244048",
+          "name": "Monestir de Sant Miquel dels Reis"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:1303164127",
+          "name": "Palau de la Batlia"
+        }
+      ]
+    },
+    {
+      "id": "archaeology",
+      "description": "Le interesan la prehistoria, la Valencia romana e islámica y los museos arqueológicos y etnológicos.",
+      "categories": [
+        "museum",
+        "historic"
+      ],
+      "relevant": [
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:11150998",
+          "name": "Museu de l'Almoina"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:4854372337",
+          "name": "Museu de Prehistòria de València"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:3865968",
+          "name": "Centre Museístic la Beneficiència"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:513699154",
+          "name": "Cripta de la Carcel de San Vicente"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:218841695",
+          "name": "Banys de l'Almirall"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:514898814",
+          "name": "Museu d'Història de València"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:4854372524",
+          "name": "L'ETNO - Museu Valencià d'Etnologia"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:23807859",
+          "name": "El Paleontològic"
+        }
+      ]
+    },
+    {
+      "id": "sacred_art",
+      "description": "Turista católica que visita templos, basílicas, conventos y arte sacro.",
+      "categories": [
+        "place_of_worship"
+      ],
+      "relevant": [
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:135630267",
+          "name": "Catedral de València"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:135630265",
+          "name": "Basílica de la Mare de Déu dels Desemparats"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:183237709",
+          "name": "Església dels Sants Joans"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:514601809",
+          "name": "Església de Sant Nicolau"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:135638445",
+          "name": "Església de Santa Caterina"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:279478350",
+          "name": "Iglesia de San Esteban"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:264453281",
+          "name": "Església de la Santíssima Creu"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:661320825",
+          "name": "Església de Sant Martí"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:7193746298",
+          "name": "Iglesia de las Escuelas Pías"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:4870255195",
+          "name": "Església del Patriarca"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:12997141042",
+          "name": "Museu del Patriarca"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:514000994",
+          "name": "Iglesia de San Juan del Hospital"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:239784943",
+          "name": "Església de Sant Agustí i Santa Caterina"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:15218699",
+          "name": "Església del Pilar"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:495038787",
+          "name": "Iglesia de Santo Tomas Apostol y San Felipe Neri"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:513977884",
+          "name": "Sant Joan de la Creu"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:513699154",
+          "name": "Cripta de la Carcel de San Vicente"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:147064106",
+          "name": "Santuari de la Mare de Déu de Montolivet"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:15218691",
+          "name": "Ermita de Santa Llúcia"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:11289994",
+          "name": "Reial Monestir de la Santíssima Trinitat"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:150244048",
+          "name": "Monestir de Sant Miquel dels Reis"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:515350925",
+          "name": "Convent de Sant Doménec"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:7893046",
+          "name": "Plaça de la Mare de Déu"
+        }
+      ]
+    },
+    {
+      "id": "modernisme",
+      "description": "Fan de la arquitectura modernista y de principios del siglo XX: mercados, estaciones, edificios singulares.",
+      "categories": [
+        "historic",
+        "marketplace",
+        "attraction"
+      ],
+      "relevant": [
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:5007139",
+          "name": "Mercat Central"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:10120283",
+          "name": "Mercat de Colón"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:10153012",
+          "name": "Estació del Nord"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:513696236",
+          "name": "Edifici de Correus i Telègrafs"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:150277194",
+          "name": "Palau de l'Exposició"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:478348143",
+          "name": "La Casa Judía"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:243447549",
+          "name": "Complex Esportiu - Cultural Abastos"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:515080603",
+          "name": "Palau de Castellfort"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:515256276",
+          "name": "Plaça de Bous de València"
+        }
+      ]
+    },
+    {
+      "id": "valencian_tradition",
+      "description": "Quiere conocer la cultura popular valenciana: fallas, huerta y alquerías, pilota, toros, tradiciones.",
+      "categories": [
+        "museum",
+        "artwork",
+        "attraction"
+      ],
+      "relevant": [
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:444067498",
+          "name": "Museo Fallero de València"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:4816444321",
+          "name": "Falla de l'Ajuntament"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:4744203332",
+          "name": "Falla del Convent de Jerusalem - Matemàtic Marçal"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:11989848751",
+          "name": "Falla Ramiro de Maeztú - Humanista Furió"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:5007139",
+          "name": "Mercat Central"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:6553720067",
+          "name": "El Palleter"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:7282632627",
+          "name": "El saque"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:4854372524",
+          "name": "L'ETNO - Museu Valencià d'Etnologia"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:135630265",
+          "name": "Basílica de la Mare de Déu dels Desemparats"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:679556173",
+          "name": "Alqueria de Falcó"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:892377652",
+          "name": "Alqueria Julià"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:1115796656",
+          "name": "Alqueria dels Moros"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:2508173010",
+          "name": "Museo Taurino"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:515256276",
+          "name": "Plaça de Bous de València"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:209610562",
+          "name": "Parc Natural de l'Albufera"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:10881746778",
+          "name": "Mare de Déu del Castell de Cullera"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:514894836",
+          "name": "Col·legi de l'Art Major de la Seda"
+        }
+      ]
+    },
+    {
+      "id": "foodie",
+      "description": "Viaja por la gastronomía: mercados, ambiente de plaza y los lugares ligados a la paella y la playa.",
+      "categories": [
+        "marketplace",
+        "attraction",
+        "beach"
+      ],
+      "relevant": [
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:5007139",
+          "name": "Mercat Central"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:10120283",
+          "name": "Mercat de Colón"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:243447549",
+          "name": "Complex Esportiu - Cultural Abastos"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:23377876",
+          "name": "Llotja de la Seda"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:183237709",
+          "name": "Església dels Sants Joans"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:7893046",
+          "name": "Plaça de la Mare de Déu"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:150794803",
+          "name": "Platja del Cabanyal"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:150794807",
+          "name": "Platja de la Malva-rosa"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:209610562",
+          "name": "Parc Natural de l'Albufera"
+        }
+      ]
+    },
+    {
+      "id": "beach_relax",
+      "description": "Busca sol y descanso: playas y entornos naturales del litoral.",
+      "categories": [
+        "beach",
+        "nature_reserve"
+      ],
+      "relevant": [
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:150794807",
+          "name": "Platja de la Malva-rosa"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:150794803",
+          "name": "Platja del Cabanyal"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:187152775",
+          "name": "Platja del Saler"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:1459912044",
+          "name": "Platja de Pinedo"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:209610562",
+          "name": "Parc Natural de l'Albufera"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:2169637",
+          "name": "Marjal de Rafalell i Vistabella"
+        }
+      ]
+    },
+    {
+      "id": "futurist_architecture",
+      "description": "Admirador de la arquitectura contemporánea y de Calatrava: grandes obras modernas e ingeniería.",
+      "categories": [
+        "attraction",
+        "museum",
+        "historic"
+      ],
+      "relevant": [
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:513681817",
+          "name": "Ciutat de les Arts i les Ciències"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:14693200",
+          "name": "Museu de les Ciències «Príncep Felip»"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:23433776",
+          "name": "Oceanogràfic de València"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:515329754",
+          "name": "Pont de l'Exposició"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:738978512",
+          "name": "Pont de l'Assut de l'Or"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:739644369",
+          "name": "Pont de les Flors Alcaldessa Rita Barberá"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:2048687600",
+          "name": "El Parotet"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:18015804",
+          "name": "Pont del Regne de València"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:23807910",
+          "name": "Parc Central"
+        }
+      ]
+    },
+    {
+      "id": "modern_history",
+      "description": "Le atrae la historia contemporánea: Guerra Civil, memoria, industria y curiosidades del siglo XX.",
+      "categories": [
+        "historic",
+        "museum",
+        "attraction"
+      ],
+      "relevant": [
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:6660593039",
+          "name": "Refugi Antiaeri de l'Ajuntament"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:6594333507",
+          "name": "Sirena Antiaèria"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:514898814",
+          "name": "Museu d'Història de València"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:5781888088",
+          "name": "Prime Time"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:6451764666",
+          "name": "Monumento a los Maulets"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:6364661361",
+          "name": "Monumento a la Paz y a la Concordia"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:15218690",
+          "name": "Museu Valencià de la Il·lustració i de la Modernitat"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:512676794",
+          "name": "Casa-Museo Blasco Ibañez"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:513696236",
+          "name": "Edifici de Correus i Telègrafs"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:10153012",
+          "name": "Estació del Nord"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:13188698274",
+          "name": "Via fèrria de l'antiga Via Xurra"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:219805226",
+          "name": "Motor de la Pipa"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:1550827165",
+          "name": "Bombas Gens Centre d'Art Digital"
+        }
+      ]
+    },
+    {
+      "id": "turia_walker",
+      "description": "Le gusta pasear por el antiguo cauce del Turia, sus puentes y jardines urbanos.",
+      "categories": [
+        "historic",
+        "park",
+        "garden"
+      ],
+      "relevant": [
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:9289283",
+          "name": "Jardins del Real"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:515337491",
+          "name": "Pont de la Trinitat"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:516051598",
+          "name": "Pont dels Serrans"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:738683717",
+          "name": "Pont del Real"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:515339216",
+          "name": "Pont de la Mar"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:738677223",
+          "name": "Pont de Fusta"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:743428514",
+          "name": "Pont de les Arts"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:743462722",
+          "name": "Pont de Sant Josep"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:739639299",
+          "name": "Pont d'Aragó"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:739644369",
+          "name": "Pont de les Flors Alcaldessa Rita Barberá"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:515329754",
+          "name": "Pont de l'Exposició"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:738978512",
+          "name": "Pont de l'Assut de l'Or"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:744208301",
+          "name": "Pont de les Glòries Valencianes"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:744712813",
+          "name": "Pont de Campanar"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:739170405",
+          "name": "Pont de l'Àngel Custodi"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:623955259",
+          "name": "Parc de Capçalera"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:7970450",
+          "name": "Jardins de la Glorieta"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:8082828",
+          "name": "Jardí de Monforte"
+        }
+      ]
+    },
+    {
+      "id": "literature_house_museums",
+      "description": "Lector interesado en escritores y artistas valencianos, casas-museo, bibliotecas e instituciones culturales.",
+      "categories": [
+        "museum"
+      ],
+      "relevant": [
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:512676794",
+          "name": "Casa-Museo Blasco Ibañez"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:11195454",
+          "name": "Casa Museu Benlluire"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:493777421",
+          "name": "Consell Valencià de Cultura"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:3865968",
+          "name": "Centre Museístic la Beneficiència"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:495233207",
+          "name": "Palau de Cevelló"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:12997141042",
+          "name": "Museu del Patriarca"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:18681030",
+          "name": "Col·legi del Patriarca"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:15218690",
+          "name": "Museu Valencià de la Il·lustració i de la Modernitat"
+        }
+      ]
+    },
+    {
+      "id": "palaces_nobility",
+      "description": "Interesada en palacios, casas señoriales y la vida de la nobleza valenciana.",
+      "categories": [
+        "historic"
+      ],
+      "relevant": [
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:515082661",
+          "name": "Palau del Marqués de Dosaigües"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:1286369610",
+          "name": "Palau de Benicarló"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:495233207",
+          "name": "Palau de Cevelló"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:515080603",
+          "name": "Palau de Castellfort"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:16754082",
+          "name": "Palau dels Català de Valeriola"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:495741186",
+          "name": "Palau dels Boïl d'Arenós"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:1303164127",
+          "name": "Palau de la Batlia"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:11270791",
+          "name": "Palau del Marqués de la Scala"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:7286126",
+          "name": "Palau del Marqués de Campo"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:515033618",
+          "name": "Casa-Palau de la Real Mestrança"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:23413021",
+          "name": "Palauet d'Aiora"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:892377652",
+          "name": "Alqueria Julià"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:11137438",
+          "name": "Palau de la Generalitat Valenciana"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:13012356018",
+          "name": "Museu de la Ciutat de València"
+        }
+      ]
+    },
+    {
+      "id": "science_tech",
+      "description": "Ingeniero curioso: museos de ciencia, historia natural, botánica e infraestructuras históricas.",
+      "categories": [
+        "museum",
+        "aquarium",
+        "attraction"
+      ],
+      "relevant": [
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:relation:14693200",
+          "name": "Museu de les Ciències «Príncep Felip»"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:23807859",
+          "name": "El Paleontològic"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:10115902",
+          "name": "Jardí Botànic de la Universitat de València"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:23433776",
+          "name": "Oceanogràfic de València"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:7051978512",
+          "name": "Mural Margarita Salas"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:219805226",
+          "name": "Motor de la Pipa"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:13188698274",
+          "name": "Via fèrria de l'antiga Via Xurra"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:10153012",
+          "name": "Estació del Nord"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:512378878",
+          "name": "les Drassanes del Grau"
+        }
+      ]
+    },
+    {
+      "id": "silk_and_trades",
+      "description": "Interesado en la historia comercial y artesana: seda, gremios, cerámica, mercados y oficios.",
+      "categories": [
+        "museum",
+        "attraction",
+        "historic"
+      ],
+      "relevant": [
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:23377876",
+          "name": "Llotja de la Seda"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:514894836",
+          "name": "Col·legi de l'Art Major de la Seda"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:5007139",
+          "name": "Mercat Central"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:227916537",
+          "name": "Almodí"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:512378878",
+          "name": "les Drassanes del Grau"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:5126811958",
+          "name": "Museo Nacional de Cerámica y Artes Suntuarias González Martí"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:node:4854372524",
+          "name": "L'ETNO - Museu Valencià d'Etnologia"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:679556173",
+          "name": "Alqueria de Falcó"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:892377652",
+          "name": "Alqueria Julià"
+        },
+        {
+          "id": "urn:ngsi-ld:PointOfInterest:way:1115796656",
+          "name": "Alqueria dels Moros"
+        }
+      ]
+    }
+  ]
+}

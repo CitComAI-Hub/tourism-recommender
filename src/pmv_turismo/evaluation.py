@@ -9,10 +9,18 @@ POI lands. Methods compared:
 - `semantic_multi`: same, but with multi-interest vectors (ablation);
 - `popularity` and `random` baselines.
 
-`simulate_onboarding` replays the onboarding rounds with simulated users whose
-taste is hidden (a set of categories or 1-3 regions of the embedding space)
-and swipes with 10% noise, then scores the recommendations built from the
-collected likes/dislikes (precision@k on unseen POIs) against random rounds.
+`evaluate_personas` uses hand-labelled personas (`evaluation.personas_path`):
+each one has the onboarding categories it would pick and the POIs it would
+visit, judged from names and descriptions, not from embeddings, so it does
+not share the recommender's blind spots. Two protocols, both scored with
+precision@k capped by the number of relevant POIs left:
+
+- `direct`: 3 random relevant likes + 3 random dislikes, then recommend;
+- `onboarding`: the persona swipes through the active-learning rounds with
+  10% noise and the recommendations use whatever it liked or disliked.
+
+Baselines: `popularity_in_categories` (most popular POIs of the chosen
+categories, no personalisation) and `random`.
 
 Profiles are the stored user profiles (if any) plus deterministic synthetic
 profiles built from catalog categories. Synthetic likes are category-driven
@@ -26,7 +34,7 @@ import json
 import random
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
 
@@ -75,46 +83,29 @@ def _ild(ids: List[str], index: EmbeddingIndex) -> float:
     return float(1.0 - (sim.sum() - n) / (n * (n - 1)))
 
 
-def _hidden_tastes(
-    pois: List[Dict[str, Any]], index: EmbeddingIndex, n_users: int, seed: int
-) -> List[Dict[str, Any]]:
-    """Users alternate between category tastes and embedding-region tastes."""
-    rng = random.Random(seed)
-    ids = [str(p["id"]) for p in pois if index.index_of(str(p.get("id") or "")) is not None]
-    category = {str(p["id"]): str((p.get("category") or ["unknown"])[0]) for p in pois}
-    units = index.units[np.asarray(index.indices_of(ids))]
-    counts: Dict[str, int] = defaultdict(int)
-    for pid in ids:
-        counts[category[pid]] += 1
-    big = sorted(c for c, n in counts.items() if n >= 4)
-    users: List[Dict[str, Any]] = []
-    for i in range(n_users):
-        if i % 2 == 0 and len(big) >= 2:
-            tastes = set(rng.sample(big, rng.choice([1, 2])))
-            truth = {pid for pid in ids if category[pid] in tastes}
-            others = [c for c in big if c not in tastes]
-            selected = sorted(tastes | set(rng.sample(others, min(len(others), rng.choice([0, 1, 2])))))
-        else:
-            anchors = rng.sample(range(len(ids)), min(len(ids), rng.choice([1, 2, 3])))
-            sim = np.max(units @ units[anchors].T, axis=1)
-            truth = {ids[j] for j in np.flatnonzero(sim >= np.quantile(sim, 0.8))}
-            # Half of them pick the categories of their taste, the rest skip the filter.
-            selected = sorted({category[pid] for pid in truth}) if rng.random() < 0.5 else []
-        users.append({"truth": truth, "categories": selected})
-    return users
+def load_personas(path: Path) -> List[Dict[str, Any]]:
+    if not path.exists():
+        return []
+    return json.loads(path.read_text(encoding="utf-8")).get("personas", [])
 
 
-def simulate_onboarding(
+def _capped_precision(ranked: List[str], relevant: set, k: int) -> Optional[float]:
+    denom = min(k, len(relevant))
+    return sum(pid in relevant for pid in ranked[:k]) / denom if denom else None
+
+
+def evaluate_personas(
     config: dict,
     pois: List[Dict[str, Any]],
     index: EmbeddingIndex,
+    personas: List[Dict[str, Any]],
     rounds: List[int],
-    n_users: int,
-    seed: int,
     k: int,
+    seed: int,
+    trials: int = 6,
     noise: float = 0.1,
-) -> Dict[str, Dict[str, float]]:
-    """Replay the onboarding rounds with simulated users and score the outcome."""
+) -> Dict[str, Dict[str, Optional[float]]]:
+    """Score every style (and two baselines) on the hand-labelled personas."""
     rec_cfg = config.get("recommendation", {})
     al_kwargs = {
         "bandwidth": float(rec_cfg.get("active_learning_bandwidth", 0.1)),
@@ -122,44 +113,71 @@ def simulate_onboarding(
         "exploration": float(rec_cfg.get("active_learning_exploration", 1.0)),
         "popularity_weight": float(rec_cfg.get("active_learning_popularity_weight", 0.15)),
     }
-    style_cfg = apply_style(config, rec_cfg.get("style"))
-    users = _hidden_tastes(pois, index, n_users, seed)
+    ids = [str(p["id"]) for p in pois if index.index_of(str(p.get("id") or "")) is not None]
+    category = {str(p["id"]): {str(c).lower() for c in p.get("category") or []} for p in pois}
+    by_popularity = sorted(ids, key=lambda pid: float(next(
+        (p.get("relevance", 0.5) for p in pois if str(p["id"]) == pid), 0.5)))
 
-    def active(cands: List[Dict[str, Any]], size: int, liked, disliked, seen, rng) -> List[Dict[str, Any]]:
-        return select_active_learning_pois(cands, index, size, liked, disliked, seen, **al_kwargs)
-
-    def random_rounds(cands: List[Dict[str, Any]], size: int, liked, disliked, seen, rng) -> List[Dict[str, Any]]:
-        unseen = [p for p in cands if str(p["id"]) not in set(seen)]
-        return rng.sample(unseen, min(size, len(unseen)))
-
-    report: Dict[str, Dict[str, float]] = {}
-    for name, selector in (("active_learning", active), ("random", random_rounds)):
-        rng = random.Random(seed)
-        precision, likes, no_likes = [], [], 0
-        for user in users:
-            truth, cats = user["truth"], set(user["categories"])
-            cands = [p for p in pois if not cats or str((p.get("category") or [""])[0]) in cats]
-            liked: List[str] = []
-            disliked: List[str] = []
-            seen: List[str] = []
-            for size in rounds:
-                for poi in selector(cands, size, liked, disliked, seen, rng):
-                    pid = str(poi["id"])
-                    seen.append(pid)
-                    (liked if (pid in truth) != (rng.random() < noise) else disliked).append(pid)
-            likes.append(len(liked))
-            if not liked:
-                no_likes += 1
-                precision.append(0.0)
-                continue
-            result = recommend(style_cfg, poi_data=pois, liked_poi_ids=liked, disliked_poi_ids=disliked,
+    def run_style(name: str, persona: Dict[str, Any], liked: List[str], disliked: List[str]) -> List[str]:
+        cfg = apply_style(config, name)
+        cfg["recommendation"]["user_profile"] = {"preferred_categories": persona.get("categories", [])}
+        try:
+            result = recommend(cfg, poi_data=pois, liked_poi_ids=liked, disliked_poi_ids=disliked,
                                include_liked=False)
-            ranked = [str(r["id"]) for r in result["results"] if str(r["id"]) not in set(seen)][:k]
-            precision.append(float(np.mean([pid in truth for pid in ranked])) if ranked else 0.0)
+        except ValueError:
+            return []
+        return [str(r["id"]) for r in result["results"]]
+
+    def in_categories(persona: Dict[str, Any], liked: List[str], disliked: List[str]) -> List[str]:
+        cats = {str(c).lower() for c in persona.get("categories", [])}
+        excluded = set(liked) | set(disliked)
+        return [pid for pid in by_popularity if pid not in excluded and category[pid] & cats]
+
+    def random_ranking(persona: Dict[str, Any], liked: List[str], disliked: List[str]) -> List[str]:
+        excluded = set(liked) | set(disliked)
+        return rng.sample([pid for pid in ids if pid not in excluded], min(k, len(ids) - len(excluded)))
+
+    methods: Dict[str, Callable[..., List[str]]] = {
+        f"style:{name}": (lambda persona, liked, disliked, name=name: run_style(name, persona, liked, disliked))
+        for name in available_styles(config)
+    }
+    methods.update({"popularity_in_categories": in_categories, "random": random_ranking})
+
+    report: Dict[str, Dict[str, Optional[float]]] = {}
+    for name, ranker in methods.items():
+        rng = random.Random(seed)
+        direct: List[float] = []
+        onboarding: List[float] = []
+        no_likes = 0
+        for persona in personas:
+            relevant = [pid for pid in (str(x["id"]) for x in persona.get("relevant", [])) if pid in category]
+            if len(relevant) < 4:
+                continue
+            others = [pid for pid in ids if pid not in set(relevant)]
+            cats = {str(c).lower() for c in persona.get("categories", [])}
+            pool = [p for p in pois if not cats or category[str(p["id"])] & cats]
+            for _ in range(trials):
+                liked = rng.sample(relevant, 3)
+                disliked = rng.sample(others, min(3, len(others)))
+                score = _capped_precision(ranker(persona, liked, disliked), set(relevant) - set(liked), k)
+                if score is not None:
+                    direct.append(score)
+
+                liked, disliked, seen = [], [], []
+                for size in rounds:
+                    for poi in select_active_learning_pois(pool, index, size, liked, disliked, seen, **al_kwargs):
+                        pid = str(poi["id"])
+                        seen.append(pid)
+                        (liked if (pid in relevant) != (rng.random() < noise) else disliked).append(pid)
+                no_likes += not liked
+                ranked = [pid for pid in ranker(persona, liked, disliked) if pid not in set(seen)]
+                score = _capped_precision(ranked, set(relevant) - set(seen), k)
+                if score is not None:
+                    onboarding.append(score)
         report[name] = {
-            f"precision@{k}": round(float(np.mean(precision)), 4),
-            "likes": round(float(np.mean(likes)), 3),
-            "no_likes": round(no_likes / max(1, len(users)), 4),
+            f"direct_p@{k}": round(float(np.mean(direct)), 4) if direct else None,
+            f"onboarding_p@{k}": round(float(np.mean(onboarding)), 4) if onboarding else None,
+            "no_likes": round(no_likes / max(1, len(personas) * trials), 4),
         }
     return report
 
@@ -170,6 +188,7 @@ def run_evaluation(config: dict) -> Dict[str, Any]:
     seed = int(eval_cfg.get("seed", 42))
     n_synthetic = int(eval_cfg.get("synthetic_users", 40))
     onboarding_rounds = [int(x) for x in eval_cfg.get("onboarding_rounds", [6, 4, 4])]
+    personas = load_personas(Path(eval_cfg.get("personas_path", "data/eval/personas.json")))
     out_dir = processed_dir(config)
 
     pois = load_poi_list(out_dir / "poi.jsonld")
@@ -276,9 +295,7 @@ def run_evaluation(config: dict) -> Dict[str, Any]:
         "evaluations": len(per_method[next(iter(per_method))]["hit"]),
         "metrics": summary,
         "onboarding_rounds": onboarding_rounds,
-        "onboarding": simulate_onboarding(
-            base, pois, index, onboarding_rounds, n_synthetic, seed, k
-        ),
+        "personas": evaluate_personas(base, pois, index, personas, onboarding_rounds, k, seed),
     }
     write_json_atomic(out_dir / "evaluation.json", report)
     (out_dir / "evaluation_report.txt").write_text(format_report(report), encoding="utf-8")
@@ -297,14 +314,15 @@ def format_report(report: Dict[str, Any]) -> str:
     for name, metrics in report["metrics"].items():
         cells = ["-" if metrics[c] is None else f"{metrics[c]:.3f}" for c in columns]
         lines.append(f"{name:<22}" + "".join(f"{c:>14}" for c in cells))
-    if report.get("onboarding"):
-        onboarding_columns = [f"precision@{k}", "likes", "no_likes"]
+    if report.get("personas"):
+        persona_columns = [f"direct_p@{k}", f"onboarding_p@{k}", "no_likes"]
         lines += [
             "",
-            f"Onboarding simulation: rounds {report['onboarding_rounds']}, 10% swipe noise",
+            f"Hand-labelled personas: onboarding rounds {report['onboarding_rounds']}, 10% swipe noise",
             "",
-            f"{'method':<22}" + "".join(f"{c:>14}" for c in onboarding_columns),
+            f"{'method':<26}" + "".join(f"{c:>18}" for c in persona_columns),
         ]
-        for name, metrics in report["onboarding"].items():
-            lines.append(f"{name:<22}" + "".join(f"{metrics[c]:>14.3f}" for c in onboarding_columns))
+        for name, metrics in report["personas"].items():
+            cells = ["-" if metrics[c] is None else f"{metrics[c]:.3f}" for c in persona_columns]
+            lines.append(f"{name:<26}" + "".join(f"{c:>18}" for c in cells))
     return "\n".join(lines) + "\n"

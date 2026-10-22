@@ -193,9 +193,8 @@ def _load_liked_pois(user_id: Optional[str], provided: Optional[List[str]]) -> L
     likes = [str(x) for x in (provided or []) if x]
     if not likes and user_id:
         likes = _id_list(user_id, None, "liked_pois.json")
-    if not likes:
-        raise HTTPException(status_code=422, detail="liked_pois required to generate recommendations")
-    return likes
+    # Empty is allowed: `recommend` falls back to the preferred categories.
+    return likes or []
 
 
 def _load_user_location(user_id: Optional[str]) -> Optional[Dict[str, float]]:
