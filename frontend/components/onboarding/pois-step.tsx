@@ -47,6 +47,8 @@ export function POIsStep({
   const [error, setError] = useState<string | null>(null);
   const [dislikedPOIs, setDislikedPOIs] = useState<string[]>([]);
   const [currentRound, setCurrentRound] = useState(0);
+  // Set when a round comes back short: the category pool has no more POIs.
+  const [isExhausted, setIsExhausted] = useState(false);
 
   const loadRound = useCallback(
     async (roundIndex: number, append: boolean, seenIds: string[]) => {
@@ -65,9 +67,10 @@ export function POIsStep({
       setError(null);
 
       try {
+        const requested = ROUND_SIZES[roundIndex] ?? 4;
         const sample = await getRandomPOIs({
           categories: selectedCategories,
-          limit: ROUND_SIZES[roundIndex] ?? 4,
+          limit: requested,
           likedPOIs,
           dislikedPOIs,
           seenPOIs: seenIds,
@@ -97,6 +100,7 @@ export function POIsStep({
           setCurrentIndex(0);
         }
         setCurrentRound(roundIndex);
+        setIsExhausted(deduped.length < requested);
       } catch (err) {
         console.error("Error fetching sample POIs", err);
         setError(t("common.error"));
@@ -122,6 +126,7 @@ export function POIsStep({
     onDislikedPOIsChange?.([]);
     onLikedPOIsChange([]);
     setCurrentRound(0);
+    setIsExhausted(false);
     void loadRound(0, false, []);
   }, [selectedCategories, onDislikedPOIsChange, onLikedPOIsChange]);
 
@@ -131,13 +136,14 @@ export function POIsStep({
     if (currentIndex < pois.length) return;
 
     const nextRound = currentRound + 1;
-    if (nextRound >= ROUND_SIZES.length) {
+    if (nextRound >= ROUND_SIZES.length || isExhausted) {
       return;
     }
     void loadRound(nextRound, true, pois.map((poi) => poi.id));
   }, [
     currentIndex,
     currentRound,
+    isExhausted,
     isLoading,
     isLoadingMore,
     loadRound,
@@ -147,7 +153,7 @@ export function POIsStep({
 
   const currentPOI = useMemo(() => pois[currentIndex], [pois, currentIndex]);
   const isLiked = currentPOI ? likedPOIs.includes(currentPOI.id) : false;
-  const hasMoreRounds = currentRound < ROUND_SIZES.length - 1;
+  const hasMoreRounds = !isExhausted && currentRound < ROUND_SIZES.length - 1;
   const isFinished = currentIndex >= pois.length && pois.length > 0 && !hasMoreRounds && !isLoadingMore;
 
   // Upcoming POIs whose images we want to preload through next/image pipeline
@@ -197,10 +203,14 @@ export function POIsStep({
     }
   };
 
-  const TOTAL_ITEMS = useMemo(() => ROUND_SIZES.reduce((a, b) => a + b, 0), []);
+  // Cards shown so far plus the rounds still to come; shrinks to the real
+  // count when the selected categories run out of POIs.
+  const totalItems = hasMoreRounds
+    ? pois.length + ROUND_SIZES.slice(currentRound + 1).reduce((a, b) => a + b, 0)
+    : pois.length;
 
-  const progress = pois.length
-    ? Math.min((currentIndex / TOTAL_ITEMS) * 100, 100)
+  const progress = totalItems
+    ? Math.min((currentIndex / totalItems) * 100, 100)
     : 0;
 
   const savedSuffix = likedPOIs.length !== 1 ? (locale === "es" ? "s" : "s") : "";
@@ -464,7 +474,7 @@ export function POIsStep({
 
       {!isLoading && pois.length > 0 && !isFinished && (
         <p className="text-center text-sm text-muted-foreground mb-6">
-          {t("onboarding.pois.progress", { current: Math.min(currentIndex + 1, TOTAL_ITEMS), total: TOTAL_ITEMS })}
+          {t("onboarding.pois.progress", { current: Math.min(currentIndex + 1, totalItems), total: totalItems })}
         </p>
       )}
 
