@@ -1,242 +1,286 @@
 # PMV IA Turismo (Valencia)
 
-## Objetivo
-Construir un PMV modular y escalable que combine **recomendación** y **planificación** de itinerarios turísticos para Valencia, con componentes intercambiables.
+## Goal
+Build a modular, scalable minimum viable product (MVP) that combines
+**recommendation** and **itinerary planning** for tourists in Valencia, with
+interchangeable components.
 
-## Alcance del PMV (MVP)
-- Ingesta básica de POI (OSM u otra fuente).
-- Recomendación content-based con perfiles sintéticos.
-- Planificación de itinerarios con restricciones de tiempo/distancia/horarios.
-- API mínima para consultar POI, recomendaciones y planificación.
-- Evaluación offline reproducible.
+## MVP scope
+- POI ingestion (OpenStreetMap enriched with Wikidata/Wikipedia/Commons).
+- Content-based recommendation for cold-start users, driven by an active
+  onboarding.
+- Itinerary planning with time, distance and opening-hours constraints.
+- A small API to query POIs, recommendations and itineraries.
+- Reproducible offline evaluation.
 
-## Módulos (capas desacopladas)
-1. **Ingesta/ETL**
-2. **Catálogo de POI**
-3. **Recomendación**
-4. **Planificación**
+## Modules (decoupled layers)
+1. **Ingestion/ETL**
+2. **POI catalog**
+3. **Recommendation** (onboarding + ranking)
+4. **Planning**
 5. **API**
-6. **Evaluación**
+6. **Evaluation**
 
-## Principios
-- Configuración por archivos (YAML/JSON) para intercambiar componentes.
-- Interfaces claras entre módulos.
-- Evolución incremental (paso a paso).
+## Principles
+- File-based configuration (YAML/JSON) to swap components.
+- Clear interfaces between modules.
+- Incremental evolution.
 
 ## Setup (Linux)
-1. Crear entorno virtual:
+1. Create a virtual environment:
 	python3 -m venv .venv
-2. Activar entorno:
+2. Activate it:
 	source .venv/bin/activate
-3. Instalar dependencias:
+3. Install dependencies:
 	pip install -r requirements.txt
-4. Instalar el paquete en modo editable:
+4. Install the package in editable mode:
 	pip install -e .
-5. Configurar secretos: copiar `.env.example` a `.env` y rellenar `ORS_API_KEY`.
-   El `.env` está ignorado por git; las claves nunca van en `configs/base.yaml`.
+5. Secrets: copy `.env.example` to `.env` and fill in `ORS_API_KEY`.
+   `.env` is git-ignored; keys never go into `configs/base.yaml`.
 
-Las dependencias de embeddings (`sentence-transformers`, `torch`) solo hacen falta
-para regenerarlos: `pip install -e ".[embeddings]"`. El repositorio incluye el
-catálogo (`data/processed/poi.jsonld`) y sus embeddings para poder arrancar sin
-reingestar.
+The embedding dependencies (`sentence-transformers`, `torch`) live in the
+`embeddings` extra: `pip install -e ".[embeddings]"`. They are needed to
+regenerate the POI embeddings and, at runtime, to use the **free-text
+interests** typed during onboarding (without them the API ignores that text
+and logs a warning). The repository ships the catalog
+(`data/processed/poi.jsonld`) and its embeddings, so the rest works without
+re-ingesting.
 
 ## Tests
 	pip install -e ".[dev]"
 	pytest
 
 ## CLI
-El CLI permite ejecutar pasos concretos del pipeline.
+The CLI runs individual pipeline steps.
 
-Ejemplos:
-- Ingesta: python -m pmv_turismo.cli --config configs/base.yaml --step ingestion
-- Catálogo: python -m pmv_turismo.cli --config configs/base.yaml --step catalog
-- Embeddings: python -m pmv_turismo.cli --config configs/base.yaml --step embeddings
-- Recomendación: python -m pmv_turismo.cli --config configs/base.yaml --step recommendation
-  (requiere `recommendation.liked_pois` en la config; si está vacío se omite)
-- Planificación: python -m pmv_turismo.cli --config configs/base.yaml --step planning
-- Evaluación: python -m pmv_turismo.cli --config configs/base.yaml --step evaluation
+- Ingestion: `python -m pmv_turismo.cli --config configs/base.yaml --step ingestion`
+- Catalog: `python -m pmv_turismo.cli --config configs/base.yaml --step catalog`
+- Embeddings: `python -m pmv_turismo.cli --config configs/base.yaml --step embeddings`
+- Recommendation: `python -m pmv_turismo.cli --config configs/base.yaml --step recommendation`
+  (needs `recommendation.liked_pois` in the config; skipped when empty)
+- Planning: `python -m pmv_turismo.cli --config configs/base.yaml --step planning`
+- Evaluation: `python -m pmv_turismo.cli --config configs/base.yaml --step evaluation`
+- Everything: `python -m pmv_turismo.cli --config configs/base.yaml --step all`
 
-- Todo: python -m pmv_turismo.cli --config configs/base.yaml --step all
+## Recommendation
+`docs/flow.md` walks through the whole flow step by step. In short:
 
-## Evaluación offline
-`--step evaluation` hace leave-one-out sobre los likes: para cada perfil con al
-menos dos likes, oculta uno, recomienda con el resto y mira en qué posición
-aparece el oculto. Compara los estilos configurados con varios baselines
-(`semantic_mean`, `semantic_multi`, `popularity` y `random`) y reporta hit@k,
-nDCG@k, diversidad intra-lista (ILD), novedad, cobertura, fuga de dislikes y
-distancia media.
+**Onboarding (active learning).** The user picks at least 2 categories and can
+optionally describe their interests in free text ("Roman ruins and
+prehistory"). Then they swipe through rounds of POI cards (6, 4 and 4 by
+default, `NEXT_PUBLIC_ONBOARDING_ROUND_SIZES`), served by `/poi/sample`:
+- Round 1: representative and well-known POIs of the chosen categories,
+  spread out with MMR.
+- Later rounds: a Bayesian estimate of P(like) per POI (Beta posterior
+  smoothed over embedding similarity), ranked optimistically (mean +
+  uncertainty, UCB): liked regions are refined, unexplored ones probed,
+  disliked ones dropped.
+- The free-text interests are embedded with the same model as the POIs and
+  add a similarity term in every round (`active_learning_interest_weight`).
+- If a round comes back short, the category pool is exhausted and no more
+  rounds are requested.
 
-Los perfiles son los guardados en `user_profiles.json` (si hay) más perfiles
-sintéticos deterministas generados por categoría (`evaluation.synthetic_users`,
-`evaluation.seed`). Para que el resultado no dependa de la hora, la evaluación
-desactiva el filtro de horarios. Salida: `data/processed/evaluation.json` y
-`evaluation_report.txt`.
+**Ranking.** Each candidate gets a weighted score (weights normalised to 1):
+semantic affinity to the user's likes (multi-interest: up to 3 clusters, minus
+similarity to dislikes) blended with the free-text interests
+(`interest_text_weight`), popularity, distance and a bonus for the categories
+chosen in onboarding (`category_weight`). MMR then diversifies the top-k.
+Three user-facing styles (`explorer`, `conservative`, `hidden_gems`) override
+the weights in `recommendation.styles`. POIs that are closed for the walk
+there plus the whole visit are filtered out.
 
-Además evalúa con **personas etiquetadas a mano** (`data/eval/personas.json`,
-18 perfiles turísticos). Cada persona tiene las categorías que elegiría en el
-onboarding y los POIs que querría visitar. Los juzgó un LLM (Claude) leyendo
-el nombre y la descripción de cada POI, sin usar los embeddings, así que no
-comparte los sesgos del recomendador. Dos protocolos, con precisión@k
-limitada al número de POIs relevantes restantes:
-- `direct_p@k`: 3 likes relevantes y 3 dislikes al azar, y se recomienda.
-- `onboarding_p@k`: la persona responde a las rondas de active learning
-  (`evaluation.onboarding_rounds`) con un 10% de ruido. También se reporta
-  `found` (POIs relevantes con los que acaba: likes del onboarding más
-  aciertos en el top-k) y la fracción que termina sin ningún like
-  (`no_likes`).
+Users who reject every onboarding card still get recommendations: the ranking
+falls back to their interests, categories, popularity and distance.
 
-Cada persona incluye también el texto libre que escribiría como intereses;
-la fila `style:<estilo por defecto>:no_interests` mide el sistema sin él.
+## Offline evaluation
+`--step evaluation` writes `data/processed/evaluation.json` and
+`evaluation_report.txt`. Opening hours are disabled so results do not depend
+on the clock. It has two parts.
 
-Compara los estilos con `popularity_in_categories` (lo más popular de las
-categorías elegidas, sin personalizar) y `random`. Las etiquetas son de un
-solo anotador y las categorías de cada persona se eligieron a la vez que sus
-POIs relevantes: tómalo como una aproximación, no como sustituto de usuarios
-reales.
+**Leave-one-out over likes.** For every profile with at least two likes, each
+like is held out in turn, the recommender runs with the rest and we check
+where the held-out POI lands. Profiles are the stored ones in
+`user_profiles.json` (if any) plus deterministic synthetic profiles built from
+categories (`evaluation.synthetic_users`, `evaluation.seed`). It compares the
+styles against `semantic_mean`, `semantic_multi`, `popularity` and `random`
+and reports hit@k, nDCG@k, intra-list diversity (ILD), novelty, coverage,
+dislike leak and mean distance. Synthetic likes are category-driven and the
+embedding text includes the category, so semantic methods are favoured: use
+it to compare variants, not as a product metric.
 
-Ojo: los likes sintéticos se basan en categorías y el texto de los embeddings
-incluye la categoría, así que los métodos semánticos salen favorecidos. Sirve
-para comparar variantes entre sí, no como métrica de producto.
+**Hand-labelled personas** (`data/eval/personas.json`, 18 tourist profiles).
+Each persona has the categories it would pick in onboarding, the free text it
+would type as interests and the POIs it would want to visit. Relevance was
+judged by an LLM (Claude) from each POI's name and description, not from the
+embeddings, so the labels do not share the recommender's blind spots. Two
+protocols, scored with precision@k capped by the number of relevant POIs
+left:
+- `direct_p@k`: 3 random relevant likes and 3 random dislikes, then recommend.
+- `onboarding_p@k`: the persona swipes through the active-learning rounds
+  (`evaluation.onboarding_rounds`) with 10% noise. It also reports `found`
+  (relevant POIs the persona ends up with: onboarding likes plus top-k hits)
+  and `no_likes` (share of personas that finish without any like).
 
-## Configuración
-La configuración principal está en [configs/base.yaml](configs/base.yaml). Ahí se define:
-- Área (por relación OSM o bbox)
-- Filtros de tags turísticos
-- Endpoints Overpass
-- Activación de módulos
-- Pesos de la recomendación y de los estilos (`recommendation.styles`)
-- Parámetros de la evaluación (`evaluation`)
+Baselines: `popularity_in_categories` (the most popular POIs of the chosen
+categories, no personalisation) and `random`; the `:no_interests` row scores
+the default style without the free text. Labels come from a single annotator
+and each persona's categories were written together with its relevant POIs,
+which favours the category signal: treat the numbers as an approximation, not
+as a substitute for real users.
 
-Variables de entorno (o `.env`): `ORS_API_KEY`, `GOOGLE_PLACES_API_KEY`,
-`PMV_CONFIG` (ruta de la config para la API) y `PMV_CORS_ORIGINS` (orígenes
-permitidos separados por comas; por defecto `*`).
+## Configuration
+The main configuration is [configs/base.yaml](configs/base.yaml). It defines:
+- Area (OSM relation or bbox)
+- Tourism tag filters
+- Overpass endpoints
+- Enabled modules
+- Recommendation weights, styles (`recommendation.styles`) and onboarding
+  parameters (`recommendation.active_learning_*`)
+- Evaluation parameters (`evaluation`)
 
-### Fuentes de ingesta
-Puedes activar o desactivar fuentes fácilmente en [configs/base.yaml](configs/base.yaml):
+Environment variables (or `.env`): `ORS_API_KEY`, `GOOGLE_PLACES_API_KEY`,
+`PMV_CONFIG` (config path for the API), `PMV_CORS_ORIGINS` (comma-separated
+allowed origins; `*` by default) and `PMV_HTTP_CONTACT` (see ingestion).
+
+### Ingestion sources
+Sources can be toggled in [configs/base.yaml](configs/base.yaml):
 - `ingestion.osm.enabled`: OSM (Overpass)
-- `ingestion.opendatasoft.enabled`: OpenDataSoft (monumentos Valencia)
+- `ingestion.opendatasoft.enabled`: OpenDataSoft (Valencia monuments)
 
-### Formato del catálogo (Smart Data Models)
-`data/processed/poi.jsonld` es una lista de entidades NGSI-LD en formato
-*keyValues* que validan contra el esquema oficial
+### Catalog format (Smart Data Models)
+`data/processed/poi.jsonld` is a list of NGSI-LD entities in *keyValues* form
+that validate against the official
 [`dataModel.PointOfInterest`](https://github.com/smart-data-models/dataModel.PointOfInterest)
-(v0.3.1); `tests/test_smart_data_models.py` lo comprueba con una copia local
-de los esquemas. Detalles:
+schema (v0.3.1); `tests/test_smart_data_models.py` checks it with a local copy
+of the schemas. Details:
 
-- `id`: `urn:ngsi-ld:PointOfInterest:<tipo OSM>:<id OSM>`.
-- `source`: URL del objeto en OpenStreetMap; `refSeeAlso`: URLs de web
-  oficial, Wikidata y Wikipedia.
+- `id`: `urn:ngsi-ld:PointOfInterest:<OSM type>:<OSM id>`.
+- `source`: URL of the OpenStreetMap object; `refSeeAlso`: official website,
+  Wikidata and Wikipedia URLs.
 - `address`: `streetAddress`, `postalCode`, `addressLocality`, `addressCountry`.
-- `openingHours`: texto en formato OSM/schema.org (`"Tu-Su 10:00-19:00; Mo off"`).
-- `relevance`: 0 = más popular de su categoría, valores altos = menos conocido
-  (semántica del estándar: 0 es lo más relevante).
+- `openingHours`: OSM/schema.org text (`"Tu-Su 10:00-19:00; Mo off"`).
+- `relevance`: 0 = most popular in its category, high values = lesser known
+  (standard semantics: 0 is the most relevant).
 
-Extensiones propias (no forman parte del estándar): `subcategory` (valor OSM),
-`duration` (minutos de visita), `durationEstimated` y `openingHoursEstimated`
-(el dato es una estimación, no viene de la fuente).
+Project extensions (not part of the standard): `subcategory` (OSM value),
+`duration` (visit minutes), `durationEstimated` and `openingHoursEstimated`
+(the value is an estimate, not from the source).
 
-### Pipeline de ingesta y calidad de datos
-1. **OSM (Overpass):** elementos con nombre dentro del municipio. La descripción
-   se toma de `description:es` > `description` > `description:ca` > `description:en`;
-   la dirección incluye número y código postal; las imágenes de OSM solo se
-   aceptan si vienen de Wikimedia Commons.
-2. **Deduplicación** por nombre y distancia. De cada grupo se queda como
-   principal el mejor registro (con Wikidata, way/relation antes que node,
-   paneles informativos al final); los demás solo rellenan huecos.
-3. Se descartan los `tourism=information` que no son oficinas de turismo
-   (paneles, mapas, postes): no son destinos.
-4. **Enriquecimiento** (en paralelo, `ingestion.workers`): artículo de
-   Wikipedia (preferencia por español), descripción si la de OSM es demasiado
-   corta (<80 caracteres; el extracto se corta en una frase completa), foto de
-   Wikidata (P18) o de Commons solo si el título del fichero nombra el lugar,
-   y popularidad = visitas de los últimos `pageview_days` días sumadas en las
-   ediciones de Wikipedia de `pageview_languages`. Las peticiones van en lotes
-   (50 entidades de Wikidata, 20 extractos o 50 artículos por llamada), con
-   límite de ritmo por servidor y reintentos ante 429/5xx.
-5. **Categorías:** `category` es una de las categorías canónicas que usa el
-   frontend (`museum`, `historic`, `beach`...) y `subcategory` conserva el
-   valor de OSM (`bridge`, `castle`, `gallery`...).
-6. **Relevancia:** percentil inverso de popularidad dentro de la categoría
-   (contra todo el catálogo si la categoría tiene menos de 5 POIs).
-7. **Duración y horarios:** no hay dato de origen sobre la duración, así que
-   se estima de forma determinista por subcategoría (`durationEstimated: true`).
-   Si no hay horario en OSM se genera uno conservador (`synthetic: true`);
-   los lugares al aire libre (puentes, obras de arte, parques...) son 24/7.
+### Ingestion pipeline and data quality
+1. **OSM (Overpass):** named elements inside the municipality. The
+   description comes from `description:es` > `description` > `description:ca`
+   > `description:en`; the address includes house number and postcode; OSM
+   images are only accepted from Wikimedia Commons.
+2. **Deduplication** by name and distance. The best record of each group
+   becomes the primary one (with Wikidata, way/relation before node,
+   information boards last); the others only fill gaps.
+3. `tourism=information` elements that are not tourist offices (boards, maps,
+   guideposts) are dropped: they are not destinations.
+4. **Enrichment** (parallel, `ingestion.workers`): Wikipedia article (Spanish
+   preferred), description when OSM's is too short (<80 characters; the
+   extract is cut at a full sentence), photo from Wikidata (P18) or from
+   Commons only when the file title names the place, and popularity = page
+   views over the last `pageview_days` days summed over the Wikipedia
+   editions in `pageview_languages`. Requests are batched (50 Wikidata
+   entities, 20 extracts or 50 articles per call), rate-limited per host and
+   retried on 429/5xx.
+5. **Categories:** `category` is one of the canonical categories used by the
+   frontend (`museum`, `historic`, `beach`...) and `subcategory` keeps the OSM
+   value (`bridge`, `castle`, `gallery`...).
+6. **Relevance:** inverse popularity percentile within the category (against
+   the whole catalog when the category has fewer than 5 POIs).
+7. **Duration and opening hours:** the sources have no visit duration, so it
+   is estimated deterministically per subcategory (`durationEstimated: true`).
+   Without OSM opening hours a conservative schedule is generated
+   (`synthetic: true`); outdoor places (bridges, artworks, parks...) are 24/7.
 
-Cada ejecución escribe `data/processed/ingestion_report.json` con los
-descartes por motivo y un resumen de calidad (cobertura de imágenes,
-direcciones, horarios reales, longitud de las descripciones). Para cumplir la
-política de Wikimedia, define `PMV_HTTP_CONTACT` (URL o e-mail de contacto),
-que se añade al User-Agent.
+Each run writes `data/processed/ingestion_report.json` with drops per reason
+and a quality summary (image, address and real-opening-hours coverage,
+description length). To comply with the Wikimedia policy, set
+`PMV_HTTP_CONTACT` (contact URL or e-mail), which is added to the User-Agent.
 
-Si alguna petición falla tras los reintentos, la ingesta termina con error y
-**no sobrescribe** `poi.jsonld` (salvo `ingestion.allow_partial: true`): un
-límite de peticiones de Wikimedia no puede vaciar el catálogo en silencio.
+If any request still fails after retries, ingestion stops with an error and
+**does not overwrite** `poi.jsonld` (unless `ingestion.allow_partial: true`):
+a Wikimedia rate limit cannot silently empty the catalog.
 
-Tras reingestar hay que regenerar los embeddings (`--step embeddings`).
+Regenerate the embeddings after re-ingesting (`--step embeddings`).
 
-### Planificación con ruteo
-La planificación usa OpenRouteService para distancias/tiempos reales. Configura en [configs/base.yaml](configs/base.yaml):
-- `ORS_API_KEY` en `.env` (no en el YAML)
-- `parameters.planning.routing.profile` (por defecto `foot-walking`)
-- Alternativa sin clave: `provider: osrm` (servidor público de OSRM)
+### Planning with routing
+Planning uses OpenRouteService for real distances and times. Configure in
+[configs/base.yaml](configs/base.yaml):
+- `ORS_API_KEY` in `.env` (not in the YAML)
+- `parameters.planning.routing.profile` (`foot-walking` by default)
+- Key-less alternative: `provider: osrm` (public OSRM server)
 
-Ejecuta:
+Run:
 - `python -m pmv_turismo.cli --config configs/base.yaml --step planning`
 
-El planner actual:
-- Usa POI con coordenadas válidas.
-- Toma los parámetros configurados: `max_stops_per_day`, `max_total_minutes`, `visit_time_minutes`, `max_candidates` y `start_location`.
-- Duración de cada parada: el `visit_time_minutes` de la petición si el usuario lo fija; si no, la `duration` del POI y, en su defecto, el `visit_time_minutes` de la config.
-- Calcula la matriz de rutas y aplica un greedy que tiene en cuenta la puntuación: la siguiente parada maximiza `score / (1 + minutos_trayecto / travel_penalty_minutes)`. Con puntuaciones iguales equivale a ir al más cercano.
-- Descarta paradas que no caben en el presupuesto de tiempo o que están cerradas a la hora de llegada (zona horaria Europe/Madrid; `respect_opening_hours`).
-- La API completa los candidatos ligeros que envía el frontend (id + ubicación) con duración, horarios y puntuación del catálogo y de las recomendaciones del usuario.
+The planner:
+- Uses POIs with valid coordinates.
+- Takes `max_stops_per_day`, `max_total_minutes`, `visit_time_minutes`,
+  `max_candidates` and `start_location` from the request or the config. In
+  the app they come from the pace chosen in onboarding; the planner screen
+  has no settings of its own.
+- Visit duration per stop: the request's `visit_time_minutes` if the user set
+  one; otherwise the POI's `duration`, falling back to the config's
+  `visit_time_minutes`.
+- Computes the routing matrix and runs a score-aware greedy: the next stop
+  maximises `score / (1 + travel_minutes / travel_penalty_minutes)`. With
+  equal scores it is nearest-neighbour.
+- Skips stops that do not fit the time budget or are closed on arrival
+  (Europe/Madrid time zone; `respect_opening_hours`).
+- The API completes the lightweight candidates sent by the frontend (id +
+  location) with duration, opening hours and score from the catalog and the
+  user's recommendations.
 
 ## API
-Para levantar la API:
+Start it with:
 - `uvicorn pmv_turismo.api:app --reload`
+
+On startup the API loads the embedding model in the background (about 7 s on
+CPU and ~1.5 GB of RAM, torch included) so the first onboarding with free-text interests does
+not wait for it; afterwards each text costs ~70 ms and is cached.
 
 Endpoints:
 - `/health`
 - `/poi`
-- `/poi/sample` (rondas del onboarding con active learning)
+- `/poi/sample` (onboarding rounds; params `categories`, `limit`,
+  `liked_pois`, `disliked_pois`, `seen_pois`, `interests`)
+- `/embedding/{poi_id}`
 - `/user/onboarding` (POST)
+- `/user/preferences` (GET/POST)
 - `/recommendations` (GET/POST)
 - `/itinerary` (GET/POST)
 - `/run/ingestion` (POST)
 - `/run/recommendations` (POST)
-- `/run/planning` (POST)
-- `/user/preferences` (GET/POST)
 
-Documentación:
+Documentation:
 - Swagger UI: `http://127.0.0.1:8000/docs`
 - OpenAPI JSON: `http://127.0.0.1:8000/openapi.json`
 
-Ejemplo de perfil (POST /run/recommendations):
-{
-	"profile": {
-		"name": "turista",
-		"preferred_categories": ["museum", "park", "historic"]
-	}
-}
+Profile fields: `name`, `preferred_categories`, `recommendation_style`
+(`explorer`, `conservative` or `hidden_gems`) and `interests` (free text, up
+to 300 characters).
 
-Ejemplo (POST /recommendations):
+Example (POST /recommendations):
 {
 	"user_id": "u123"
 }
 
-Ejemplo inline (POST /recommendations):
+Inline example (POST /recommendations):
 {
 	"profile": {
-		"name": "turista",
-		"preferred_categories": ["museum", "park", "historic"]
+		"name": "tourist",
+		"preferred_categories": ["museum", "park", "historic"],
+		"interests": "Roman ruins and prehistory"
 	},
+	"liked_pois": ["urn:ngsi-ld:PointOfInterest:way:4790961"],
 	"top_n": 30,
 	"category": "museum,park",
 	"limit": 10
 }
 
-Ejemplo (POST /itinerary):
+Example (POST /itinerary):
 {
 	"user_id": "u123",
 	"max_stops_per_day": 6,
@@ -246,7 +290,7 @@ Ejemplo (POST /itinerary):
 	"start_location": {"lat": 39.47, "lon": -0.38}
 }
 
-Ejemplo inline (POST /itinerary) con candidatos explícitos:
+Inline example (POST /itinerary) with explicit candidates:
 {
 	"candidates": [
 		{"id": "poi1", "location": {"coordinates": [-0.38, 39.47]}, "category": ["museum"]},
@@ -256,37 +300,49 @@ Ejemplo inline (POST /itinerary) con candidatos explícitos:
 }
 
 ## Frontend (Next.js)
-- Requisitos: Node 18+ y pnpm (usa `corepack enable` o instala pnpm).
-- Variables: `NEXT_PUBLIC_API_URL` (por defecto `http://127.0.0.1:8000`).
-- Instalación y desarrollo:
+- Requirements: Node 18+ and pnpm (`corepack enable` or install pnpm).
+- Variables (`frontend/.env`, see `.env.example`):
+  - `NEXT_PUBLIC_API_URL` (`http://127.0.0.1:8000` by default)
+  - `NEXT_PUBLIC_ONBOARDING_ROUND_SIZES` (cards per onboarding round, `6,4,4`)
+  - `NEXT_PUBLIC_CARTO_API_KEY` (optional; CARTO Voyager map tiles, plain OSM
+    tiles without it)
+- Install and run:
   1) `cd frontend`
   2) `pnpm install`
   3) `pnpm dev`
-  4) Abrir `http://localhost:3000`
-- Build/producción: `pnpm build` y `pnpm start` en `frontend`.
+  4) Open `http://localhost:3000`
+- Build/production: `pnpm build` and `pnpm start` in `frontend`.
+- Remote images must come from a host listed in `images.remotePatterns` in
+  `frontend/next.config.mjs` (Wikimedia hosts are already there).
 
-### Flujo multiusuario (frontend)
-Los `user_id` solo pueden contener letras, dígitos, `_` y `-` (máx. 64). Los datos
-de usuario se guardan en `data/processed/users/` y no se versionan.
+### Multi-user flow
+`user_id` may only contain letters, digits, `_` and `-` (max. 64). User data
+is stored in `data/processed/users/` and is not versioned.
 
-1) Guardar perfil del usuario (opcional si se envía inline en cada llamada):
-	- POST `/user/preferences` con `user_id` y `profile`.
-2) Obtener recomendaciones personalizadas:
-	- POST `/recommendations` con `user_id` (lee su perfil guardado) o con `profile` inline.
-	- Filtros opcionales: `limit` y `category` (coma) para acotar la respuesta.
-	- El resultado se guarda en `data/processed/users/{user_id}/recommendations.jsonld` si se envía `user_id`.
-3) Generar itinerario:
-	- POST `/itinerary` con `user_id` (usa sus recomendaciones guardadas) o con `candidates` inline.
-	- Parámetros opcionales: `max_stops_per_day`, `max_total_minutes`, `visit_time_minutes`, `max_candidates`, `start_location`, `start_at` (ISO 8601).
-	- El resultado se guarda en `data/processed/users/{user_id}/itinerary.jsonld` si se envía `user_id`.
-4) Consultar resultados:
-	- GET `/recommendations?user_id=...` y GET `/itinerary?user_id=...`.
+1) Onboarding: POST `/user/onboarding` stores the profile, likes, dislikes,
+   start location and planner preferences.
+2) Personalised recommendations:
+	- POST `/recommendations` with `user_id` (reads the stored profile) or an
+	  inline `profile`.
+	- Optional filters: `limit` and `category` (comma-separated).
+	- With `user_id` the result is saved to
+	  `data/processed/users/{user_id}/recommendations.jsonld`.
+3) Itinerary:
+	- POST `/itinerary` with `user_id` (uses the stored recommendations) or
+	  inline `candidates`.
+	- Optional: `max_stops_per_day`, `max_total_minutes`, `visit_time_minutes`,
+	  `max_candidates`, `start_location`, `start_at` (ISO 8601).
+	- With `user_id` the result is saved to
+	  `data/processed/users/{user_id}/itinerary.jsonld`.
+4) Read results back:
+	- GET `/recommendations?user_id=...` and GET `/itinerary?user_id=...`.
 
-Ejemplo de guardar preferencias (POST /user/preferences):
+Example of saving preferences (POST /user/preferences):
 {
 	"user_id": "u123",
 	"profile": {
-		"name": "turista",
-		"preferred_categories": ["museum", "park", "historic"]
+		"name": "tourist",
+		"preferred_categories": ["museum", "park", "historic"],
+		"interests": "sacred art and baroque churches"
 	}
 }
