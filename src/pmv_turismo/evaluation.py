@@ -18,8 +18,13 @@ precision@k capped by the number of relevant POIs left:
 - `direct`: 3 random relevant likes + 3 random dislikes, then recommend;
 - `onboarding`: the persona swipes through the active-learning rounds with
   10% noise and the recommendations use whatever it liked or disliked.
+  `found` counts the relevant POIs the persona ends up with: the ones it
+  liked during onboarding plus the hits in the top-k of unseen POIs (the
+  precision alone would penalise rounds that already show relevant POIs).
 
-Baselines: `popularity_in_categories` (most popular POIs of the chosen
+Personas also carry the free text they would type as interests; the default
+style is additionally scored without it (`:no_interests`) to measure its
+contribution. Baselines: `popularity_in_categories` (most popular POIs of the chosen
 categories, no personalisation) and `random`.
 
 Profiles are the stored user profiles (if any) plus deterministic synthetic
@@ -39,7 +44,7 @@ from typing import Any, Callable, Dict, List, Optional
 import numpy as np
 
 from pmv_turismo.common import haversine_km, load_poi_list, poi_coordinates, processed_dir, write_json_atomic
-from pmv_turismo.embeddings import EmbeddingIndex, embeddings_path, load_embedding_index
+from pmv_turismo.embeddings import EmbeddingIndex, embeddings_path, encode_query, load_embedding_index
 from pmv_turismo.recommendation import apply_style, available_styles, recommend, select_active_learning_pois
 
 
@@ -112,15 +117,21 @@ def evaluate_personas(
         "prior_strength": float(rec_cfg.get("active_learning_prior_strength", 2.0)),
         "exploration": float(rec_cfg.get("active_learning_exploration", 1.0)),
         "popularity_weight": float(rec_cfg.get("active_learning_popularity_weight", 0.15)),
+        "interest_weight": float(rec_cfg.get("active_learning_interest_weight", 0.3)),
     }
     ids = [str(p["id"]) for p in pois if index.index_of(str(p.get("id") or "")) is not None]
     category = {str(p["id"]): {str(c).lower() for c in p.get("category") or []} for p in pois}
     by_popularity = sorted(ids, key=lambda pid: float(next(
         (p.get("relevance", 0.5) for p in pois if str(p["id"]) == pid), 0.5)))
 
-    def run_style(name: str, persona: Dict[str, Any], liked: List[str], disliked: List[str]) -> List[str]:
+    def run_style(
+        name: str, persona: Dict[str, Any], liked: List[str], disliked: List[str], interests: bool = True
+    ) -> List[str]:
         cfg = apply_style(config, name)
-        cfg["recommendation"]["user_profile"] = {"preferred_categories": persona.get("categories", [])}
+        cfg["recommendation"]["user_profile"] = {
+            "preferred_categories": persona.get("categories", []),
+            "interests": persona.get("interests", "") if interests else "",
+        }
         try:
             result = recommend(cfg, poi_data=pois, liked_poi_ids=liked, disliked_poi_ids=disliked,
                                include_liked=False)
@@ -141,6 +152,10 @@ def evaluate_personas(
         f"style:{name}": (lambda persona, liked, disliked, name=name: run_style(name, persona, liked, disliked))
         for name in available_styles(config)
     }
+    default_style = str(rec_cfg.get("style") or "explorer")
+    methods[f"style:{default_style}:no_interests"] = (
+        lambda persona, liked, disliked: run_style(default_style, persona, liked, disliked, interests=False)
+    )
     methods.update({"popularity_in_categories": in_categories, "random": random_ranking})
 
     report: Dict[str, Dict[str, Optional[float]]] = {}
@@ -148,6 +163,7 @@ def evaluate_personas(
         rng = random.Random(seed)
         direct: List[float] = []
         onboarding: List[float] = []
+        found: List[float] = []
         no_likes = 0
         for persona in personas:
             relevant = [pid for pid in (str(x["id"]) for x in persona.get("relevant", [])) if pid in category]
@@ -156,6 +172,9 @@ def evaluate_personas(
             others = [pid for pid in ids if pid not in set(relevant)]
             cats = {str(c).lower() for c in persona.get("categories", [])}
             pool = [p for p in pois if not cats or category[str(p["id"])] & cats]
+            text = str(persona.get("interests") or "").strip()
+            uses_text = bool(text) and not name.endswith(":no_interests")
+            interest_unit = encode_query(config, text) if uses_text else None
             for _ in range(trials):
                 liked = rng.sample(relevant, 3)
                 disliked = rng.sample(others, min(3, len(others)))
@@ -165,18 +184,22 @@ def evaluate_personas(
 
                 liked, disliked, seen = [], [], []
                 for size in rounds:
-                    for poi in select_active_learning_pois(pool, index, size, liked, disliked, seen, **al_kwargs):
+                    for poi in select_active_learning_pois(
+                        pool, index, size, liked, disliked, seen, interest_unit=interest_unit, **al_kwargs
+                    ):
                         pid = str(poi["id"])
                         seen.append(pid)
                         (liked if (pid in relevant) != (rng.random() < noise) else disliked).append(pid)
                 no_likes += not liked
                 ranked = [pid for pid in ranker(persona, liked, disliked) if pid not in set(seen)]
+                found.append(len(set(liked) & set(relevant)) + sum(pid in relevant for pid in ranked[:k]))
                 score = _capped_precision(ranked, set(relevant) - set(seen), k)
                 if score is not None:
                     onboarding.append(score)
         report[name] = {
             f"direct_p@{k}": round(float(np.mean(direct)), 4) if direct else None,
             f"onboarding_p@{k}": round(float(np.mean(onboarding)), 4) if onboarding else None,
+            "found": round(float(np.mean(found)), 3) if found else None,
             "no_likes": round(no_likes / max(1, len(personas) * trials), 4),
         }
     return report
@@ -315,7 +338,7 @@ def format_report(report: Dict[str, Any]) -> str:
         cells = ["-" if metrics[c] is None else f"{metrics[c]:.3f}" for c in columns]
         lines.append(f"{name:<22}" + "".join(f"{c:>14}" for c in cells))
     if report.get("personas"):
-        persona_columns = [f"direct_p@{k}", f"onboarding_p@{k}", "no_likes"]
+        persona_columns = [f"direct_p@{k}", f"onboarding_p@{k}", "found", "no_likes"]
         lines += [
             "",
             f"Hand-labelled personas: onboarding rounds {report['onboarding_rounds']}, 10% swipe noise",

@@ -27,6 +27,7 @@ export interface UserProfile {
   name: string;
   preferred_categories: string[];
   recommendation_style?: "explorer" | "conservative" | "hidden_gems";
+  interests?: string;
 }
 
 export interface UserPreferences {
@@ -128,6 +129,7 @@ export async function getRandomPOIs(params: {
   likedPOIs?: string[];
   dislikedPOIs?: string[];
   seenPOIs?: string[];
+  interests?: string;
 }): Promise<POI[]> {
   const query = new URLSearchParams();
   if (params.categories?.length) {
@@ -144,6 +146,9 @@ export async function getRandomPOIs(params: {
   }
   if (params.seenPOIs?.length) {
     query.set("seen_pois", params.seenPOIs.join(","));
+  }
+  if (params.interests?.trim()) {
+    query.set("interests", params.interests.trim());
   }
   const qs = query.toString();
   const response = await fetch(`${API_BASE_URL}/poi/sample${qs ? `?${qs}` : ""}`);

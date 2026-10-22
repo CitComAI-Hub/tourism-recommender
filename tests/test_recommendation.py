@@ -147,3 +147,26 @@ def test_preferred_categories_boost_ranking(config):
     config["recommendation"]["user_profile"] = {"preferred_categories": ["place_of_worship"]}
     output = recommend(config, liked_poi_ids=[poi_id("m1")], include_liked=False)
     assert all(r["category"][0] == "place_of_worship" for r in output["results"])
+
+
+@pytest.fixture
+def churches_query(monkeypatch):
+    """Free-text interest that points to the churches group, without loading a model."""
+    vec = np.asarray([0.0, 0.0, 1.0, 0.0], dtype=np.float32)
+    monkeypatch.setattr("pmv_turismo.recommendation.encode_query", lambda config, text: vec)
+    return vec
+
+
+def test_interests_text_steers_ranking(config, churches_query):
+    config["recommendation"].update({"interest_text_weight": 1.0, "theta_mmr": 1.0, "top_n": 3})
+    config["recommendation"]["user_profile"] = {"interests": "iglesias"}
+    output = recommend(config, liked_poi_ids=[])
+    assert {r["category"][0] for r in output["results"]} == {"place_of_worship"}
+
+
+def test_active_learning_cold_start_follows_interests(config, churches_query):
+    pois = load_poi_list(Path(config["data"]["processed_dir"]) / "poi.jsonld")
+    index = load_embedding_index(embeddings_path(config))
+
+    picks = select_active_learning_pois(pois, index, k=1, interest_unit=churches_query, interest_weight=1.0)
+    assert picks[0]["category"][0] == "place_of_worship"

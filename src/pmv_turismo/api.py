@@ -4,9 +4,10 @@ import json
 import os
 import re
 import threading
+from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, AsyncIterator, Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,7 +15,7 @@ from pydantic import BaseModel, Field
 
 from pmv_turismo.common import load_poi_list, poi_coordinates, processed_dir, write_json_atomic
 from pmv_turismo.config import Config
-from pmv_turismo.embeddings import embeddings_path, load_embedding_index
+from pmv_turismo.embeddings import embeddings_path, encode_query, load_embedding_index
 from pmv_turismo.ingestion import run_ingestion
 from pmv_turismo.planning import plan_itinerary
 from pmv_turismo.recommendation import apply_style, recommend, select_active_learning_pois
@@ -22,7 +23,21 @@ from pmv_turismo.recommendation import apply_style, recommend, select_active_lea
 CONFIG_PATH = Path(os.environ.get("PMV_CONFIG", "configs/base.yaml"))
 USER_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 
-app = FastAPI(title="PMV IA Turismo API")
+@asynccontextmanager
+async def _lifespan(_: FastAPI) -> AsyncIterator[None]:
+    # Loading the embedding model takes seconds; do it in the background so
+    # the first onboarding with free-text interests does not pay for it.
+    def warm_up() -> None:
+        try:
+            encode_query(_config(), "warm up")
+        except Exception as exc:  # the model is optional until text arrives
+            print(f"Query model warm-up failed: {exc}")
+
+    threading.Thread(target=warm_up, daemon=True).start()
+    yield
+
+
+app = FastAPI(title="PMV IA Turismo API", lifespan=_lifespan)
 
 # Comma-separated list of allowed origins; "*" is fine for local development
 # because the frontend never sends credentials.
@@ -42,6 +57,7 @@ class UserProfile(BaseModel):
     name: str = Field(default="tourist")
     preferred_categories: list[str] = Field(default_factory=list)
     recommendation_style: str = Field(default="explorer")
+    interests: str = Field(default="", max_length=300)
 
 
 class UserPreferences(BaseModel):
@@ -165,6 +181,7 @@ def _normalize_profile(data: Dict[str, Any]) -> Dict[str, Any]:
         "name": data.get("name", "tourist"),
         "preferred_categories": data.get("preferred_categories", []),
         "recommendation_style": data.get("recommendation_style", "explorer"),
+        "interests": data.get("interests", ""),
     }
 
 
@@ -305,6 +322,7 @@ def get_poi_sample(
     liked_pois: str | None = Query(default=None, description="Comma-separated liked POI ids"),
     disliked_pois: str | None = Query(default=None, description="Comma-separated disliked POI ids"),
     seen_pois: str | None = Query(default=None, description="Comma-separated already shown POI ids"),
+    interests: str | None = Query(default=None, max_length=300, description="Free-text interests"),
 ) -> Any:
     def parse_csv_ids(raw: str | None) -> List[str]:
         return [x.strip() for x in raw.split(",") if x.strip()] if raw else []
@@ -333,6 +351,8 @@ def get_poi_sample(
         prior_strength=float(rec_cfg.get("active_learning_prior_strength", 2.0)),
         exploration=float(rec_cfg.get("active_learning_exploration", 1.0)),
         popularity_weight=float(rec_cfg.get("active_learning_popularity_weight", 0.15)),
+        interest_unit=encode_query(config, interests) if interests and interests.strip() else None,
+        interest_weight=float(rec_cfg.get("active_learning_interest_weight", 0.3)),
     )
 
 

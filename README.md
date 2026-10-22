@@ -81,7 +81,12 @@ limitada al número de POIs relevantes restantes:
 - `direct_p@k`: 3 likes relevantes y 3 dislikes al azar, y se recomienda.
 - `onboarding_p@k`: la persona responde a las rondas de active learning
   (`evaluation.onboarding_rounds`) con un 10% de ruido. También se reporta
-  la fracción que termina sin ningún like (`no_likes`).
+  `found` (POIs relevantes con los que acaba: likes del onboarding más
+  aciertos en el top-k) y la fracción que termina sin ningún like
+  (`no_likes`).
+
+Cada persona incluye también el texto libre que escribiría como intereses;
+la fila `style:<estilo por defecto>:no_interests` mide el sistema sin él.
 
 Compara los estilos con `popularity_in_categories` (lo más popular de las
 categorías elegidas, sin personalizar) y `random`. Las etiquetas son de un

@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Check, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
@@ -10,6 +11,8 @@ import { POI_CATEGORY_META, sanitizePoiCategoryIds } from "@/lib/poi-categories"
 interface CategoriesStepProps {
   selectedCategories: string[];
   onCategoriesChange: (categories: string[]) => void;
+  interests: string;
+  onInterestsChange: (interests: string) => void;
   onNext: () => void;
   onBack: () => void;
   isSubmitting: boolean;
@@ -18,6 +21,8 @@ interface CategoriesStepProps {
 export function CategoriesStep({
   selectedCategories,
   onCategoriesChange,
+  interests,
+  onInterestsChange,
   onNext,
   onBack,
   isSubmitting,
@@ -99,6 +104,22 @@ export function CategoriesStep({
             </motion.button>
           );
         })}
+      </div>
+
+      {/* Free-text interests: embedded by the backend to steer rounds and ranking */}
+      <div className="mb-6">
+        <label htmlFor="interests" className="block text-sm font-medium text-foreground mb-2">
+          {t("onboarding.categories.interests_label")}
+        </label>
+        <Textarea
+          id="interests"
+          value={interests}
+          onChange={(e) => onInterestsChange(e.target.value)}
+          placeholder={t("onboarding.categories.interests_placeholder")}
+          maxLength={300}
+          rows={2}
+          className="resize-none"
+        />
       </div>
 
       {/* Selection Count */}

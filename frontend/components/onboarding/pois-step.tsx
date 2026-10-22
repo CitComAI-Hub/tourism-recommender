@@ -13,6 +13,7 @@ import { useI18n } from "@/lib/i18n";
 
 interface POIsStepProps {
   selectedCategories: string[];
+  interests: string;
   likedPOIs: string[];
   onLikedPOIsChange: (pois: string[]) => void;
   onDislikedPOIsChange?: (pois: string[]) => void;
@@ -31,6 +32,7 @@ const ROUND_SIZES: readonly number[] = (() => {
 
 export function POIsStep({
   selectedCategories,
+  interests,
   likedPOIs,
   onLikedPOIsChange,
   onDislikedPOIsChange,
@@ -74,6 +76,7 @@ export function POIsStep({
           likedPOIs,
           dislikedPOIs,
           seenPOIs: seenIds,
+          interests,
         });
 
         const deduped = sample.filter(
@@ -116,7 +119,7 @@ export function POIsStep({
         setDirection(null);
       }
     },
-    [selectedCategories, likedPOIs, dislikedPOIs, t]
+    [selectedCategories, interests, likedPOIs, dislikedPOIs, t]
   );
 
   // The rounds restart from scratch, so earlier answers must not steer them
@@ -128,7 +131,7 @@ export function POIsStep({
     setCurrentRound(0);
     setIsExhausted(false);
     void loadRound(0, false, []);
-  }, [selectedCategories, onDislikedPOIsChange, onLikedPOIsChange]);
+  }, [selectedCategories, interests, onDislikedPOIsChange, onLikedPOIsChange]);
 
   useEffect(() => {
     if (isLoading || isLoadingMore) return;

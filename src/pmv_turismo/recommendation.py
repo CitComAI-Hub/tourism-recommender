@@ -17,7 +17,7 @@ from pmv_turismo.common import (
     processed_dir,
     write_json_atomic,
 )
-from pmv_turismo.embeddings import EmbeddingIndex, embeddings_path, load_embedding_index
+from pmv_turismo.embeddings import EmbeddingIndex, embeddings_path, encode_query, load_embedding_index
 
 MOBILITY_SPEED_KMH = {"walking": 4.5, "transit": 20.0, "car": 35.0}
 DEFAULT_STYLE = "explorer"
@@ -200,6 +200,8 @@ def select_active_learning_pois(
     prior_strength: float = 2.0,
     exploration: float = 1.0,
     popularity_weight: float = 0.15,
+    interest_unit: Optional[np.ndarray] = None,
+    interest_weight: float = 0.3,
 ) -> List[Dict[str, Any]]:
     """Select onboarding POIs by rounds.
 
@@ -207,7 +209,9 @@ def select_active_learning_pois(
     well-known POIs, spread out with MMR so each answer covers a region.
     Later rounds: optimistic (UCB) ranking on a Bayesian estimate of P(like):
     liked regions are refined, unexplored ones probed and disliked ones
-    dropped. Ranking on affinity alone (the previous approach) kept showing
+    dropped. A free-text interest (`interest_unit`, from `encode_query`) adds
+    its min-max scaled similarity with weight `interest_weight` in every round.
+    Ranking on affinity alone (the previous approach) kept showing
     neighbours of the first like, did worse than random in simulation and
     left users who disliked round 1 without any like.
     """
@@ -231,12 +235,17 @@ def select_active_learning_pois(
 
     cand_units = index.units[np.asarray(cand_idx)]
     popularity = _popularity(candidates)
+    # Query-document cosines live on a different scale than document pairs,
+    # so the interest only contributes through its min-max scaled ranking.
+    interest = _minmax(cand_units @ interest_unit) if interest_unit is not None else None
     liked_idx = index.indices_of([str(x) for x in (liked_poi_ids or []) if x])
     disliked_idx = index.indices_of([str(x) for x in (disliked_poi_ids or []) if x])
 
     if not liked_idx and not disliked_idx:
         representativeness = _minmax(np.mean(cand_units @ cand_units.T, axis=1))
         quality = 0.5 * representativeness + 0.5 * popularity
+        if interest is not None:
+            quality = (1.0 - interest_weight) * quality + interest_weight * interest
         picks = greedy_diverse_selection(cand_units, quality, k, theta=0.5)
         return [candidates[i] for i in picks]
 
@@ -244,6 +253,8 @@ def select_active_learning_pois(
     labels = np.asarray([1.0] * len(liked_idx) + [0.0] * len(disliked_idx), dtype=np.float32)
     mean, std = preference_posterior(cand_units, labelled, labels, bandwidth, prior_strength)
     score = mean + exploration * std + popularity_weight * popularity
+    if interest is not None:
+        score = score + interest_weight * interest
     picks = greedy_diverse_selection(cand_units, _minmax(score), k, theta=0.6)
     return [candidates[i] for i in sorted(picks, key=lambda i: -score[i])]
 
@@ -276,6 +287,8 @@ def recommend(
     beta = float(rec_cfg.get("beta", 0.3))  # quality weight
     gamma = float(rec_cfg.get("gamma", 0.2))  # geo weight
     preferred = {str(c).lower() for c in (profile or {}).get("preferred_categories") or [] if c}
+    interests_text = str((profile or {}).get("interests") or "").strip()
+    interest_text_weight = float(rec_cfg.get("interest_text_weight", 0.5)) if interests_text else 0.0
     # Bonus for the categories picked in onboarding; ignored without them.
     delta = float(rec_cfg.get("category_weight", 0.0)) if preferred else 0.0
     weight_sum = alpha + beta + gamma + delta
@@ -291,8 +304,8 @@ def recommend(
 
     liked_ids = [str(x) for x in (liked_poi_ids or rec_cfg.get("liked_pois") or []) if x]
     disliked_ids = [str(x) for x in (disliked_poi_ids or rec_cfg.get("disliked_pois") or []) if x]
-    if not liked_ids and not preferred:
-        raise ValueError("liked_poi_ids or preferred categories are required to compute recommendations")
+    if not liked_ids and not preferred and not interests_text:
+        raise ValueError("liked_poi_ids, preferred categories or interests are required to compute recommendations")
     liked_set, disliked_set = set(liked_ids), set(disliked_ids)
     visit_start = (requested_at or now_local()).astimezone(LOCAL_TZ).replace(second=0, microsecond=0)
 
@@ -302,10 +315,10 @@ def recommend(
         raise ValueError(str(exc)) from exc
 
     liked_idx = index.indices_of(liked_ids)
-    if not liked_idx and not preferred:
+    if not liked_idx and not preferred and not interests_text:
         raise ValueError("No embeddings found for liked POIs; generate embeddings and retry")
     # Without likes (e.g. every onboarding card was rejected) the ranking falls
-    # back to preferred categories + popularity + distance, minus dislikes.
+    # back to interests, preferred categories, popularity and distance, minus dislikes.
     interest_units: Optional[np.ndarray] = None
     if liked_idx:
         liked_units = index.units[np.asarray(liked_idx)]
@@ -372,6 +385,9 @@ def recommend(
         s_sem = _minmax(-np.max(cand_units @ dislike_units.T, axis=1))
     else:
         s_sem = np.full(len(records), 0.5, dtype=np.float32)
+    if interest_text_weight > 0:
+        s_query = _minmax(cand_units @ encode_query(config, interests_text))
+        s_sem = (1.0 - interest_text_weight) * s_sem + interest_text_weight * s_query
 
     # `relevance` is an inverse popularity signal (high = less popular).
     # hidden_gems_bias blends between favouring popular (0) and hidden (1) POIs.

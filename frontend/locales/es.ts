@@ -62,6 +62,8 @@ export const es = {
       subtitle: "Selecciona al menos 2 categorias para personalizar tus recomendaciones",
       selected: "{count} seleccionadas",
       min_hint: " (minimo {min})",
+      interests_label: "Algo concreto? (opcional)",
+      interests_placeholder: "Ej.: restos romanos, arte sacro, la Guerra Civil...",
       create: "Crear mi perfil",
       saving: "Guardando...",
       back: "Volver",

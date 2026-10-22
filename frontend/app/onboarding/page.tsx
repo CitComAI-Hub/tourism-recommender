@@ -41,6 +41,7 @@ export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState<Step>("welcome");
   const [name, setName] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [interests, setInterests] = useState("");
   const [likedPOIs, setLikedPOIs] = useState<string[]>([]);
   const [dislikedPOIs, setDislikedPOIs] = useState<string[]>([]);
   const [useCurrentLocation, setUseCurrentLocation] = useState(true);
@@ -83,6 +84,7 @@ export default function OnboardingPage() {
       name,
       preferred_categories: safeSelectedCategories,
       recommendation_style: recommendationStyle,
+      interests: interests.trim(),
     };
     const plannerPrefs: PlannerPreferences = {
       max_stops_per_day: maxStopsPerDay,
@@ -156,6 +158,8 @@ export default function OnboardingPage() {
               key="categories"
               selectedCategories={selectedCategories}
               onCategoriesChange={setSelectedCategories}
+              interests={interests}
+              onInterestsChange={setInterests}
               onNext={handleNext}
               onBack={handleBack}
               isSubmitting={isSubmitting}
@@ -165,6 +169,7 @@ export default function OnboardingPage() {
             <POIsStep
               key="pois"
               selectedCategories={selectedCategories}
+              interests={interests}
               likedPOIs={likedPOIs}
               onLikedPOIsChange={setLikedPOIs}
               onDislikedPOIsChange={setDislikedPOIs}

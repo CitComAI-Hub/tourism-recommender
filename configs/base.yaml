@@ -123,6 +123,9 @@ recommendation:
   # Score bonus for POIs in the categories picked during onboarding (normalised
   # with alpha/beta/gamma). Best single lever in the persona evaluation.
   category_weight: 0.3
+  # Share of the semantic score taken by the free-text interests typed in
+  # onboarding (query embedding, min-max scaled). Ignored without text.
+  interest_text_weight: 0.5
   filter_opening_hours: true
   # Onboarding: Beta posterior of P(like) smoothed over embedding similarity,
   # ranked by mean + exploration * std (UCB). Bandwidth: cosine scale over
@@ -131,6 +134,7 @@ recommendation:
   active_learning_prior_strength: 2.0
   active_learning_exploration: 1.0
   active_learning_popularity_weight: 0.15
+  active_learning_interest_weight: 0.3
   # CLI only: `--step recommendation` needs seed likes (POI ids) and a style
   liked_pois: []
   style: explorer

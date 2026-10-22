@@ -62,6 +62,8 @@ export const en = {
       subtitle: "Select at least 2 categories to tailor recommendations",
       selected: "{count} selected",
       min_hint: " (minimum {min})",
+      interests_label: "Anything specific? (optional)",
+      interests_placeholder: "E.g. Roman ruins, sacred art, the Civil War...",
       create: "Create my profile",
       saving: "Saving...",
       back: "Back",

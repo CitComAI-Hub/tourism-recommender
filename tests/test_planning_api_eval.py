@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 
+import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 
@@ -108,6 +109,30 @@ def test_api_onboarding_recommend_plan_flow(client, workspace):
     ).json()
     assert len(itinerary["stops"]) == 3
     assert all(s["poi"].get("score") is not None for s in itinerary["stops"])
+
+
+def test_api_uses_free_text_interests(client, monkeypatch):
+    from pmv_turismo import api
+
+    churches = np.asarray([0.0, 0.0, 1.0, 0.0], dtype=np.float32)
+    monkeypatch.setattr(api, "encode_query", lambda config, text: churches)
+    monkeypatch.setattr("pmv_turismo.recommendation.encode_query", lambda config, text: churches)
+
+    sample = client.get("/poi/sample", params={"limit": 1, "interests": "iglesias"}).json()
+    assert sample[0]["category"] == ["place_of_worship"]
+
+    # Every card rejected: interests (and categories) still yield recommendations.
+    user = "user_no_likes"
+    onboarding = {
+        "user_id": user,
+        "profile": {"name": "t", "preferred_categories": ["place_of_worship"], "interests": "iglesias"},
+        "disliked_pois": [poi_id("m1")],
+        "planner_preferences": {},
+    }
+    assert client.post("/user/onboarding", json=onboarding).status_code == 200
+    response = client.post("/recommendations", json={"user_id": user})
+    assert response.status_code == 200
+    assert response.json()["results"][0]["category"] == ["place_of_worship"]
 
 
 def test_api_get_does_not_create_user_dirs(client, workspace):

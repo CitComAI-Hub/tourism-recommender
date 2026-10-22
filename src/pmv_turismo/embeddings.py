@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import threading
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -82,6 +83,38 @@ def generate_embeddings(
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
     return output
+
+
+_MODEL_CACHE: Dict[Tuple[str, str], Any] = {}
+# A request arriving during the API warm-up waits for it instead of loading a second copy.
+_MODEL_LOCK = threading.Lock()
+_QUERY_CACHE: Dict[Tuple[str, str], np.ndarray] = {}
+
+
+def encode_query(config: dict, text: str) -> np.ndarray:
+    """Unit vector for a free-text interest, in the same space as the POIs.
+
+    The model is loaded on first use and kept in memory; vectors are cached
+    per text so repeated requests from the same profile are free.
+    """
+    emb_cfg = config.get("embeddings", {})
+    model_id = emb_cfg.get("model_id", DEFAULT_MODEL_ID)
+    key = (model_id, text.strip())
+    if key in _QUERY_CACHE:
+        return _QUERY_CACHE[key]
+
+    model_key = (model_id, emb_cfg.get("device", "cpu"))
+    with _MODEL_LOCK:
+        if model_key not in _MODEL_CACHE:
+            from sentence_transformers import SentenceTransformer
+
+            _MODEL_CACHE[model_key] = SentenceTransformer(model_id, device=model_key[1], trust_remote_code=True)
+    model = _MODEL_CACHE[model_key]
+    encode = model.encode_query if hasattr(model, "encode_query") else model.encode
+    vec = np.asarray(encode([key[1]], convert_to_numpy=True)[0], dtype=np.float32)
+    vec = vec / max(float(np.linalg.norm(vec)), 1e-9)
+    _QUERY_CACHE[key] = vec
+    return vec
 
 
 class EmbeddingIndex:
