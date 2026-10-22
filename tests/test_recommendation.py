@@ -28,6 +28,14 @@ def test_opening_hours():
     assert opening_hours_cover_duration("Mo-Fr 09:00-14:00,17:00-20:00", WEDNESDAY_11.replace(hour=17), 60)
     assert opening_hours_cover_duration("24/7", MONDAY_11, 600)
     assert opening_hours_cover_duration(None, MONDAY_11, 60)
+    # A weekday not mentioned is closed (OSM semantics)
+    assert not opening_hours_cover_duration("Tu-Su 10:00-20:00", MONDAY_11, 30)
+    # Day lists, holidays and spaces around the dash
+    sunday_11 = MONDAY_11.replace(day=14)
+    assert opening_hours_cover_duration("Tu-Sa 10:00-14:00, 15:00-19:00; Su,PH 10:00-14:00", sunday_11, 60)
+    assert opening_hours_cover_duration("Sa,Su 10:00 - 14:00", sunday_11, 60)
+    # Not understood (month ranges): permissive
+    assert opening_hours_cover_duration("Jan off; Mar-Dec: Tu-Sa 11:00-14:00", MONDAY_11, 30)
 
 
 def test_single_dislike_does_not_collapse_semantic_scores():

@@ -65,6 +65,19 @@ def now_local() -> datetime:
 
 
 _OSM_DAY_INDEX = {"Mo": 0, "Tu": 1, "We": 2, "Th": 3, "Fr": 4, "Sa": 5, "Su": 6}
+_DAY_RULE = re.compile(r"^((?:Mo|Tu|We|Th|Fr|Sa|Su|PH|SH)(?:\s*[-,]\s*(?:Mo|Tu|We|Th|Fr|Sa|Su|PH|SH))*)\s+(.+)$")
+
+
+def _rule_days(spec: str) -> set[int]:
+    """Weekdays of an OSM day selector such as "Mo-Fr", "Tu,Th" or "Sa,Su,PH"."""
+    days: set[int] = set()
+    for part in spec.replace(" ", "").split(","):
+        start, _, end = part.partition("-")
+        if start not in _OSM_DAY_INDEX or (end and end not in _OSM_DAY_INDEX):
+            continue  # public/school holidays (PH, SH) are not weekdays
+        first, last = _OSM_DAY_INDEX[start], _OSM_DAY_INDEX[end or start]
+        days.update((first + offset) % 7 for offset in range((last - first) % 7 + 1))
+    return days
 
 
 def opening_hours_cover_duration(
@@ -74,7 +87,10 @@ def opening_hours_cover_duration(
 ) -> bool:
     """Check common OSM opening-hours expressions for the complete visit.
 
-    Unknown or unparseable expressions are treated as open.
+    Weekday rules ("Tu-Su 10:00-19:00", "Sa,Su 10:00-14:00, 16:00-20:00") are
+    understood; as in OSM, a weekday not mentioned by any rule is closed.
+    Expressions with no understandable weekday rule (month ranges, sunrise...)
+    are treated as open rather than hiding the POI.
     """
 
     if isinstance(opening_hours, dict):
@@ -87,28 +103,26 @@ def opening_hours_cover_duration(
     required_start = visit_start.hour * 60 + visit_start.minute
     required_end = required_start + max(0.0, duration_minutes)
     day = visit_start.weekday()
-    matched_day = False
+    understood = False
 
     for clause in opening_hours.split(";"):
-        clause = clause.strip()
-        if not clause:
-            continue
-        match = re.match(r"^(Mo|Tu|We|Th|Fr|Sa|Su)(?:-(Mo|Tu|We|Th|Fr|Sa|Su))?\s+(.+)$", clause)
+        match = _DAY_RULE.match(clause.strip())
         if not match:
             continue
-        start_day = _OSM_DAY_INDEX[match.group(1)]
-        end_day = _OSM_DAY_INDEX[match.group(2) or match.group(1)]
-        days = {(start_day + offset) % 7 for offset in range((end_day - start_day) % 7 + 1)}
+        days = _rule_days(match.group(1))
+        if not days:
+            continue
+        understood = True
         if day not in days:
             continue
-        matched_day = True
-        if "off" in match.group(3).lower() or "closed" in match.group(3).lower():
+        times = match.group(2).lower()
+        if "off" in times or "closed" in times:
             continue
-        for interval in re.findall(r"(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})", match.group(3)):
+        for interval in re.findall(r"(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})", times):
             start = int(interval[0]) * 60 + int(interval[1])
             end = int(interval[2]) * 60 + int(interval[3])
             if end == 0:
                 end = 24 * 60
             if start <= required_start and required_end <= end:
                 return True
-    return not matched_day
+    return not understood

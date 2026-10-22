@@ -15,7 +15,7 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-from urllib.parse import quote, unquote, urlparse
+from urllib.parse import quote, unquote, urlparse, urlsplit, urlunsplit
 
 import requests
 
@@ -367,15 +367,52 @@ def _osm_image(tags: Dict[str, Any]) -> str | None:
     return None
 
 
-def _osm_address(tags: Dict[str, Any]) -> str | None:
+def _osm_address(tags: Dict[str, Any]) -> Dict[str, str]:
+    """schema.org PostalAddress fields from OSM `addr:*` tags (may be empty)."""
+    address: Dict[str, str] = {}
     if tags.get("addr:full"):
-        return str(tags["addr:full"])
-    street = tags.get("addr:street")
-    if not street:
+        address["streetAddress"] = str(tags["addr:full"])
+    elif tags.get("addr:street"):
+        number = tags.get("addr:housenumber")
+        address["streetAddress"] = f"{tags['addr:street']}, {number}" if number else str(tags["addr:street"])
+    for tag, field in (("addr:postcode", "postalCode"), ("addr:city", "addressLocality")):
+        if tags.get(tag):
+            address[field] = str(tags[tag])
+    return address
+
+
+def _web_url(value: Any) -> str | None:
+    """Normalise an OSM website tag to an absolute http(s) URL, or None."""
+    url = str(value or "").strip().split(";")[0].strip()
+    if not url or " " in url:
         return None
-    address = f"{street}, {tags['addr:housenumber']}" if tags.get("addr:housenumber") else str(street)
-    locality = " ".join(str(tags[k]) for k in ("addr:postcode", "addr:city") if tags.get(k))
-    return f"{address}, {locality}" if locality else address
+    if not url.startswith(("http://", "https://")):
+        url = f"https://{url}"
+    parts = urlsplit(url)
+    if not parts.hostname:
+        return None
+    # RFC 3986 URIs are ASCII: punycode the host, percent-encode the rest.
+    try:
+        host = parts.hostname.encode("idna").decode("ascii")
+    except UnicodeError:
+        return None
+    netloc = f"{host}:{parts.port}" if parts.port else host
+    safe = "/%:@!$&'()*+,;=-._~?"
+    return urlunsplit((parts.scheme, netloc, quote(parts.path, safe=safe), quote(parts.query, safe=safe), ""))
+
+
+def _wikipedia_url(tag: Any) -> str | None:
+    """OSM `wikipedia=lang:Title` -> https://lang.wikipedia.org/wiki/Title."""
+    lang, sep, title = str(tag or "").partition(":")
+    if not sep or not title or not lang.isalpha():
+        return None
+    return f"https://{lang}.wikipedia.org/wiki/{quote(title.strip().replace(' ', '_'))}"
+
+
+def _osm_object_url(poi_id: str) -> str:
+    """`node:123` -> https://www.openstreetmap.org/node/123 (the source object)."""
+    osm_type, _, osm_id = str(poi_id).partition(":")
+    return f"https://www.openstreetmap.org/{osm_type}/{osm_id}"
 
 
 def _extract_pois(elements: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -401,7 +438,7 @@ def _extract_pois(elements: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             "information": tags.get("information"),
             "description": next((clean_text(tags[k]) for k in _DESCRIPTION_KEYS if tags.get(k)), None),
             "address": _osm_address(tags),
-            "website": tags.get("website") or tags.get("contact:website"),
+            "website": _web_url(tags.get("website") or tags.get("contact:website")),
             "phone": tags.get("phone") or tags.get("contact:phone"),
             "opening_hours": tags.get("opening_hours"),
             "image": _osm_image(tags),
@@ -853,6 +890,8 @@ _DEDUP_REPORT_FIELDS = [
     "distance_m", "name_similarity",
 ]
 MIN_CATEGORY_SIZE = 5
+DEFAULT_LOCALITY = "València"
+DEFAULT_COUNTRY = "ES"
 
 
 def run_ingestion(config: dict) -> Dict[str, Any]:
@@ -1021,7 +1060,9 @@ def run_ingestion(config: dict) -> Dict[str, Any]:
     with ThreadPoolExecutor(max_workers=workers) as pool:
         images = list(pool.map(find_image, pois))
 
-    entities = [_build_entity(poi, image) for poi, image in zip(pois, images)]
+    locality = str(ingestion_cfg.get("address_locality", DEFAULT_LOCALITY))
+    country = str(ingestion_cfg.get("address_country", DEFAULT_COUNTRY))
+    entities = [_build_entity(poi, image, locality, country) for poi, image in zip(pois, images)]
     logger.info("Images: %d/%d POIs", sum(1 for i in images if i), len(pois))
     _assign_relevance(entities, popularity)
     report["pois"] = len(entities)
@@ -1041,30 +1082,44 @@ def run_ingestion(config: dict) -> Dict[str, Any]:
     return report
 
 
-def _build_entity(poi: Dict[str, Any], image_url: str | None) -> Dict[str, Any]:
-    """NGSI-LD PointOfInterest entity from an enriched OSM record."""
+def _build_entity(
+    poi: Dict[str, Any],
+    image_url: str | None,
+    locality: str = DEFAULT_LOCALITY,
+    country: str = DEFAULT_COUNTRY,
+) -> Dict[str, Any]:
+    """Smart Data Models PointOfInterest entity (NGSI-LD, keyValues format).
+
+    Standard attributes follow dataModel.PointOfInterest; `subcategory`,
+    `duration`, `durationEstimated` and `openingHoursEstimated` are project
+    extensions (see README).
+    """
     subcategory = poi.get("category")
     category = canonical_category(subcategory)
+    address = {"addressLocality": locality, "addressCountry": country, **(poi.get("address") or {})}
+    see_also = [
+        poi.get("website"),
+        f"https://www.wikidata.org/wiki/{poi['wikidata']}" if poi.get("wikidata") else None,
+        _wikipedia_url(poi.get("wikipedia")),
+    ]
     entity = {
         "id": f"urn:ngsi-ld:PointOfInterest:{poi.get('id')}",
         "type": "PointOfInterest",
         "name": str(poi["name"]),
-        "location": {"type": "Point", "coordinates": [float(poi["lon"]), float(poi["lat"])]},
+        "description": poi.get("description"),
         "category": [category] if category else [],
+        "location": {"type": "Point", "coordinates": [float(poi["lon"]), float(poi["lat"])]},
+        "address": address,
+        "image": image_url,
+        "source": _osm_object_url(str(poi.get("id"))),
+        "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+        "refSeeAlso": list(dict.fromkeys(url for url in see_also if url)),
+        "contactPoint": {"telephone": poi.get("phone")} if poi.get("phone") else None,
+        "openingHours": poi.get("opening_hours") or _synthetic_opening_hours(subcategory),
+        "openingHoursEstimated": not bool(poi.get("opening_hours")),
         "subcategory": subcategory,
         "duration": estimate_visit_minutes(subcategory),
         "durationEstimated": True,
-        "image": image_url,
-        "description": poi.get("description"),
-        "address": {"streetAddress": poi.get("address")} if poi.get("address") else None,
-        "source": "https://www.openstreetmap.org" if "osm" in str(poi.get("source")) else poi.get("source"),
-        "refSeeAlso": [v for v in [poi.get("website"), poi.get("wikidata"), poi.get("wikipedia")] if v],
-        "contactPoint": {"telephone": poi.get("phone")} if poi.get("phone") else None,
-        "openingHours": {
-            "value": poi.get("opening_hours") or _synthetic_opening_hours(subcategory),
-            "type": "Text",
-            "synthetic": not bool(poi.get("opening_hours")),
-        },
         "@context": [
             "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
             "https://raw.githubusercontent.com/smart-data-models/dataModel.PointOfInterest/master/context.jsonld",
@@ -1110,9 +1165,11 @@ def _quality_summary(entities: List[Dict[str, Any]]) -> Dict[str, Any]:
     return {
         "categories": dict(Counter((e.get("category") or ["none"])[0] for e in entities).most_common()),
         "with_image_pct": round(100 * sum(1 for e in entities if e.get("image")) / n, 1),
-        "with_address_pct": round(100 * sum(1 for e in entities if e.get("address")) / n, 1),
+        "with_street_address_pct": round(
+            100 * sum(1 for e in entities if (e.get("address") or {}).get("streetAddress")) / n, 1
+        ),
         "real_opening_hours_pct": round(
-            100 * sum(1 for e in entities if not (e.get("openingHours") or {}).get("synthetic")) / n, 1
+            100 * sum(1 for e in entities if not e.get("openingHoursEstimated")) / n, 1
         ),
         "description_chars_median": sorted(descriptions)[len(descriptions) // 2] if descriptions else 0,
         "short_descriptions": sum(1 for d in descriptions if d < MIN_USEFUL_DESCRIPTION_CHARS),

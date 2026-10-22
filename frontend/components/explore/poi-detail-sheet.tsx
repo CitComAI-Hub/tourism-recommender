@@ -91,7 +91,10 @@ export function POIDetailSheet({
   const heroImage = poi?.image || null;
   const [showFullDesc, setShowFullDesc] = useState(false);
 
-  const opening = poi?.openingHours?.value || (poi as any)?.opening_hours;
+  const opening =
+    typeof poi?.openingHours === "string"
+      ? poi.openingHours
+      : poi?.openingHours?.value || (poi as any)?.opening_hours;
   const openingStatus = isOpenNow(opening);
 
   const handleGetDirections = () => {

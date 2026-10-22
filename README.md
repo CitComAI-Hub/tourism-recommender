@@ -94,6 +94,25 @@ Puedes activar o desactivar fuentes fácilmente en [configs/base.yaml](configs/b
 - `ingestion.osm.enabled`: OSM (Overpass)
 - `ingestion.opendatasoft.enabled`: OpenDataSoft (monumentos Valencia)
 
+### Formato del catálogo (Smart Data Models)
+`data/processed/poi.jsonld` es una lista de entidades NGSI-LD en formato
+*keyValues* que validan contra el esquema oficial
+[`dataModel.PointOfInterest`](https://github.com/smart-data-models/dataModel.PointOfInterest)
+(v0.3.1); `tests/test_smart_data_models.py` lo comprueba con una copia local
+de los esquemas. Detalles:
+
+- `id`: `urn:ngsi-ld:PointOfInterest:<tipo OSM>:<id OSM>`.
+- `source`: URL del objeto en OpenStreetMap; `refSeeAlso`: URLs de web
+  oficial, Wikidata y Wikipedia.
+- `address`: `streetAddress`, `postalCode`, `addressLocality`, `addressCountry`.
+- `openingHours`: texto en formato OSM/schema.org (`"Tu-Su 10:00-19:00; Mo off"`).
+- `relevance`: 0 = más popular de su categoría, valores altos = menos conocido
+  (semántica del estándar: 0 es lo más relevante).
+
+Extensiones propias (no forman parte del estándar): `subcategory` (valor OSM),
+`duration` (minutos de visita), `durationEstimated` y `openingHoursEstimated`
+(el dato es una estimación, no viene de la fuente).
+
 ### Pipeline de ingesta y calidad de datos
 1. **OSM (Overpass):** elementos con nombre dentro del municipio. La descripción
    se toma de `description:es` > `description` > `description:ca` > `description:en`;

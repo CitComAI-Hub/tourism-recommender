@@ -18,7 +18,7 @@ export interface POI {
   image?: string;
   rating?: number;
   duration?: number;
-  openingHours?: { value: string };
+  openingHours?: string | { value: string }; // string per Smart Data Models
   opening_hours?: string;
   relevance?: number;
 }

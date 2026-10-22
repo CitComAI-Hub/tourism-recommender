@@ -20,7 +20,7 @@ dependencies = [
 [project.optional-dependencies]
 # Only needed to (re)generate embeddings: pulls in torch.
 embeddings = ["sentence-transformers>=3.1.0", "torch>=2.3"]
-dev = ["pytest", "httpx"]
+dev = ["pytest", "httpx", "jsonschema[format-nongpl]"]
 
 [tool.setuptools]
 package-dir = {"" = "src"}

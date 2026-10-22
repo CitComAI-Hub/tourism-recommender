@@ -163,11 +163,11 @@ def test_article_prefers_spanish_wikipedia():
     assert ingestion._choose_article({}, {}) is None
 
 
-def test_address_includes_number_and_postcode():
-    assert _osm_address({"addr:street": "Carrer de la Pau", "addr:housenumber": "7", "addr:postcode": "46002"}) == (
-        "Carrer de la Pau, 7, 46002"
-    )
-    assert _osm_address({}) is None
+def test_address_is_structured():
+    assert _osm_address({"addr:street": "Carrer de la Pau", "addr:housenumber": "7", "addr:postcode": "46002"}) == {
+        "streetAddress": "Carrer de la Pau, 7", "postalCode": "46002",
+    }
+    assert _osm_address({}) == {}
 
 
 def test_relevance_small_categories_use_global_ranking():
