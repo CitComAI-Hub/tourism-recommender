@@ -228,6 +228,12 @@ export const en = {
       title: "Your itinerary",
       stops: "{count} stops",
       open_maps: "Open in Google Maps",
+      first_stop: "First stop",
+      unnamed: "Unnamed",
+      start_title: "Starting point",
+      start_location: "Current location",
+      start_to: "To {name}",
+      visit_time: "Visit time: {duration}",
     },
   },
 };

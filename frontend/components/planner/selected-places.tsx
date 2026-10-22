@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { PoiCategoryBadge } from "@/components/poi-category-badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { X, Clock, Loader2, Sparkles, MapPin } from "lucide-react";
 import type { POI } from "@/lib/api";
@@ -78,13 +78,7 @@ export function SelectedPlaces({
                 </h4>
                 <div className="flex items-center gap-2 mt-1">
                   {(Array.isArray(place.category) ? place.category : []).slice(0, 2).map((cat) => (
-                    <Badge
-                      key={cat}
-                      variant="secondary"
-                      className="text-xs px-2 py-0"
-                    >
-                      {cat}
-                    </Badge>
+                    <PoiCategoryBadge key={cat} category={cat} />
                   ))}
                   {place.duration && (
                     <span className="text-xs text-muted-foreground">

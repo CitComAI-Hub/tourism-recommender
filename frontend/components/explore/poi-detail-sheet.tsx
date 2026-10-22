@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { PoiCategoryBadge } from "@/components/poi-category-badge";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { Check, Plus, Clock, Star, MapPin, Navigation, X } from "lucide-react";
 import type { POI } from "@/lib/api";
@@ -166,9 +167,7 @@ export function POIDetailSheet({
               {/* Categories */}
               <div className="flex flex-wrap gap-2 mb-4">
                 {categories.map((cat) => (
-                  <Badge key={cat} variant="secondary" className="capitalize">
-                    {cat}
-                  </Badge>
+                  <PoiCategoryBadge key={cat} category={cat} className="text-sm px-2.5 py-0.5" />
                 ))}
               </div>
 

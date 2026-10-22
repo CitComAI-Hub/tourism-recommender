@@ -1,19 +1,17 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Settings, Trash2 } from "lucide-react";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 interface PlannerHeaderProps {
   onBack: () => void;
-  onSettings: () => void;
   onClear: () => void;
   hasPlaces: boolean;
 }
 
 export function PlannerHeader({
   onBack,
-  onSettings,
   onClear,
   hasPlaces,
 }: PlannerHeaderProps) {
@@ -37,9 +35,6 @@ export function PlannerHeader({
               <Trash2 className="w-4 h-4" />
             </Button>
           )}
-          <Button variant="ghost" size="icon" onClick={onSettings}>
-            <Settings className="w-4 h-4" />
-          </Button>
         </div>
       </div>
     </header>

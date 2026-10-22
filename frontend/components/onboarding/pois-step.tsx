@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import type { POI } from "@/lib/api";
 import { getRandomPOIs } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
+import { poiCategoryLabel } from "@/components/poi-category-badge";
 
 interface POIsStepProps {
   selectedCategories: string[];
@@ -409,7 +410,7 @@ export function POIsStep({
                     {currentPOI.category?.[0] && (
                       <span className="flex items-center gap-1 capitalize">
                         <MapPin className="w-3.5 h-3.5" />
-                        {currentPOI.category[0]}
+                        {poiCategoryLabel(t, currentPOI.category[0])}
                       </span>
                     )}
                   </div>

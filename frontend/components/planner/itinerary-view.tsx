@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
+import { PoiCategoryBadge } from "@/components/poi-category-badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Clock, MapPin, Route, Navigation, Flag } from "lucide-react";
 import type { Itinerary, POI, Location } from "@/lib/api";
@@ -67,7 +67,8 @@ export function ItineraryView({ itinerary, places, startLocation }: ItineraryVie
 
   const startToFirst = (() => {
     if (!startLocation || !itinerary.stops.length) return null;
-    const firstName = (itinerary.stops[0] as any).name || (itinerary.stops[0] as any).poi?.name || "Primera parada";
+    const firstName =
+      (itinerary.stops[0] as any).name || (itinerary.stops[0] as any).poi?.name || t("planner.itinerary.first_stop");
     if (startToFirstLeg && typeof startToFirstLeg.duration_s === "number") {
       return { minutes: Math.round(startToFirstLeg.duration_s / 60), firstName };
     }
@@ -144,10 +145,12 @@ export function ItineraryView({ itinerary, places, startLocation }: ItineraryVie
                     <div className="p-4 rounded-xl bg-card border border-border">
                       <div className="flex items-center gap-2 mb-2 text-sm text-primary font-medium">
                         <MapPin className="w-3.5 h-3.5" />
-                        Punto de partida
+                        {t("planner.itinerary.start_title")}
                       </div>
-                      <p className="text-sm text-foreground mb-1">Ubicación actual</p>
-                      <p className="text-xs text-muted-foreground">Hasta {startToFirst.firstName}</p>
+                      <p className="text-sm text-foreground mb-1">{t("planner.itinerary.start_location")}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t("planner.itinerary.start_to", { name: startToFirst.firstName })}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -169,7 +172,7 @@ export function ItineraryView({ itinerary, places, startLocation }: ItineraryVie
                   : Array.isArray((stop as any).poi?.category)
                     ? (stop as any).poi.category
                     : [];
-                const name = (stop as any).name || (stop as any).poi?.name || "Sin nombre";
+                const name = (stop as any).name || (stop as any).poi?.name || t("planner.itinerary.unnamed");
                 const arrival = (stop as any).arrival_time || "--";
                 const departure = (stop as any).departure_time || "--";
                 const durationMinutes = (stop as any).duration_minutes || (stop as any).visitMinutes;
@@ -204,21 +207,15 @@ export function ItineraryView({ itinerary, places, startLocation }: ItineraryVie
 
                         {/* Categories */}
                         <div className="flex flex-wrap gap-1 mb-2">
-                          {categories.slice(0, 2).map((cat) => (
-                            <Badge
-                              key={cat}
-                              variant="secondary"
-                              className="text-xs px-2 py-0"
-                            >
-                              {cat}
-                            </Badge>
+                          {categories.slice(0, 2).map((cat: string) => (
+                            <PoiCategoryBadge key={cat} category={cat} />
                           ))}
                         </div>
 
                         {/* Duration */}
                         {durationMinutes && (
                           <p className="text-xs text-muted-foreground">
-                            Tiempo de visita: {formatDuration(durationMinutes)}
+                            {t("planner.itinerary.visit_time", { duration: formatDuration(durationMinutes) })}
                           </p>
                         )}
 

@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { PoiCategoryBadge } from "@/components/poi-category-badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import {
@@ -172,13 +173,7 @@ export function RecommendationsList({
                         {/* Categories */}
                         <div className="flex gap-1 flex-wrap">
                           {(poi.category || []).slice(0, 2).map((cat) => (
-                            <Badge
-                              key={cat}
-                              variant="secondary"
-                              className="text-xs px-2 py-0"
-                            >
-                              {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                            </Badge>
+                            <PoiCategoryBadge key={cat} category={cat} />
                           ))}
                         </div>
 
