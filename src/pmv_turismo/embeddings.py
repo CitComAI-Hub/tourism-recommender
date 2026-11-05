@@ -24,7 +24,10 @@ def _format_poi_text(poi: Dict[str, Any]) -> str:
     if subcategory and subcategory not in categories:
         categories.append(str(subcategory).replace("_", " "))
     category_str = ", ".join(categories) or "unknown"
-    return f"Name: {name}\nDescription: {desc}\nCategory: {category_str}"
+    text = f"Name: {name}\nDescription: {desc}\nCategory: {category_str}"
+    if poi.get("heritageDesignation"):
+        text += "\nProtected heritage"
+    return text
 
 
 def embeddings_path(config: dict) -> Path:

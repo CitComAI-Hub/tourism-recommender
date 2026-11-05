@@ -21,6 +21,19 @@ data:
 ingestion:
   fetch_images: true
   require_description: true
+  # POIs without any source text get a description built from their OSM tags
+  # and heritage status (artist, material, year, inscription, BIC/BRL...) if
+  # it states at least this many facts beyond the kind of place.
+  generated_description_min_facts: 1
+  # Protected heritage from the Inventario General del Patrimonio Cultural
+  # Valenciano (Generalitat Valenciana, dadesobertes.gva.es, CC BY 4.0).
+  heritage:
+    enabled: true
+    municipality: "VALÈNCIA"
+    max_distance_m: 60
+    sources:
+      BIC: https://dadesobertes.gva.es/dataset/da443c69-9c66-4e25-bdd7-8fdb8fe7cda9/resource/2271efdd-d0cc-4126-a9a0-dd11d56acbde/download/bienes_inmuebles_interes_cultural.csv
+      BRL: https://dadesobertes.gva.es/dataset/da443c69-9c66-4e25-bdd7-8fdb8fe7cda9/resource/0619adb1-e458-4b2a-ae6a-6bad5f00b6c9/download/bienes_inmuebles_relevancia_local.csv
   osm:
     enabled: true
   overpass_urls:

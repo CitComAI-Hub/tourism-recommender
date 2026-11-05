@@ -144,8 +144,17 @@ allowed origins; `*` by default) and `PMV_HTTP_CONTACT` (see ingestion).
 
 ### Ingestion sources
 Sources can be toggled in [configs/base.yaml](configs/base.yaml):
-- `ingestion.osm.enabled`: OSM (Overpass)
-- `ingestion.opendatasoft.enabled`: OpenDataSoft (Valencia monuments)
+- `ingestion.osm.enabled`: OpenStreetMap (Overpass), the list of POIs.
+- Wikidata, Wikipedia and Wikimedia Commons: descriptions, photos and
+  popularity (always on).
+- `ingestion.heritage.enabled`: the immovable property of the *Inventario
+  General del Patrimonio Cultural Valenciano* (BIC and BRL), published by the
+  Generalitat Valenciana on dadesobertes.gva.es under CC BY 4.0. It marks
+  which POIs are protected heritage.
+
+Licences: OpenStreetMap data is ODbL (© OpenStreetMap contributors),
+Wikipedia text CC BY-SA, the heritage inventory CC BY 4.0 (© Generalitat
+Valenciana). Every entity names its sources in `dataProvider`.
 
 ### Catalog format (Smart Data Models)
 `data/processed/poi.jsonld` is a list of NGSI-LD entities in *keyValues* form
@@ -164,7 +173,10 @@ of the schemas. Details:
 
 Project extensions (not part of the standard): `subcategory` (OSM value),
 `duration` (visit minutes), `durationEstimated` and `openingHoursEstimated`
-(the value is an estimate, not from the source).
+(the value is an estimate, not from the source), `descriptionGenerated` (the
+description was built from structured data, see below), and
+`heritageDesignation` (`BIC` or `BRL`) with `heritageInventoryId` (the
+inventory code) for protected heritage.
 
 ### Ingestion pipeline and data quality
 1. **OSM (Overpass):** named elements inside the municipality. The
@@ -175,8 +187,20 @@ Project extensions (not part of the standard): `subcategory` (OSM value),
    becomes the primary one (with Wikidata, way/relation before node,
    information boards last); the others only fill gaps.
 3. `tourism=information` elements that are not tourist offices (boards, maps,
-   guideposts) are dropped: they are not destinations.
-4. **Enrichment** (parallel, `ingestion.workers`): Wikipedia article (Spanish
+   guideposts) are dropped: they are not destinations. So are falla
+   monuments (`artwork_type=falla`): they stand only in March.
+4. **Protected heritage:** each POI (except artworks) is matched to the
+   closest inventory entry within `heritage.max_distance_m` whose official
+   name contains every distinctive word of the OSM name, allowing
+   Valencian/Spanish variants ("Torres dels Serrans" = "Torres de Serranos").
+   Matches are written to `data/processed/heritage_matches.csv` for review.
+5. **Wikidata links are checked** before use: the item must be located
+   within 1.5 km of the POI (10 km for beaches, parks and natural areas). An
+   item without coordinates is accepted only if its label names the POI, it is
+   not a person, and the POI is not a monument to someone. OSM sometimes
+   links a namesake (the artwork "Marqués del Túria" links the noble title,
+   the bullring links Alicante's); those links are ignored.
+6. **Enrichment** (parallel, `ingestion.workers`): Wikipedia article (Spanish
    preferred), description when OSM's is too short (<80 characters; the
    extract is cut at a full sentence), photo from Wikidata (P18) or from
    Commons only when the file title names the place, and popularity = page
@@ -184,19 +208,28 @@ Project extensions (not part of the standard): `subcategory` (OSM value),
    editions in `pageview_languages`. Requests are batched (50 Wikidata
    entities, 20 extracts or 50 articles per call), rate-limited per host and
    retried on 429/5xx.
-5. **Categories:** `category` is one of the canonical categories used by the
+7. **Generated descriptions:** a POI that no source describes gets one built
+   from fixed Spanish templates over its OSM tags and heritage status: kind,
+   material, artist, year, inscription, period, architecture, BIC/BRL
+   protection ("Escultura de bronce, obra de Nassio Bayarri (1975).").
+   Nothing is inferred and no language model is used; tag values without a
+   known translation are left out. It is kept only if it states at least
+   `generated_description_min_facts` facts beyond the kind of place (museums
+   and other destinations in their own right are always kept), and is
+   flagged `descriptionGenerated: true`. The rest are dropped.
+8. **Categories:** `category` is one of the canonical categories used by the
    frontend (`museum`, `historic`, `beach`...) and `subcategory` keeps the OSM
    value (`bridge`, `castle`, `gallery`...).
-6. **Relevance:** inverse popularity percentile within the category (against
+9. **Relevance:** inverse popularity percentile within the category (against
    the whole catalog when the category has fewer than 5 POIs).
-7. **Duration and opening hours:** the sources have no visit duration, so it
+10. **Duration and opening hours:** the sources have no visit duration, so it
    is estimated deterministically per subcategory (`durationEstimated: true`).
    Without OSM opening hours a conservative schedule is generated
    (`synthetic: true`); outdoor places (bridges, artworks, parks...) are 24/7.
 
 Each run writes `data/processed/ingestion_report.json` with drops per reason
 and a quality summary (image, address and real-opening-hours coverage,
-description length). To comply with the Wikimedia policy, set
+description length, generated descriptions, protected heritage). To comply with the Wikimedia policy, set
 `PMV_HTTP_CONTACT` (contact URL or e-mail), which is added to the User-Agent.
 
 If any request still fails after retries, ingestion stops with an error and

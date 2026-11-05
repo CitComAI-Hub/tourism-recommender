@@ -19,6 +19,9 @@ from urllib.parse import quote, unquote, urlparse, urlsplit, urlunsplit
 
 import requests
 
+from .descriptions import build_description
+from .heritage import match_heritage, names_match, parse_inventory
+
 logger = logging.getLogger(__name__)
 
 # Wikimedia asks for a descriptive User-Agent; set PMV_HTTP_CONTACT (URL or
@@ -57,10 +60,12 @@ def _http_get_json(
     timeout_seconds: int = 20,
     retries: int = 5,
     not_found_ok: bool = False,
+    as_text: bool = False,
 ) -> Any:
     """GET with per-host throttling and retries on 429/5xx (honours Retry-After).
 
-    Returns None for 404 when `not_found_ok`; raises FetchError otherwise.
+    Returns the parsed JSON (or the body as text with `as_text`), None for 404
+    when `not_found_ok`; raises FetchError otherwise.
     """
     host = urlparse(url).netloc
     delay = 2.0
@@ -75,6 +80,9 @@ def _http_get_json(
             if resp.status_code == 404 and not_found_ok:
                 return None
             if resp.status_code < 400:
+                if as_text:
+                    resp.encoding = resp.encoding if "charset" in resp.headers.get("Content-Type", "") else "utf-8"
+                    return resp.text
                 return resp.json()
             last_error = f"HTTP {resp.status_code}"
             if resp.status_code not in (429, 500, 502, 503, 504):
@@ -108,7 +116,8 @@ def _fetch_wikidata_entities(qids: List[str], timeout_seconds: int = 20) -> Dict
     for chunk in _chunks(wanted, 50):
         data = _http_get_json(
             "https://www.wikidata.org/w/api.php",
-            params={"action": "wbgetentities", "ids": "|".join(chunk), "props": "sitelinks|claims", "format": "json"},
+            params={"action": "wbgetentities", "ids": "|".join(chunk), "props": "sitelinks|claims|labels",
+                    "languages": "es|ca|en", "format": "json"},
             timeout_seconds=timeout_seconds,
         )
         entities = (data or {}).get("entities") or {}
@@ -445,6 +454,7 @@ def _extract_pois(elements: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             "wikidata": tags.get("wikidata"),
             "wikipedia": tags.get("wikipedia"),
             "source": "osm",
+            "tags": dict(tags),
         }
         pois.append(poi)
     return pois
@@ -452,6 +462,56 @@ def _extract_pois(elements: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
 def _is_low_value_information(poi: Dict[str, Any]) -> bool:
     return poi.get("category") == "information" and poi.get("information") not in _USEFUL_INFORMATION
+
+
+def _is_falla(poi: Dict[str, Any]) -> bool:
+    """Falla monuments stand only during the Fallas (March) and are burnt on
+    the 19th; OSM maps where each commission plants one. Not a year-round POI."""
+    return (poi.get("tags") or {}).get("artwork_type") == "falla"
+
+
+# OSM `wikidata`/`wikipedia` tags sometimes point to a namesake or to the
+# wrong place (the artwork "Marqués del Túria" links the noble title, the
+# bullring links Alicante's), which would import an unrelated description,
+# image and popularity. An item is trusted if it is located near the POI;
+# large areas (a beach, the Albufera) have their point kilometres away.
+MAX_WIKIDATA_DISTANCE_M = 1500.0
+MAX_WIKIDATA_DISTANCE_AREA_M = 10000.0
+_AREA_CATEGORIES = {"beach", "nature_reserve", "park", "garden"}
+# Without coordinates, monuments named after someone usually link the person.
+_NAMESAKE_CATEGORIES = {"artwork", "memorial", "monument"}
+_WIKIDATA_HUMAN = "Q5"
+
+
+def _wikidata_coordinates(ent: Dict[str, Any] | None) -> Tuple[float, float] | None:
+    for claim in ((ent or {}).get("claims") or {}).get("P625") or []:
+        value = ((claim.get("mainsnak") or {}).get("datavalue") or {}).get("value") or {}
+        if "latitude" in value and "longitude" in value:
+            return float(value["latitude"]), float(value["longitude"])
+    return None
+
+
+def _wikidata_matches_poi(poi: Dict[str, Any], ent: Dict[str, Any] | None) -> bool:
+    """Whether the linked item is this place (see MAX_WIKIDATA_DISTANCE_M).
+
+    Items without coordinates are accepted only when their label names the
+    POI, they are not a person, and the POI is not a monument to someone.
+    """
+    coords = _wikidata_coordinates(ent)
+    subcategory = str(poi.get("category") or "")
+    if coords is not None:
+        limit = MAX_WIKIDATA_DISTANCE_AREA_M if canonical_category(subcategory) in _AREA_CATEGORIES else MAX_WIKIDATA_DISTANCE_M
+        return _haversine_m(float(poi["lat"]), float(poi["lon"]), *coords) <= limit
+    if subcategory in _NAMESAKE_CATEGORIES or canonical_category(subcategory) in _NAMESAKE_CATEGORIES:
+        return False
+    classes = {
+        ((c.get("mainsnak") or {}).get("datavalue") or {}).get("value", {}).get("id")
+        for c in ((ent or {}).get("claims") or {}).get("P31") or []
+    }
+    if _WIKIDATA_HUMAN in classes:
+        return False
+    labels = [v.get("value", "") for v in ((ent or {}).get("labels") or {}).values()]
+    return any(label and names_match(str(poi.get("name") or ""), label) for label in labels)
 
 
 def _record_quality_rank(poi: Dict[str, Any]) -> Tuple[int, int, int]:
@@ -641,6 +701,8 @@ def _merge_records(primary: Dict[str, Any], secondary: Dict[str, Any]) -> Dict[s
     for key, value in secondary.items():
         if not merged.get(key) and value:
             merged[key] = value
+    if primary.get("tags") or secondary.get("tags"):
+        merged["tags"] = {**(secondary.get("tags") or {}), **(primary.get("tags") or {})}
     if primary.get("source") and secondary.get("source"):
         sources = set(str(primary.get("source")).split("+")) | set(
             str(secondary.get("source")).split("+")
@@ -884,6 +946,9 @@ def _choose_article(poi: Dict[str, Any], ent: Dict[str, Any] | None) -> Tuple[st
     return None
 
 
+# Kinds of place worth listing even when nothing more is known about them.
+_DESTINATION_CATEGORIES = {"museum", "arts_centre", "zoo", "aquarium"}
+_HERITAGE_REPORT_FIELDS = ["poi_id", "poi_name", "igpcv", "heritage_name", "designation", "category", "distance_m"]
 _DEDUP_REPORT_FIELDS = [
     "name_a", "source_a", "id_a", "lat_a", "lon_a",
     "name_b", "source_b", "id_b", "lat_b", "lon_b",
@@ -953,6 +1018,9 @@ def run_ingestion(config: dict) -> Dict[str, Any]:
     before = len(pois)
     pois = [poi for poi in pois if not _is_low_value_information(poi)]
     report["dropped"]["information_board"] = before - len(pois)
+    before = len(pois)
+    pois = [poi for poi in pois if not _is_falla(poi)]
+    report["dropped"]["falla"] = before - len(pois)
 
     gplaces_cfg = ingestion_cfg.get("google_places", {})
     if gplaces_cfg.get("enabled") and gplaces_cfg.get("api_key"):
@@ -993,10 +1061,39 @@ def run_ingestion(config: dict) -> Dict[str, Any]:
 
     logger.info("OSM: %d named POIs after dedup and filtering", len(pois))
 
+    # 0. Protected heritage (GVA inventory): an official quality signal.
+    heritage_cfg = ingestion_cfg.get("heritage", {})
+    if heritage_cfg.get("enabled", False):
+        municipality = str(heritage_cfg.get("municipality", "VALÈNCIA"))
+        entries: List[Dict[str, Any]] = []
+        for designation, url in (heritage_cfg.get("sources") or {}).items():
+            text = guarded(f"heritage:{designation}", _http_get_json, str(url), None, timeout_seconds, 5, False, True)
+            if text:
+                entries.extend(parse_inventory(text, str(designation), municipality))
+        # Artworks stand next to protected buildings but are not them.
+        candidates = [p for p in pois if canonical_category(p.get("category")) != "artwork"]
+        rows = match_heritage(candidates, entries, _haversine_m, float(heritage_cfg.get("max_distance_m", 60)))
+        report["heritage"] = {"inventory_entries": len(entries), "matched_pois": len(rows)}
+        heritage_report = processed_dir / "heritage_matches.csv"
+        with open(heritage_report, "w", encoding="utf-8", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=_HERITAGE_REPORT_FIELDS)
+            writer.writeheader()
+            writer.writerows(rows)
+        logger.info("Heritage: %d inventory entries, %d POIs matched", len(entries), len(rows))
+
     # 1. Wikidata items (batched).
     qids = [str(p["wikidata"]) for p in pois if p.get("wikidata")]
     wikidata = guarded("wikidata", _fetch_wikidata_entities, qids, http_timeout) or {}
     entity_of = {id(p): wikidata.get(str(p.get("wikidata"))) for p in pois}
+    rejected = 0
+    for poi in pois:
+        qid = poi.get("wikidata")
+        if qid and str(qid) in wikidata and not _wikidata_matches_poi(poi, entity_of[id(poi)]):
+            logger.info("Wikidata %s is not located at %s: link ignored", qid, poi.get("name"))
+            poi["wikidata"] = poi["wikipedia"] = None
+            entity_of[id(poi)] = None
+            rejected += 1
+    report["wikidata_links_ignored"] = rejected
     article_of = {id(p): _choose_article(p, entity_of[id(p)]) for p in pois}
     logger.info("Wikidata: %d items", len(wikidata))
 
@@ -1010,12 +1107,20 @@ def run_ingestion(config: dict) -> Dict[str, Any]:
         lang: guarded(f"extracts:{lang}", _fetch_wikipedia_extracts, lang, titles, 900, http_timeout) or {}
         for lang, titles in wanted.items()
     }
+    # 2b. Without any source text, a description from the structured data
+    # (OSM tags, heritage inventory) if it has enough facts.
+    min_facts = int(ingestion_cfg.get("generated_description_min_facts", 1))
     kept: List[Dict[str, Any]] = []
     for poi in pois:
         article = article_of[id(poi)]
         extract = extracts.get(article[0], {}).get(article[1]) if article else None
         if extract and len(extract) > len(poi.get("description") or ""):
             poi["description"] = extract
+        if not poi.get("description"):
+            text, facts = build_description(poi.get("tags") or {}, str(poi.get("category") or ""), poi.get("heritage"))
+            if facts >= min_facts or canonical_category(poi.get("category")) in _DESTINATION_CATEGORIES:
+                poi["description"] = text
+                poi["description_generated"] = True
         if require_description and not poi.get("description"):
             report["dropped"]["no_description"] += 1
             continue
@@ -1096,6 +1201,7 @@ def _build_entity(
     """
     subcategory = poi.get("category")
     category = canonical_category(subcategory)
+    heritage = poi.get("heritage") or {}
     address = {"addressLocality": locality, "addressCountry": country, **(poi.get("address") or {})}
     see_also = [
         poi.get("website"),
@@ -1112,7 +1218,8 @@ def _build_entity(
         "address": address,
         "image": image_url,
         "source": _osm_object_url(str(poi.get("id"))),
-        "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+        "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia"
+        + (", Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)" if heritage else ""),
         "refSeeAlso": list(dict.fromkeys(url for url in see_also if url)),
         "contactPoint": {"telephone": poi.get("phone")} if poi.get("phone") else None,
         "openingHours": poi.get("opening_hours") or _synthetic_opening_hours(subcategory),
@@ -1120,6 +1227,9 @@ def _build_entity(
         "subcategory": subcategory,
         "duration": estimate_visit_minutes(subcategory),
         "durationEstimated": True,
+        "descriptionGenerated": True if poi.get("description_generated") else None,
+        "heritageDesignation": heritage.get("designation"),
+        "heritageInventoryId": heritage.get("id"),
         "@context": [
             "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
             "https://raw.githubusercontent.com/smart-data-models/dataModel.PointOfInterest/master/context.jsonld",
@@ -1173,4 +1283,6 @@ def _quality_summary(entities: List[Dict[str, Any]]) -> Dict[str, Any]:
         ),
         "description_chars_median": sorted(descriptions)[len(descriptions) // 2] if descriptions else 0,
         "short_descriptions": sum(1 for d in descriptions if d < MIN_USEFUL_DESCRIPTION_CHARS),
+        "generated_descriptions": sum(1 for e in entities if e.get("descriptionGenerated")),
+        "protected_heritage": dict(Counter(e["heritageDesignation"] for e in entities if e.get("heritageDesignation"))),
     }
