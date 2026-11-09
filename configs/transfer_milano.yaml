@@ -1,0 +1,186 @@
+# Transfer test only: same pipeline as base.yaml on Milano (catalog under data/cities/, git-ignored).
+modules:
+  ingestion:
+    enabled: true
+  catalog:
+    enabled: true
+  embeddings:
+    enabled: true
+  recommendation:
+    enabled: true
+  planning:
+    enabled: true
+  api:
+    enabled: true
+  evaluation:
+    enabled: true
+data:
+  raw_dir: data/cities/milano/raw
+  processed_dir: data/cities/milano/processed
+ingestion:
+  fetch_images: true
+  require_description: true
+  generated_description_min_facts: 1
+  heritage:
+    enabled: false
+    municipality: VALÈNCIA
+    max_distance_m: 60
+    sources:
+      BIC: https://dadesobertes.gva.es/dataset/da443c69-9c66-4e25-bdd7-8fdb8fe7cda9/resource/2271efdd-d0cc-4126-a9a0-dd11d56acbde/download/bienes_inmuebles_interes_cultural.csv
+      BRL: https://dadesobertes.gva.es/dataset/da443c69-9c66-4e25-bdd7-8fdb8fe7cda9/resource/0619adb1-e458-4b2a-ae6a-6bad5f00b6c9/download/bienes_inmuebles_relevancia_local.csv
+  osm:
+    enabled: true
+  overpass_urls:
+  - https://overpass-api.de/api/interpreter
+  - https://overpass.kumi.systems/api/interpreter
+  - https://lz4.overpass-api.de/api/interpreter
+  - https://overpass.openstreetmap.ru/api/interpreter
+  request_timeout_seconds: 180
+  workers: 4
+  pageview_days: 60
+  pageview_languages:
+  - es
+  - ca
+  - en
+  - fr
+  - de
+  - it
+  - pt
+  - nl
+  - ru
+  - pl
+  - ja
+  - zh
+  allow_partial: false
+  area_name: Milano
+  area_admin_level: 8
+  area_boundary: administrative
+  area_relation_id: 44915
+  bbox: null
+  tag_filters:
+  - key: tourism
+    values:
+    - attraction
+    - museum
+    - gallery
+    - artwork
+    - viewpoint
+    - information
+    - picnic_site
+    - theme_park
+    - zoo
+    - aquarium
+  - key: historic
+    values:
+    - '*'
+  - key: heritage
+    values:
+    - '*'
+  - key: memorial
+    values:
+    - '*'
+  - key: leisure
+    values:
+    - park
+    - garden
+    - nature_reserve
+  - key: natural
+    values:
+    - peak
+    - beach
+    - waterfall
+  - key: man_made
+    values:
+    - tower
+    - lighthouse
+    - windmill
+    - bridge
+  - key: building
+    values:
+    - cathedral
+  - key: amenity
+    values:
+    - place_of_worship
+  dedup:
+    enabled: true
+    max_distance_m: 80
+    min_name_similarity: 0.82
+    prefer_sources:
+    - osm
+    report_path: data/cities/milano/processed/dedup_matches.csv
+  google_places:
+    enabled: false
+    radius_m: 250
+    min_name_similarity: 0.75
+embeddings:
+  model_id: google/embeddinggemma-300m
+  device: cpu
+  batch_size: 16
+  normalize: true
+  show_progress: true
+  output_path: data/cities/milano/processed/embeddings.jsonl
+parameters:
+  planning:
+    max_stops_per_day: 6
+    visit_time_minutes: 60
+    max_total_minutes: 420
+    max_candidates: 20
+    travel_penalty_minutes: 15
+    respect_opening_hours: true
+    start_location:
+      name: Plaza del Ayuntamiento
+      lat: 39.4699
+      lon: -0.3763
+    routing:
+      provider: openrouteservice
+      profile: foot-walking
+      endpoint: https://api.openrouteservice.org
+recommendation:
+  top_n: 30
+  alpha: 0.5
+  beta: 0.3
+  gamma: 0.2
+  lambda_geo: 0.5
+  theta_mmr: 0.7
+  hidden_gems_bias: 0.0
+  multi_interest_enabled: true
+  multi_interest_k: 3
+  dislike_weight: 0.5
+  category_weight: 0.3
+  interest_text_weight: 0.5
+  filter_opening_hours: true
+  active_learning_bandwidth: 0.1
+  active_learning_prior_strength: 2.0
+  active_learning_exploration: 1.0
+  active_learning_popularity_weight: 0.15
+  active_learning_interest_weight: 0.3
+  liked_pois: []
+  style: explorer
+  styles:
+    explorer:
+      alpha: 0.6
+      beta: 0.2
+      gamma: 0.2
+      theta_mmr: 0.6
+      hidden_gems_bias: 0.5
+    conservative:
+      alpha: 0.5
+      beta: 0.2
+      gamma: 0.3
+      theta_mmr: 1.0
+      hidden_gems_bias: 0.0
+    hidden_gems:
+      alpha: 0.6
+      beta: 0.25
+      gamma: 0.15
+      theta_mmr: 0.7
+      hidden_gems_bias: 1.0
+evaluation:
+  k: 10
+  seed: 42
+  synthetic_users: 40
+  onboarding_rounds:
+  - 6
+  - 4
+  - 4
+  personas_path: data/eval/personas.json

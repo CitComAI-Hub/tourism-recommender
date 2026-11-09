@@ -13,7 +13,7 @@ from pathlib import Path
 
 import numpy as np
 
-from pmv_turismo.common import load_poi_list
+from pmv_turismo.common import load_poi_list, processed_dir
 from pmv_turismo.config import Config
 from pmv_turismo.embeddings import embeddings_path, load_embedding_index
 
@@ -24,13 +24,13 @@ VALENCIA = {"lat": (39.40, 39.53), "lon": (-0.44, -0.27)}
 TOURIST_MAX_DAYS = 21
 
 
-def load_config() -> dict:
-    return Config.load(REPO / "configs" / "base.yaml").data
+def load_config(name: str = "base") -> dict:
+    return Config.load(REPO / "configs" / f"{name}.yaml").data
 
 
 def load_catalog(cfg: dict):
     """POIs, their unit embeddings (same order) and the assignment radius in km."""
-    pois = load_poi_list(REPO / "data" / "processed" / "poi.jsonld")
+    pois = load_poi_list(processed_dir(cfg) / "poi.jsonld")
     index = load_embedding_index(embeddings_path(cfg))
     emb = index.units[[index.index_of(p["id"]) for p in pois]]
     radius = np.array([0.150 if set(p.get("category", [])) & BIG else 0.040 for p in pois])

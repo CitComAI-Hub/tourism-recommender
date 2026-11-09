@@ -224,3 +224,6 @@ data/raw/
 data/processed/*
 !data/processed/poi.jsonld
 !data/processed/embeddings.jsonl
+
+# Catalogs of other cities built only for the transfer test
+data/cities/
