@@ -9,12 +9,14 @@ from pmv_turismo.behaviour import train_from_config
 from pmv_turismo.catalog import build_catalog
 from pmv_turismo.config import Config
 from pmv_turismo.embeddings import generate_embeddings
+from pmv_turismo.geometry import save_geometries
 from pmv_turismo.ingestion import run_ingestion
 
 STEPS = {
     "ingestion": run_ingestion,
     "catalog": build_catalog,
     "embeddings": generate_embeddings,
+    "geometry": save_geometries,
     "behaviour": train_from_config,
 }
 

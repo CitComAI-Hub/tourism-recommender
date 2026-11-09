@@ -20,9 +20,9 @@ is a separate service.
 - Every result carries its `reasons` (popular, near a liked place, people who
   visit X also go here) and where its popularity comes from.
 
-Measured on real tourists (Flickr YFCC100M, Valencia; scripts in `research/`):
-a held-out visit lands in the top 10 for 49% of cases, against 7-12% for the
-previous embedding-only ranking and 21% for "most viewed on Wikipedia".
+Measured on real tourists (Flickr YFCC100M, Valencia; `research/eval_service.py`):
+a held-out visit lands in the top 10 for 68% of cases, against 55% for the
+most visited places and 46% for the same ranking with Wikipedia popularity.
 
 ## Setup (Linux)
 	python3 -m venv .venv
@@ -42,6 +42,7 @@ embeddings.
 ## Offline pipeline (CLI)
 	python -m pmv_turismo.cli --step ingestion    # OSM + Wikidata/Wikipedia/Commons + GVA heritage
 	python -m pmv_turismo.cli --step embeddings   # POI embeddings
+	python -m pmv_turismo.cli --step geometry     # real OSM shapes of the POIs
 	python -m pmv_turismo.cli --step behaviour    # behaviour model from photos
 	python -m pmv_turismo.cli --step all
 
@@ -49,8 +50,9 @@ embeddings.
 
 ## Behaviour model
 `--step behaviour` reads `behaviour.photos_path`, a JSON Lines file (gzip
-allowed) of photos `{"user", "lat", "lon", "ts"}` from any source, assigns
-each photo to the nearest POI within its radius and writes
+allowed) of photos `{"user", "lat", "lon", "ts"}` from any source, counts a
+photo as a visit to every POI whose real OSM shape it falls in
+(`poi_geometry.json`; within 40 m for points and lines) and writes
 `data/processed/behaviour_model.npz`: per-POI visitor counts, the popularity
 regressor and the adapted projection. It holds aggregates only; user ids
 should be pseudonymised before training. Without the file the service falls

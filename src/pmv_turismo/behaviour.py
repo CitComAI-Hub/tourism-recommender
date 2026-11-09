@@ -46,19 +46,42 @@ def poi_radius_km(poi: Dict[str, Any]) -> float:
     return AREA_RADIUS_KM if set(poi.get("category") or []) & AREA_CATEGORIES else POINT_RADIUS_KM
 
 
-def assign_visits(photos: Iterable[Dict[str, Any]], pois: List[Dict[str, Any]]) -> Dict[str, set[int]]:
-    """user -> indices of the POIs they photographed."""
-    lat = np.array([p["location"]["coordinates"][1] for p in pois], dtype=float)
-    lon = np.array([p["location"]["coordinates"][0] for p in pois], dtype=float)
-    radius = np.array([poi_radius_km(p) for p in pois])
+def assign_visits(photos: Iterable[Dict[str, Any]], pois: List[Dict[str, Any]],
+                  shapes: Optional[Dict[str, Any]] = None) -> Dict[str, set[int]]:
+    """user -> indices of the POIs they photographed.
+
+    With `shapes` (see geometry.py) a photo is a visit to every POI whose real
+    OSM shape it falls in (or near, for points and lines). Without them, to the nearest
+    POI within a fixed radius (150 m for large areas), which mis-assigns photos
+    of busy squares to small POIs next to them.
+    """
+    photos = list(photos)
+    if not photos:
+        return {}
+    lat = np.array([float(p["lat"]) for p in photos])
+    lon = np.array([float(p["lon"]) for p in photos])
+    users = [str(p["user"]) for p in photos]
     visits: Dict[str, set[int]] = {}
-    for photo in photos:
-        plat, plon = float(photo["lat"]), float(photo["lon"])
-        dx = np.radians(lon - plon) * math.cos(math.radians(plat))
-        dk = 6371.0 * np.sqrt(dx * dx + np.radians(lat - plat) ** 2)
+    if shapes:
+        from pmv_turismo.geometry import assign_photos
+
+        for j, photo_idx in enumerate(assign_photos(pois, shapes, lat, lon)):
+            for k in photo_idx:
+                visits.setdefault(users[k], set()).add(j)
+        return visits
+    plat = np.array([p["location"]["coordinates"][1] for p in pois], dtype=float)
+    plon = np.array([p["location"]["coordinates"][0] for p in pois], dtype=float)
+    radius = np.array([poi_radius_km(p) for p in pois])
+    target = np.full(len(photos), -1)
+    for k in range(len(photos)):
+        dx = np.radians(plon - lon[k]) * math.cos(math.radians(lat[k]))
+        dk = 6371.0 * np.sqrt(dx * dx + np.radians(plat - lat[k]) ** 2)
         inside = dk <= radius
         if inside.any():
-            visits.setdefault(str(photo["user"]), set()).add(int(np.argmin(np.where(inside, dk, np.inf))))
+            target[k] = int(np.argmin(np.where(inside, dk, np.inf)))
+    for user, j in zip(users, target):
+        if j >= 0:
+            visits.setdefault(user, set()).add(int(j))
     return visits
 
 
@@ -182,6 +205,12 @@ def train_from_config(config: dict) -> None:
     keep = [i for i, p in enumerate(pois) if index.index_of(str(p["id"])) is not None]
     pois = [pois[i] for i in keep]
     units = index.units[[index.index_of(str(p["id"])) for p in pois]]
-    model = train(pois, units, assign_visits(read_photos(Path(photos_path)), pois), str(cfg.get("source", photos_path)))
+    from pmv_turismo.geometry import load_geometries
+
+    shapes = load_geometries(config)
+    if not shapes:
+        logger.warning("No POI geometries (run `--step geometry`): falling back to fixed radii")
+    visits = assign_visits(read_photos(Path(photos_path)), pois, shapes)
+    model = train(pois, units, visits, str(cfg.get("source", photos_path)))
     model.save(model_path(config))
     print(f"behaviour: model saved to {model_path(config)} ({model.meta})")
