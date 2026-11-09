@@ -5,16 +5,15 @@ import Image from "next/image";
 import { motion, AnimatePresence, type PanInfo } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { OptimizedImage, normalizeImageUrl } from "@/components/ui/optimized-image";
-import { ArrowLeft, Heart, X, Star, Clock, MapPin, Loader2 } from "lucide-react";
+import { ArrowLeft, Heart, X, Clock, MapPin, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { POI } from "@/lib/api";
-import { getRandomPOIs } from "@/lib/api";
+import { getOnboardingCards } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { poiCategoryLabel } from "@/components/poi-category-badge";
 
 interface POIsStepProps {
   selectedCategories: string[];
-  interests: string;
   likedPOIs: string[];
   onLikedPOIsChange: (pois: string[]) => void;
   onDislikedPOIsChange?: (pois: string[]) => void;
@@ -33,7 +32,6 @@ const ROUND_SIZES: readonly number[] = (() => {
 
 export function POIsStep({
   selectedCategories,
-  interests,
   likedPOIs,
   onLikedPOIsChange,
   onDislikedPOIsChange,
@@ -71,13 +69,12 @@ export function POIsStep({
 
       try {
         const requested = ROUND_SIZES[roundIndex] ?? 4;
-        const sample = await getRandomPOIs({
+        const sample = await getOnboardingCards({
           categories: selectedCategories,
           limit: requested,
-          likedPOIs,
-          dislikedPOIs,
-          seenPOIs: seenIds,
-          interests,
+          liked: likedPOIs,
+          disliked: dislikedPOIs,
+          seen: seenIds,
         });
 
         const deduped = sample.filter(
@@ -120,7 +117,7 @@ export function POIsStep({
         setDirection(null);
       }
     },
-    [selectedCategories, interests, likedPOIs, dislikedPOIs, t]
+    [selectedCategories, likedPOIs, dislikedPOIs, t]
   );
 
   // The rounds restart from scratch, so earlier answers must not steer them
@@ -132,7 +129,7 @@ export function POIsStep({
     setCurrentRound(0);
     setIsExhausted(false);
     void loadRound(0, false, []);
-  }, [selectedCategories, interests, onDislikedPOIsChange, onLikedPOIsChange]);
+  }, [selectedCategories, onDislikedPOIsChange, onLikedPOIsChange]);
 
   useEffect(() => {
     if (isLoading || isLoadingMore) return;
@@ -378,13 +375,6 @@ export function POIsStep({
                 </AnimatePresence>
 
                 <div className="absolute bottom-0 left-0 right-0 p-5 text-card">
-                  {currentPOI.rating && (
-                    <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-card/20 backdrop-blur-sm rounded-full text-sm mb-3">
-                      <Star className="w-3.5 h-3.5 fill-accent text-accent" />
-                      <span className="font-medium">{currentPOI.rating}</span>
-                    </div>
-                  )}
-
                   <h3 className="font-serif text-2xl font-medium leading-tight mb-2">
                     {currentPOI.name}
                   </h3>

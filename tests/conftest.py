@@ -46,7 +46,6 @@ def workspace(tmp_path: Path) -> Path:
     config = yaml.safe_load(Path("configs/base.yaml").read_text(encoding="utf-8"))
     config["data"] = {"raw_dir": str(tmp_path / "raw"), "processed_dir": str(processed)}
     config["embeddings"]["output_path"] = str(processed / "embeddings.jsonl")
-    config["parameters"]["planning"]["routing"] = {"provider": "osrm", "profile": "foot"}
     config["recommendation"]["filter_opening_hours"] = False
     config_path = tmp_path / "config.yaml"
     config_path.write_text(yaml.safe_dump(config), encoding="utf-8")

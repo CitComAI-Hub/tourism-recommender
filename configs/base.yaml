@@ -1,19 +1,3 @@
-modules:
-  ingestion:
-    enabled: true
-  catalog:
-    enabled: true
-  embeddings:
-    enabled: true
-  recommendation:
-    enabled: true
-  planning:
-    enabled: true
-  api:
-    enabled: true
-  evaluation:
-    enabled: true
-
 data:
   raw_dir: data/raw
   processed_dir: data/processed
@@ -97,92 +81,22 @@ embeddings:
   show_progress: true
   output_path: data/processed/embeddings.jsonl
 
-parameters:
-  planning:
-    max_stops_per_day: 6
-    visit_time_minutes: 60
-    max_total_minutes: 420
-    max_candidates: 20
-    # Next stop maximises score / (1 + travel_minutes / travel_penalty_minutes)
-    travel_penalty_minutes: 15
-    respect_opening_hours: true
-    # start_time: "10:00"   # default: current time (Europe/Madrid)
-    start_location:
-      name: "Plaza del Ayuntamiento"
-      lat: 39.4699
-      lon: -0.3763
-    routing:
-      provider: openrouteservice
-      # api_key: from the ORS_API_KEY environment variable (.env)
-      profile: foot-walking
-      endpoint: https://api.openrouteservice.org
-      # Para usar OSRM público en vez de ORS, comenta las dos líneas anteriores y usa:
-      # provider: osrm
-      # endpoint: https://router.project-osrm.org
-      # profile: foot
-
 recommendation:
   top_n: 30
-  # alpha/beta/gamma are normalised to sum 1 (semantic / popularity / distance)
-  alpha: 0.5
-  beta: 0.3
-  gamma: 0.2
-  lambda_geo: 0.5
-  theta_mmr: 0.7
-  hidden_gems_bias: 0.0
-  multi_interest_enabled: true
-  multi_interest_k: 3
-  dislike_weight: 0.5
-  # Score bonus for POIs in the categories picked during onboarding (normalised
-  # with alpha/beta/gamma). Best single lever in the persona evaluation.
-  category_weight: 0.3
-  # Share of the semantic score taken by the free-text interests typed in
-  # onboarding (query embedding, min-max scaled). Ignored without text.
-  interest_text_weight: 0.5
+  # score = minmax(log popularity - distance_km / distance_scale_km)
+  #         + similarity_weight * minmax(behaviour-adapted similarity to the likes)
+  #         - dislike_weight * minmax(similarity to the dislikes)
+  # Values measured on real tourist visits (research/loo_eval.py).
+  distance_scale_km: 0.3
+  similarity_weight: 0.3
+  dislike_weight: 0.1
   filter_opening_hours: true
-  # Onboarding: Beta posterior of P(like) smoothed over embedding similarity,
-  # ranked by mean + exploration * std (UCB). Bandwidth: cosine scale over
-  # which a swipe propagates; prior_strength: swipes needed to beat the prior.
-  active_learning_bandwidth: 0.1
-  active_learning_prior_strength: 2.0
-  active_learning_exploration: 1.0
-  active_learning_popularity_weight: 0.15
-  active_learning_interest_weight: 0.3
-  # CLI only: `--step recommendation` needs seed likes (POI ids) and a style
-  liked_pois: []
-  style: explorer
-  # Weight overrides per user-selectable style. Each one leads a different
-  # axis instead of trading accuracy away: explorer = most varied list,
-  # conservative = popular and nearby, hidden_gems = lesser-known places.
-  # Useful diversity range on this catalog is ~0.49-0.59 ILD: theta < 0.5
-  # barely adds variety but recommends unrelated POIs (see evaluation sweep).
-  # Explorer uses 0.6, not 0.5: on the personas 0.5 bought +0.05 ILD at the
-  # cost of ~10% precision.
-  styles:
-    explorer:
-      alpha: 0.6
-      beta: 0.2
-      gamma: 0.2
-      theta_mmr: 0.6
-      hidden_gems_bias: 0.5
-    conservative:
-      alpha: 0.5
-      beta: 0.2
-      gamma: 0.3
-      theta_mmr: 1.0
-      hidden_gems_bias: 0.0
-    hidden_gems:
-      alpha: 0.6
-      beta: 0.25
-      gamma: 0.15
-      theta_mmr: 0.7
-      hidden_gems_bias: 1.0
 
-evaluation:
-  k: 10
-  seed: 42
-  synthetic_users: 40
-  # Card counts per onboarding round in the simulation (match the frontend)
-  onboarding_rounds: [6, 4, 4]
-  # Hand-labelled personas (categories + relevant POIs) for the persona evaluation
-  personas_path: data/eval/personas.json
+behaviour:
+  # Model learnt offline from geotagged photos (`--step behaviour`); without it the
+  # service ranks by Wikipedia popularity and plain embeddings.
+  # model_path: data/processed/behaviour_model.npz
+  # Pseudonymised photos (user, lat, lon, ts); exported by research/eval_service.py
+  photos_path: data/raw/yfcc/valencia_photos.jsonl.gz
+  source: "Flickr YFCC100M (2004-2014), Valencia"
+

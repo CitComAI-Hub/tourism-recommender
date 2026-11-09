@@ -1,183 +1,111 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  type ReactNode,
-} from "react";
-import type { UserProfile, POI, PlannerPreferences } from "./api";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import type { Location, UserProfile } from "./api";
 
+/** Everything about the user lives in this browser only; the API is stateless. */
 interface UserState {
-  userId: string | null;
   profile: UserProfile | null;
-  acceptedRecommendations: POI[];
   likedPOIs: string[];
-  plannerPreferences: PlannerPreferences;
+  dislikedPOIs: string[];
+  startLocation: Location | null;
+  useCurrentLocation: boolean;
   onboardingComplete: boolean;
   isHydrated: boolean;
 }
 
 interface UserContextType extends UserState {
-  setUserId: (id: string) => void;
   setProfile: (profile: UserProfile) => void;
-  addAcceptedRecommendation: (poi: POI) => void;
-  removeAcceptedRecommendation: (poiId: string) => void;
-  clearAcceptedRecommendations: () => void;
-  addLikedPOI: (poiId: string) => void;
-  removeLikedPOI: (poiId: string) => void;
-  setPlannerPreferences: (prefs: Partial<PlannerPreferences>) => void;
+  setFeedback: (liked: string[], disliked: string[]) => void;
+  like: (poiId: string) => void;
+  dislike: (poiId: string) => void;
+  clearFeedback: (poiId: string) => void;
+  setLocationPreference: (startLocation: Location | null, useCurrentLocation: boolean) => void;
   completeOnboarding: () => void;
   resetUser: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-const STORAGE_KEY = "valencia_tourism_user";
-
-const DEFAULT_PLANNER_PREFS: PlannerPreferences = {
-  max_stops_per_day: 5,
-  max_total_minutes: 480,
-  visit_time_minutes: 60,
-  start_location: null,
-  use_current_location: true,
-  mobility: "walking",
-};
+const STORAGE_KEY = "tourism_user_v2";
 
 const DEFAULT_STATE: UserState = {
-  userId: null,
   profile: null,
-  acceptedRecommendations: [],
   likedPOIs: [],
-  plannerPreferences: DEFAULT_PLANNER_PREFS,
+  dislikedPOIs: [],
+  startLocation: null,
+  useCurrentLocation: true,
   onboardingComplete: false,
   isHydrated: false,
 };
 
+const without = (list: string[], id: string) => list.filter((x) => x !== id);
+
 export function UserProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<UserState>(DEFAULT_STATE);
 
-  // Load from localStorage on mount
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        setState({
-          ...DEFAULT_STATE,
-          ...parsed,
-          isHydrated: true,
-          likedPOIs: Array.isArray(parsed.likedPOIs) ? parsed.likedPOIs : [],
-          plannerPreferences: {
-            ...DEFAULT_PLANNER_PREFS,
-            ...(parsed.plannerPreferences || {}),
-          },
-        });
-      } catch {
-        localStorage.removeItem(STORAGE_KEY);
-        setState((prev) => ({ ...prev, isHydrated: true }));
-      }
-    } else {
-      setState((prev) => ({ ...prev, isHydrated: true }));
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      const parsed = stored ? JSON.parse(stored) : {};
+      setState({
+        ...DEFAULT_STATE,
+        ...parsed,
+        likedPOIs: Array.isArray(parsed.likedPOIs) ? parsed.likedPOIs : [],
+        dislikedPOIs: Array.isArray(parsed.dislikedPOIs) ? parsed.dislikedPOIs : [],
+        isHydrated: true,
+      });
+    } catch {
+      setState({ ...DEFAULT_STATE, isHydrated: true });
     }
   }, []);
 
-  // Save to localStorage on state change (even without userId to keep demo state)
   useEffect(() => {
     if (!state.isHydrated) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    try {
+      const { isHydrated: _, ...persisted } = state;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(persisted));
+    } catch {
+      // Private mode or blocked storage: keep working in memory.
+    }
   }, [state]);
 
-  const setUserId = (id: string) => {
-    setState((prev) => ({ ...prev, userId: id }));
+  const value: UserContextType = {
+    ...state,
+    setProfile: (profile) => setState((s) => ({ ...s, profile })),
+    setFeedback: (liked, disliked) => setState((s) => ({ ...s, likedPOIs: liked, dislikedPOIs: disliked })),
+    like: (id) =>
+      setState((s) => ({
+        ...s,
+        likedPOIs: s.likedPOIs.includes(id) ? s.likedPOIs : [...s.likedPOIs, id],
+        dislikedPOIs: without(s.dislikedPOIs, id),
+      })),
+    dislike: (id) =>
+      setState((s) => ({
+        ...s,
+        dislikedPOIs: s.dislikedPOIs.includes(id) ? s.dislikedPOIs : [...s.dislikedPOIs, id],
+        likedPOIs: without(s.likedPOIs, id),
+      })),
+    clearFeedback: (id) =>
+      setState((s) => ({ ...s, likedPOIs: without(s.likedPOIs, id), dislikedPOIs: without(s.dislikedPOIs, id) })),
+    setLocationPreference: (startLocation, useCurrentLocation) =>
+      setState((s) => ({ ...s, startLocation, useCurrentLocation })),
+    completeOnboarding: () => setState((s) => ({ ...s, onboardingComplete: true })),
+    resetUser: () => {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        // ignore
+      }
+      setState({ ...DEFAULT_STATE, isHydrated: true });
+    },
   };
 
-  const setProfile = (profile: UserProfile) => {
-    setState((prev) => ({ ...prev, profile }));
-  };
-
-  const addAcceptedRecommendation = (poi: POI) => {
-    setState((prev) => ({
-      ...prev,
-      acceptedRecommendations: prev.acceptedRecommendations.some(
-        (p) => p.id === poi.id
-      )
-        ? prev.acceptedRecommendations
-        : [...prev.acceptedRecommendations, poi],
-    }));
-  };
-
-  const removeAcceptedRecommendation = (poiId: string) => {
-    setState((prev) => ({
-      ...prev,
-      acceptedRecommendations: prev.acceptedRecommendations.filter(
-        (p) => p.id !== poiId
-      ),
-    }));
-  };
-
-  const clearAcceptedRecommendations = () => {
-    setState((prev) => ({ ...prev, acceptedRecommendations: [] }));
-  };
-
-  const addLikedPOI = (poiId: string) => {
-    setState((prev) => ({
-      ...prev,
-      likedPOIs: prev.likedPOIs.includes(poiId)
-        ? prev.likedPOIs
-        : [...prev.likedPOIs, poiId],
-    }));
-  };
-
-  const removeLikedPOI = (poiId: string) => {
-    setState((prev) => ({
-      ...prev,
-      likedPOIs: prev.likedPOIs.filter((id) => id !== poiId),
-    }));
-  };
-
-  const setPlannerPreferences = (prefs: Partial<PlannerPreferences>) => {
-    setState((prev) => ({
-      ...prev,
-      plannerPreferences: { ...prev.plannerPreferences, ...prefs },
-    }));
-  };
-
-  const completeOnboarding = () => {
-    setState((prev) => ({ ...prev, onboardingComplete: true }));
-  };
-
-  const resetUser = () => {
-    localStorage.removeItem(STORAGE_KEY);
-    setState(DEFAULT_STATE);
-  };
-
-  return (
-    <UserContext.Provider
-      value={{
-        ...state,
-        setUserId,
-        setProfile,
-        addAcceptedRecommendation,
-        removeAcceptedRecommendation,
-        clearAcceptedRecommendations,
-        addLikedPOI,
-        removeLikedPOI,
-        setPlannerPreferences,
-        completeOnboarding,
-        resetUser,
-      }}
-    >
-      {children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
 
 export function useUser() {
   const context = useContext(UserContext);
-  if (context === undefined) {
-    throw new Error("useUser must be used within a UserProvider");
-  }
+  if (context === undefined) throw new Error("useUser must be used within a UserProvider");
   return context;
 }

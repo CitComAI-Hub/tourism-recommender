@@ -5,17 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { PoiCategoryBadge } from "@/components/poi-category-badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { OptimizedImage } from "@/components/ui/optimized-image";
-import {
-  Check,
-  Plus,
-  Map,
-  List,
-  Clock,
-  Star,
-  Loader2,
-  Heart,
-  ListFilter,
-} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { PoiReasons } from "@/components/explore/poi-reasons";
+import { Map, List, Clock, Loader2, Heart, ListFilter, Search, ThumbsDown, X } from "lucide-react";
 import type { POI } from "@/lib/api";
 import { POI_CATEGORY_FILTERS, POI_CATEGORY_META } from "@/lib/poi-categories";
 import { cn } from "@/lib/utils";
@@ -23,28 +15,36 @@ import { useI18n } from "@/lib/i18n";
 
 interface RecommendationsListProps {
   recommendations: POI[];
-  likedPOIs?: string[];
-  acceptedRecommendations: POI[];
+  likedItems: POI[];
   isLoading: boolean;
   activeFilter: string | null;
   onFilterChange: (filter: string | null) => void;
+  query: string;
+  onQueryChange: (query: string) => void;
+  isSearching: boolean;
   onSelectPOI: (poi: POI) => void;
   onHoverPOI: (poi: POI | null) => void;
-  onToggleAccept: (poi: POI) => void;
+  onLike: (poi: POI) => void;
+  onDislike: (poi: POI) => void;
+  onUnlike: (poi: POI) => void;
   showMap: boolean;
   onToggleMap: () => void;
 }
 
 export function RecommendationsList({
   recommendations,
-  likedPOIs = [],
-  acceptedRecommendations,
+  likedItems,
   isLoading,
   activeFilter,
   onFilterChange,
+  query,
+  onQueryChange,
+  isSearching,
   onSelectPOI,
   onHoverPOI,
-  onToggleAccept,
+  onLike,
+  onDislike,
+  onUnlike,
   showMap,
   onToggleMap,
 }: RecommendationsListProps) {
@@ -58,7 +58,9 @@ export function RecommendationsList({
       {/* Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-serif text-2xl text-foreground">{t("recommendations.heading")}</h2>
+          <h2 className="font-serif text-2xl text-foreground">
+            {isSearching ? t("recommendations.search_results") : t("recommendations.heading")}
+          </h2>
           <Button
             variant="ghost"
             size="sm"
@@ -67,6 +69,28 @@ export function RecommendationsList({
           >
             {showMap ? <List className="w-4 h-4" /> : <Map className="w-4 h-4" />}
           </Button>
+        </div>
+
+        {/* Free-text search (semantic, over the descriptions) */}
+        <div className="relative mb-3">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(e) => onQueryChange(e.target.value)}
+            placeholder={t("recommendations.search_placeholder")}
+            className="rounded-full pl-9 pr-9"
+            aria-label={t("recommendations.search_placeholder")}
+          />
+          {query && (
+            <button
+              type="button"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              onClick={() => onQueryChange("")}
+              aria-label={t("common.clear")}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         {/* Filters */}
@@ -100,6 +124,33 @@ export function RecommendationsList({
       {/* Recommendations */}
       <ScrollArea className="flex-1 min-h-0">
         <div className="p-4 space-y-3">
+          {!isSearching && likedItems.length > 0 && (
+            <div className="mb-2">
+              <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {t("recommendations.liked_heading")}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {likedItems.map((poi) => (
+                  <span
+                    key={poi.id}
+                    className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/5 py-1 pl-3 pr-1 text-sm"
+                  >
+                    <button type="button" className="max-w-[12rem] truncate" onClick={() => onSelectPOI(poi)}>
+                      {poi.name}
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-full p-1 text-muted-foreground hover:text-foreground"
+                      onClick={() => onUnlike(poi)}
+                      aria-label={t("common.remove")}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -107,26 +158,21 @@ export function RecommendationsList({
           ) : safeRecommendations.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">
-                {t("recommendations.empty")}
+                {isSearching ? t("recommendations.search_empty") : t("recommendations.empty")}
               </p>
             </div>
           ) : (
             safeRecommendations.map((poi, idx) => {
-              const isAccepted = acceptedRecommendations.some(
-                (p) => p.id === poi.id
-              );
-              const isLiked = likedPOIs.includes(poi.id);
+              const isLiked = likedItems.some((p) => p.id === poi.id);
               const visitMinutes = poi.duration ?? 60;
               return (
                 <div
                   key={poi.id || `poi-${idx}`}
                   className={cn(
                     "group relative p-4 rounded-xl border transition-all cursor-pointer",
-                    isAccepted
+                    isLiked
                       ? "border-primary/30 bg-primary/5"
-                      : isLiked
-                        ? "border-border bg-card shadow-none"
-                        : "border-border bg-card hover:border-primary/20 hover:shadow-md"
+                      : "border-border bg-card hover:border-primary/20 hover:shadow-md"
                   )}
                   onClick={() => onSelectPOI(poi)}
                   onMouseEnter={() => onHoverPOI(poi)}
@@ -156,15 +202,10 @@ export function RecommendationsList({
                           {isLiked && (
                             <Heart className="w-4 h-4 fill-primary text-primary" />
                           )}
-                          {poi.rating && (
-                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                              <Star className="w-3.5 h-3.5 fill-accent text-accent" />
-                              {poi.rating}
-                            </div>
-                          )}
                         </div>
                       </div>
 
+                      <PoiReasons poi={poi} compact className="mb-1" />
                       <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
                         {poi.description}
                       </p>
@@ -187,25 +228,35 @@ export function RecommendationsList({
                       </div>
                     </div>
 
-                    {/* Accept Button */}
-                    <Button
-                      size="icon"
-                      variant={isAccepted ? "default" : "outline"}
-                      className={cn(
-                        "shrink-0 rounded-full h-10 w-10 transition-all",
-                        isAccepted && "bg-primary text-primary-foreground"
-                      )}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onToggleAccept(poi);
-                      }}
-                    >
-                      {isAccepted ? (
-                        <Check className="w-4 h-4" />
-                      ) : (
-                        <Plus className="w-4 h-4" />
-                      )}
-                    </Button>
+                    {/* Feedback: each answer re-ranks the list */}
+                    <div className="flex shrink-0 flex-col gap-2">
+                      <Button
+                        size="icon"
+                        variant={isLiked ? "default" : "outline"}
+                        className="h-9 w-9 rounded-full"
+                        aria-label={t("poi.like")}
+                        title={t("poi.like")}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onLike(poi);
+                        }}
+                      >
+                        <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-9 w-9 rounded-full text-muted-foreground"
+                        aria-label={t("poi.dislike")}
+                        title={t("poi.dislike")}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDislike(poi);
+                        }}
+                      >
+                        <ThumbsDown className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               );

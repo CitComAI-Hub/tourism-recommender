@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PoiCategoryBadge } from "@/components/poi-category-badge";
 import { OptimizedImage } from "@/components/ui/optimized-image";
-import { Check, Plus, Clock, Star, MapPin, Navigation, X } from "lucide-react";
+import { Heart, ThumbsDown, Clock, MapPin, Navigation, X } from "lucide-react";
+import { PoiReasons } from "@/components/explore/poi-reasons";
 import type { POI } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
@@ -72,22 +73,18 @@ function isOpenNow(raw?: string) {
 
 interface POIDetailSheetProps {
   poi: POI | null;
-  isAccepted: boolean;
+  isLiked: boolean;
   onClose: () => void;
-  onToggleAccept: (poi: POI) => void;
+  onLike: (poi: POI) => void;
+  onDislike: (poi: POI) => void;
 }
 
-export function POIDetailSheet({
-  poi,
-  isAccepted,
-  onClose,
-  onToggleAccept,
-}: POIDetailSheetProps) {
+export function POIDetailSheet({ poi, isLiked, onClose, onLike, onDislike }: POIDetailSheetProps) {
   const isOpen = !!poi;
   const { t } = useI18n();
 
   const categories = poi?.category || [];
-  const description = poi?.description || t("planner.detail.fallback_desc");
+  const description = poi?.description || t("poi.fallback_desc");
   const descriptionId = poi && description ? `poi-desc-${poi.id || "detail"}` : undefined;
   const heroImage = poi?.image || null;
   const [showFullDesc, setShowFullDesc] = useState(false);
@@ -102,12 +99,6 @@ export function POIDetailSheet({
     if (!poi) return;
     const url = `https://www.google.com/maps/dir/?api=1&destination=${poi.location.coordinates[1]},${poi.location.coordinates[0]}`;
     window.open(url, "_blank");
-  };
-
-  const handleToggle = () => {
-    if (poi) {
-      onToggleAccept(poi);
-    }
   };
 
   return (
@@ -155,12 +146,6 @@ export function POIDetailSheet({
                   <SheetTitle className="font-serif text-2xl text-foreground">
                     {poi.name}
                   </SheetTitle>
-                  {poi.rating && (
-                    <div className="flex items-center gap-1 text-sm bg-accent/10 text-accent px-2 py-1 rounded-full">
-                      <Star className="w-4 h-4 fill-accent" />
-                      {poi.rating}
-                    </div>
-                  )}
                 </div>
               </SheetHeader>
 
@@ -186,8 +171,8 @@ export function POIDetailSheet({
                       )}
                     >
                       {openingStatus.status === "open"
-                        ? t("planner.detail.open_now")
-                        : t("planner.detail.closed_now")}
+                        ? t("poi.open_now")
+                        : t("poi.closed_now")}
                     </Badge>
                   )}
                 </div>
@@ -206,6 +191,15 @@ export function POIDetailSheet({
                 </div>
               )}
 
+              {(poi.reasons?.length || poi.popularitySource === "predicted") && (
+                <div className="mb-6 rounded-xl border border-border p-3">
+                  <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {t("poi.why")}
+                  </p>
+                  <PoiReasons poi={poi} className="text-sm" />
+                </div>
+              )}
+
               {/* Description */}
               <div className="text-muted-foreground leading-relaxed mb-8 space-y-2">
                 <p id={descriptionId}>
@@ -213,6 +207,9 @@ export function POIDetailSheet({
                     ? description
                     : `${description.slice(0, 220)}…`}
                 </p>
+                {poi.descriptionGenerated && (
+                  <p className="text-xs italic">{t("poi.generated_desc")}</p>
+                )}
                 {description.length > 220 && (
                   <Button
                     variant="ghost"
@@ -233,26 +230,24 @@ export function POIDetailSheet({
                   onClick={handleGetDirections}
                 >
                   <Navigation className="w-4 h-4 mr-2" />
-                  {t("planner.detail.direction")}
+                  {t("poi.direction")}
                 </Button>
                 <Button
-                  className={cn(
-                    "flex-1 py-6 rounded-full",
-                    isAccepted && "bg-primary text-primary-foreground"
-                  )}
-                  onClick={handleToggle}
+                  variant="outline"
+                  size="icon"
+                  className="h-auto w-14 rounded-full"
+                  aria-label={t("poi.dislike")}
+                  title={t("poi.dislike")}
+                  onClick={() => onDislike(poi)}
                 >
-                  {isAccepted ? (
-                    <>
-                      <Check className="w-4 h-4 mr-2" />
-                      {t("planner.detail.in_plan")}
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-4 h-4 mr-2" />
-                      {t("planner.detail.add_plan")}
-                    </>
-                  )}
+                  <ThumbsDown className="w-4 h-4" />
+                </Button>
+                <Button
+                  className={cn("flex-1 py-6 rounded-full", isLiked && "bg-primary text-primary-foreground")}
+                  onClick={() => onLike(poi)}
+                >
+                  <Heart className={cn("w-4 h-4 mr-2", isLiked && "fill-current")} />
+                  {isLiked ? t("poi.liked") : t("poi.like")}
                 </Button>
               </div>
             </div>

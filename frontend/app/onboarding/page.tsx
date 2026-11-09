@@ -8,14 +8,9 @@ import { NameStep } from "@/components/onboarding/name-step";
 import { CategoriesStep } from "@/components/onboarding/categories-step";
 import { POIsStep } from "@/components/onboarding/pois-step";
 import { LocationStep } from "@/components/onboarding/location-step";
-import { PreferencesStep } from "@/components/onboarding/preferences-step";
 import { CompletedStep } from "@/components/onboarding/completed-step";
 import { useUser } from "@/lib/user-context";
-import {
-  saveOnboardingSelections,
-  type Location,
-  type PlannerPreferences,
-} from "@/lib/api";
+import type { Location } from "@/lib/api";
 import { sanitizePoiCategoryIds } from "@/lib/poi-categories";
 
 const STEPS = [
@@ -24,35 +19,20 @@ const STEPS = [
   "categories",
   "pois",
   "location",
-  "preferences",
   "completed",
 ] as const;
 type Step = (typeof STEPS)[number];
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const {
-    setUserId,
-    setProfile,
-    addLikedPOI,
-    setPlannerPreferences,
-    completeOnboarding,
-  } = useUser();
+  const { setProfile, setFeedback, setLocationPreference, completeOnboarding } = useUser();
   const [currentStep, setCurrentStep] = useState<Step>("welcome");
   const [name, setName] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [interests, setInterests] = useState("");
   const [likedPOIs, setLikedPOIs] = useState<string[]>([]);
   const [dislikedPOIs, setDislikedPOIs] = useState<string[]>([]);
   const [useCurrentLocation, setUseCurrentLocation] = useState(true);
   const [customLocation, setCustomLocation] = useState<Location | null>(null);
-  const [maxStopsPerDay, setMaxStopsPerDay] = useState(5);
-  const [maxTotalMinutes, setMaxTotalMinutes] = useState(480);
-  const [visitTimeMinutes, setVisitTimeMinutes] = useState(60);
-  const [recommendationStyle, setRecommendationStyle] = useState<
-    "explorer" | "conservative" | "hidden_gems"
-  >("explorer");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const stepIndex = STEPS.indexOf(currentStep);
   const progressSteps = STEPS.length - 2;
@@ -76,48 +56,13 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleComplete = async () => {
-    setIsSubmitting(true);
-    const userId = `user_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-    const safeSelectedCategories = sanitizePoiCategoryIds(selectedCategories);
-    const profile = {
-      name,
-      preferred_categories: safeSelectedCategories,
-      recommendation_style: recommendationStyle,
-      interests: interests.trim(),
-    };
-    const plannerPrefs: PlannerPreferences = {
-      max_stops_per_day: maxStopsPerDay,
-      max_total_minutes: maxTotalMinutes,
-      visit_time_minutes: visitTimeMinutes,
-      start_location: customLocation,
-      use_current_location: useCurrentLocation,
-      mobility: "walking",
-    };
-
-    let finalUserId = userId;
-    try {
-      await saveOnboardingSelections({
-        user_id: userId,
-        profile,
-        liked_pois: likedPOIs,
-        disliked_pois: dislikedPOIs,
-        start_location: customLocation,
-        use_current_location: useCurrentLocation,
-        planner_preferences: plannerPrefs,
-      });
-    } catch (error) {
-      console.error("Error saving preferences:", error);
-      finalUserId = `user_${Date.now()}`;
-    }
-
-    setUserId(finalUserId);
-    setProfile(profile);
-    likedPOIs.forEach((poi) => addLikedPOI(poi));
-    setPlannerPreferences(plannerPrefs);
+  // Everything stays in this browser: the API is stateless.
+  const handleComplete = () => {
+    setProfile({ name, preferred_categories: sanitizePoiCategoryIds(selectedCategories) });
+    setFeedback(likedPOIs, dislikedPOIs);
+    setLocationPreference(customLocation, useCurrentLocation);
     completeOnboarding();
     setCurrentStep("completed");
-    setIsSubmitting(false);
   };
 
   const handleStartExploring = () => {
@@ -158,18 +103,15 @@ export default function OnboardingPage() {
               key="categories"
               selectedCategories={selectedCategories}
               onCategoriesChange={setSelectedCategories}
-              interests={interests}
-              onInterestsChange={setInterests}
               onNext={handleNext}
               onBack={handleBack}
-              isSubmitting={isSubmitting}
+              isSubmitting={false}
             />
           )}
           {currentStep === "pois" && (
             <POIsStep
               key="pois"
               selectedCategories={selectedCategories}
-              interests={interests}
               likedPOIs={likedPOIs}
               onLikedPOIsChange={setLikedPOIs}
               onDislikedPOIsChange={setDislikedPOIs}
@@ -184,24 +126,8 @@ export default function OnboardingPage() {
               customLocation={customLocation}
               onUseCurrentLocationChange={setUseCurrentLocation}
               onCustomLocationChange={setCustomLocation}
-              onNext={handleNext}
-              onBack={handleBack}
-            />
-          )}
-          {currentStep === "preferences" && (
-            <PreferencesStep
-              key="preferences"
-              maxStopsPerDay={maxStopsPerDay}
-              maxTotalMinutes={maxTotalMinutes}
-              visitTimeMinutes={visitTimeMinutes}
-              onMaxStopsChange={setMaxStopsPerDay}
-              onMaxTotalMinutesChange={setMaxTotalMinutes}
-              onVisitTimeChange={setVisitTimeMinutes}
               onNext={handleComplete}
               onBack={handleBack}
-              isSubmitting={isSubmitting}
-              recommendationStyle={recommendationStyle}
-              onRecommendationStyleChange={setRecommendationStyle}
             />
           )}
           {currentStep === "completed" && (

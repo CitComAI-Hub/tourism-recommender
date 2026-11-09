@@ -8,7 +8,6 @@ import yaml
 # Secrets never live in YAML: they are injected from the environment (or a
 # local, git-ignored .env file) into these config paths.
 SECRET_ENV_VARS = {
-    "ORS_API_KEY": ("parameters", "planning", "routing", "api_key"),
     "GOOGLE_PLACES_API_KEY": ("ingestion", "google_places", "api_key"),
 }
 

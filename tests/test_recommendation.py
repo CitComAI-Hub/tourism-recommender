@@ -1,20 +1,14 @@
 from datetime import datetime
-from pathlib import Path
 
 import numpy as np
 import pytest
 
+from pmv_turismo.behaviour import BehaviourModel, assign_visits, train
 from pmv_turismo.common import LOCAL_TZ, load_poi_list, opening_hours_cover_duration
 from pmv_turismo.embeddings import embeddings_path, load_embedding_index
-from pmv_turismo.recommendation import (
-    apply_style,
-    build_interest_vectors,
-    recommend,
-    select_active_learning_pois,
-    semantic_scores,
-)
+from pmv_turismo.recommendation import Recommender
 
-from conftest import poi_id
+from conftest import POIS, poi_id
 
 WEDNESDAY_11 = datetime(2026, 6, 10, 11, 0, tzinfo=LOCAL_TZ)
 MONDAY_11 = datetime(2026, 6, 8, 11, 0, tzinfo=LOCAL_TZ)
@@ -38,142 +32,95 @@ def test_opening_hours():
     assert opening_hours_cover_duration("Jan off; Mar-Dec: Tu-Sa 11:00-14:00", MONDAY_11, 30)
 
 
-def test_single_dislike_does_not_collapse_semantic_scores():
-    rng = np.random.default_rng(0)
-    # Embeddings with a high shared baseline similarity, like real POI texts.
-    base = rng.normal(size=16)
-    cands = base + 0.6 * rng.normal(size=(50, 16))
-    cands /= np.linalg.norm(cands, axis=1, keepdims=True)
-    scores = semantic_scores(cands, cands[:1], cands[1:2], dislike_weight=0.5)
-    assert scores.min() == 0.0 and scores.max() == 1.0
-    assert np.mean(scores == 0.0) < 0.05
+def _catalog(config, workspace):
+    pois = load_poi_list(workspace / "processed" / "poi.jsonld")
+    return pois, load_embedding_index(embeddings_path(config))
 
 
-def test_interest_vectors_keep_distinct_tastes():
-    likes = np.asarray([[1.0, 0.0], [0.0, 1.0]])
-    interests = build_interest_vectors(likes, max_interests=3)
-    assert interests.shape == (2, 2)
+def _photo(short, user):
+    lat, lon = next(p[4] for p in POIS if p[0] == short)
+    return {"user": user, "lat": lat, "lon": lon}
 
 
-def test_recommend_is_pure_and_respects_feedback(config, workspace):
-    output = recommend(config, liked_poi_ids=[poi_id("m1")], disliked_poi_ids=[poi_id("p1")])
-    ids = [r["id"] for r in output["results"]]
-    assert ids[0] == poi_id("m1") and output["results"][0]["is_liked"]
-    assert poi_id("p1") not in ids
-    assert not (workspace / "processed" / "recommendations.jsonld").exists()
+def _model(pois, index):
+    # Users who visit a museum also visit the nearby church; nobody visits v1.
+    photos = [_photo(s, f"u{u}") for u in range(6) for s in ("m1", "c1")]
+    photos += [_photo(s, f"w{u}") for u in range(3) for s in ("p1", "p2")]
+    photos += [_photo("m2", "x0")]
+    units = index.units[[index.index_of(p["id"]) for p in pois]]
+    return train(pois, units, assign_visits(photos, pois), "test")
 
 
-def test_recommend_can_exclude_likes(config):
-    output = recommend(config, liked_poi_ids=[poi_id("m1")], include_liked=False)
-    assert poi_id("m1") not in [r["id"] for r in output["results"]]
+def test_without_model_popularity_comes_from_wikipedia(config, workspace):
+    rec = Recommender(*_catalog(config, workspace), config=config)
+    cards = rec.onboarding_cards(3)
+    # relevance is inverse popularity: m1 (0.1) and p1 (0.2) are the best known
+    assert [c["name"] for c in cards] == ["m1", "p1", "c1"]
+    assert set(rec.popularity_source) == {"wikipedia"}
 
 
-def test_semantic_style_prefers_similar_pois(config):
-    config["recommendation"].update({"alpha": 1.0, "beta": 0.0, "gamma": 0.0, "theta_mmr": 1.0, "top_n": 2})
-    output = recommend(config, liked_poi_ids=[poi_id("m1")], include_liked=False)
-    assert {r["id"] for r in output["results"]} == {poi_id("m2"), poi_id("m3")}
+def test_cards_skip_seen_and_filter_categories(config, workspace):
+    rec = Recommender(*_catalog(config, workspace), config=config)
+    cards = rec.onboarding_cards(2, seen=[poi_id("m1")], categories=["museum"])
+    assert [c["name"] for c in cards] == ["m2", "m3"]
 
 
-def test_apply_style_does_not_mutate_config(config):
-    styled = apply_style(config, "hidden_gems")
-    assert styled["recommendation"]["hidden_gems_bias"] == 1.0
-    assert config["recommendation"]["hidden_gems_bias"] == 0.0
+def test_recommend_excludes_feedback_and_prefers_nearby(config, workspace):
+    rec = Recommender(*_catalog(config, workspace), config=config)
+    results = rec.recommend(liked=[poi_id("p3")], disliked=[poi_id("m1")])
+    names = [r["name"] for r in results]
+    assert "p3" not in names and "m1" not in names
+    # v1 is the farthest from p3 and among the least known: it must come last
+    assert names[-1] == "v1"
+    assert all("reasons" in r and r["rank"] == i + 1 for i, r in enumerate(results))
 
 
-def test_opening_hours_filter(config):
-    pois = load_poi_list(Path(config["data"]["processed_dir"]) / "poi.jsonld")
-    for poi in pois:
-        if poi["id"] == poi_id("m2"):
-            poi["openingHours"] = {"value": "Mo-Su 18:00-20:00"}
+def test_recommend_uses_location_and_categories(config, workspace):
+    rec = Recommender(*_catalog(config, workspace), config=config)
+    near_v1 = {"lat": 39.460, "lon": -0.390}
+    results = rec.recommend(location=near_v1, categories=["viewpoint", "park"])
+    assert {r["name"] for r in results} <= {"v1", "p1", "p2", "p3"}
+    assert results[0]["name"] == "v1"
+    assert results[0]["distanceKm"] == pytest.approx(0.0, abs=1e-6)
+
+
+def test_opening_hours_filter(config, workspace):
+    pois, index = _catalog(config, workspace)
+    for p in pois:
+        if p["name"] == "m2":
+            p["openingHours"] = "Tu-Su 10:00-19:00"
     config["recommendation"]["filter_opening_hours"] = True
-    output = recommend(config, poi_data=pois, liked_poi_ids=[poi_id("m1")], requested_at=WEDNESDAY_11)
-    ids = [r["id"] for r in output["results"]]
-    assert poi_id("m2") not in ids and poi_id("m3") in ids
+    rec = Recommender(pois, index, config=config)
+    assert "m2" not in [r["name"] for r in rec.recommend(at=MONDAY_11)]
+    assert "m2" in [r["name"] for r in rec.recommend(at=WEDNESDAY_11)]
 
 
-def test_active_learning_rounds(config):
-    pois = load_poi_list(Path(config["data"]["processed_dir"]) / "poi.jsonld")
-    index = load_embedding_index(embeddings_path(config))
-
-    first = select_active_learning_pois(pois, index, k=3)
-    assert len({p["category"][0] for p in first}) >= 2  # diverse cold start
-
-    seen = [p["id"] for p in first]
-    second = select_active_learning_pois(
-        pois, index, k=2, liked_poi_ids=[poi_id("m1")], disliked_poi_ids=[poi_id("p1")], seen_poi_ids=seen
-    )
-    assert len(second) == 2
-    assert not set(seen) & {p["id"] for p in second}
+def test_behaviour_model_roundtrip_and_sources(config, workspace, tmp_path):
+    pois, index = _catalog(config, workspace)
+    model = _model(pois, index)
+    model.save(tmp_path / "m.npz")
+    loaded = BehaviourModel.load(tmp_path / "m.npz")
+    assert loaded.meta["users"] == 10 and loaded.ids == model.ids
+    rec = Recommender(pois, index, loaded, config)
+    source = dict(zip([p["name"] for p in rec.pois], rec.popularity_source))
+    assert source["m1"] == "visits" and source["v1"] == "predicted"
+    # the most visited places lead the onboarding
+    assert {c["name"] for c in rec.onboarding_cards(2)} == {"m1", "c1"}
 
 
-def test_active_learning_explores_after_dislikes(config):
-    pois = load_poi_list(Path(config["data"]["processed_dir"]) / "poi.jsonld")
-    index = load_embedding_index(embeddings_path(config))
-
-    seen = [poi_id("m1"), poi_id("p1")]
-    picks = select_active_learning_pois(pois, index, k=2, disliked_poi_ids=seen, seen_poi_ids=seen)
-    assert {p["category"][0] for p in picks} <= {"place_of_worship", "viewpoint"}
-
-
-def test_active_learning_refines_liked_region(config):
-    pois = load_poi_list(Path(config["data"]["processed_dir"]) / "poi.jsonld")
-    index = load_embedding_index(embeddings_path(config))
-
-    seen = [poi_id("m1"), poi_id("p1"), poi_id("c1")]
-    picks = select_active_learning_pois(
-        pois, index, k=1, liked_poi_ids=[poi_id("m1")],
-        disliked_poi_ids=[poi_id("p1"), poi_id("c1")], seen_poi_ids=seen,
-    )
-    assert picks[0]["category"][0] == "museum"
+def test_adapted_similarity_follows_co_visits(config, workspace):
+    pois, index = _catalog(config, workspace)
+    rec = Recommender(pois, index, _model(pois, index), config)
+    i, j, k = (rec.position[poi_id(s)] for s in ("m1", "c1", "p1"))
+    raw = rec.units @ rec.units.T
+    ad = rec.adapted @ rec.adapted.T
+    # m1 and c1 are described differently but visited together
+    assert ad[i, j] > raw[i, j]
+    assert ad[i, j] > ad[i, k]
 
 
-@pytest.mark.parametrize("missing", [[], ["does-not-exist"]])
-def test_recommend_requires_known_likes(config, missing):
-    with pytest.raises(ValueError):
-        recommend(config, liked_poi_ids=missing)
-
-
-def test_recommend_falls_back_to_preferred_categories(config):
-    config["recommendation"].update({"theta_mmr": 1.0, "user_profile": {"preferred_categories": ["park"]}})
-    output = recommend(config, liked_poi_ids=[], disliked_poi_ids=[poi_id("m1")])
-    ids = [r["id"] for r in output["results"]]
-    assert output["semantic_interest_count"] == 0
-    assert poi_id("m1") not in ids
-    assert {r["category"][0] for r in output["results"][:3]} == {"park"}
-
-
-def test_preferred_categories_boost_ranking(config):
-    config["recommendation"].update({"category_weight": 2.0, "theta_mmr": 1.0, "top_n": 3})
-    config["recommendation"]["user_profile"] = {"preferred_categories": ["place_of_worship"]}
-    output = recommend(config, liked_poi_ids=[poi_id("m1")], include_liked=False)
-    assert all(r["category"][0] == "place_of_worship" for r in output["results"])
-
-
-@pytest.fixture
-def churches_query(monkeypatch):
-    """Free-text interest that points to the churches group, without loading a model."""
-    vec = np.asarray([0.0, 0.0, 1.0, 0.0], dtype=np.float32)
-    monkeypatch.setattr("pmv_turismo.recommendation.encode_query", lambda config, text: vec)
-    return vec
-
-
-def test_interests_text_steers_ranking(config, churches_query):
-    config["recommendation"].update({"interest_text_weight": 1.0, "theta_mmr": 1.0, "top_n": 3})
-    config["recommendation"]["user_profile"] = {"interests": "iglesias"}
-    output = recommend(config, liked_poi_ids=[])
-    assert {r["category"][0] for r in output["results"]} == {"place_of_worship"}
-
-
-def test_active_learning_cold_start_follows_interests(config, churches_query):
-    pois = load_poi_list(Path(config["data"]["processed_dir"]) / "poi.jsonld")
-    index = load_embedding_index(embeddings_path(config))
-
-    picks = select_active_learning_pois(pois, index, k=1, interest_unit=churches_query, interest_weight=1.0)
-    assert picks[0]["category"][0] == "place_of_worship"
-
-
-def test_interests_ignored_without_embedding_model(config, monkeypatch):
-    monkeypatch.setattr("pmv_turismo.recommendation.encode_query", lambda config, text: None)
-    config["recommendation"]["user_profile"] = {"interests": "iglesias"}
-    output = recommend(config, liked_poi_ids=[poi_id("m1")])
-    assert output["results"]
+def test_search_ranks_by_text_similarity(config, workspace):
+    rec = Recommender(*_catalog(config, workspace), config=config)
+    churches = np.array([0.0, 0.0, 1.0, 0.0])
+    assert [r["name"] for r in rec.search(churches, limit=3)][0] == "c1"
+    assert rec.search(None) == []

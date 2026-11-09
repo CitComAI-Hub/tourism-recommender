@@ -1,7 +1,6 @@
 import React from "react"
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, DM_Serif_Display } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
 import { UserProvider } from "@/lib/user-context";
 import { I18nProvider } from "@/lib/i18n";
 import "./globals.css";
@@ -17,7 +16,6 @@ export const metadata: Metadata = {
   title: "Valencia Explorer - Descubre Valencia a tu manera",
   description:
     "Tu guia personalizada para explorar Valencia. Recomendaciones unicas basadas en tus preferencias y planifica tu ruta perfecta.",
-  generator: "v0.app",
   icons: {
     icon: [
       {
@@ -56,7 +54,6 @@ export default function RootLayout({
         <I18nProvider>
           <UserProvider>{children}</UserProvider>
         </I18nProvider>
-        <Analytics />
       </body>
     </html>
   );

@@ -1,5 +1,7 @@
 export const en = {
   common: {
+    clear: "Clear",
+    remove: "Remove",
     brand: "Itineris",
     loading: "Loading...",
     back: "Back",
@@ -23,7 +25,6 @@ export const en = {
     loading: "Loading...",
   },
   header: {
-    plan_button: "My Plan",
     interests: "{count} interests",
     logout: "Sign out",
     language: "Language",
@@ -167,6 +168,7 @@ export const en = {
     },
   },
   recommendations: {
+    service_error: "The recommendation service is not reachable.",
     heading: "Discover",
     filters: {
       all: "All",
@@ -187,53 +189,32 @@ export const en = {
     },
     legend: {
       recommended: "Recommended",
-      in_plan: "In your plan",
+      liked: "You like it",
     },
+    liked_heading: "You like",
+    search_placeholder: "Search places (e.g. gothic churches)",
+    search_results: "Search results",
+    search_empty: "No places match your search",
+    reasons: {
+      popular: "Among the most visited",
+      near: "{km} km from a place you like",
+      near_named: "{km} km from {poi}",
+      similar: "People who visit {poi} also go here",
+    },
+    popularity_predicted: "Few visits recorded: popularity estimated from its description",
     empty: "No recommendations found",
     open: "Open",
     closed: "Closed",
   },
-  planner: {
-    back: "Explore",
-    title: "My Plan",
-    tabs: {
-      places: "Places",
-      itinerary: "Itinerary",
-    },
-    toast: {
-      error_title: "Could not generate itinerary",
-      error_desc: "Check the start data or try again.",
-    },
-    selected: {
-      empty_title: "Your plan is empty",
-      empty_desc: "Explore Valencia and add places you like to build your itinerary.",
-      summary: {
-        singular: "{count} place selected",
-        plural: "{count} places selected",
-      },
-      generate: "Generate Itinerary",
-      generating: "Generating...",
-    },
-    detail: {
-      direction: "Get directions",
-      in_plan: "In your plan",
-      add_plan: "Add to plan",
-      open_now: "Open now",
-      closed_now: "Closed now",
-      fallback_desc: "Discover this great place in Valencia.",
-    },
-    itinerary: {
-      empty_title: "No itinerary yet",
-      empty_desc: "Generate an itinerary from the places tab to see your optimized route.",
-      title: "Your itinerary",
-      stops: "{count} stops",
-      open_maps: "Open in Google Maps",
-      first_stop: "First stop",
-      unnamed: "Unnamed",
-      start_title: "Starting point",
-      start_location: "Current location",
-      start_to: "To {name}",
-      visit_time: "Visit time: {duration}",
-    },
+  poi: {
+    direction: "Get directions",
+    like: "I like it",
+    liked: "You like it",
+    dislike: "Not for me",
+    open_now: "Open now",
+    closed_now: "Closed now",
+    fallback_desc: "No description available for this place.",
+    generated_desc: "Description built automatically from open data.",
+    why: "Why it is here",
   },
 };

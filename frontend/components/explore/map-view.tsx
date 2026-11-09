@@ -8,7 +8,7 @@ import { TILE_URL, TILE_ATTRIBUTION } from "@/lib/map-tiles";
 
 interface MapViewProps {
   pois: POI[];
-  acceptedPOIs: POI[];
+  likedPOIs: POI[];
   selectedPOI: POI | null;
   hoveredPOI: POI | null;
   onSelectPOI: (poi: POI) => void;
@@ -24,7 +24,7 @@ declare global {
 
 export function MapView({
   pois,
-  acceptedPOIs,
+  likedPOIs,
   selectedPOI,
   hoveredPOI,
   onSelectPOI,
@@ -135,14 +135,10 @@ export function MapView({
     const zoomMin = Math.max(map.getMinZoom(), 8);
     const zoomMax = Math.min(map.getMaxZoom(), 18);
 
-    // Spread visibility by rank so markers actually differ even if relevance values are close
+    // Spread visibility by rank: the best-ranked markers show at lower zoom levels
     const rankedPois = [...safePois]
       .map((poi, idx) => ({ poi, idx }))
-      .sort((a, b) => {
-        const ra = Number.isFinite(a.poi.relevance) ? Number(a.poi.relevance) : 1;
-        const rb = Number.isFinite(b.poi.relevance) ? Number(b.poi.relevance) : 1;
-        return ra - rb;
-      });
+      .sort((a, b) => (a.poi.rank ?? a.idx + 1) - (b.poi.rank ?? b.idx + 1));
     const rankToZoom = new Map<string, number>();
     const denom = Math.max(1, rankedPois.length - 1);
     rankedPois.forEach(({ poi }, rank) => {
@@ -207,7 +203,7 @@ export function MapView({
       if (!coords || coords.length < 2) {
         return;
       }
-      const isAccepted = acceptedPOIs.some((p) => p.id === poi.id);
+      const isAccepted = likedPOIs.some((p) => p.id === poi.id);
       const isSelected = selectedPOI?.id === poi.id;
       const isHovered = hoveredPOI?.id === poi.id;
 
@@ -255,7 +251,7 @@ export function MapView({
     return () => {
       map.off("zoomend", applyVisibility);
     };
-  }, [isLoaded, safePois, acceptedPOIs, selectedPOI, hoveredPOI, onSelectPOI, userLocation]);
+  }, [isLoaded, safePois, likedPOIs, selectedPOI, hoveredPOI, onSelectPOI, userLocation]);
 
   // Center on selected POI
   useEffect(() => {
@@ -281,7 +277,7 @@ export function MapView({
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-primary border-2 border-white shadow" />
-            <span className="text-muted-foreground">{t("recommendations.legend.in_plan")}</span>
+            <span className="text-muted-foreground">{t("recommendations.legend.liked")}</span>
           </div>
         </div>
       </div>

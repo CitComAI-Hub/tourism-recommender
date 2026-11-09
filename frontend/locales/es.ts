@@ -1,5 +1,7 @@
 export const es = {
   common: {
+    clear: "Borrar",
+    remove: "Quitar",
     brand: "Itineris",
     loading: "Cargando...",
     back: "Volver",
@@ -23,7 +25,6 @@ export const es = {
     loading: "Cargando...",
   },
   header: {
-    plan_button: "Mi Plan",
     interests: "{count} intereses",
     logout: "Cerrar sesion",
     language: "Idioma",
@@ -167,6 +168,7 @@ export const es = {
     },
   },
   recommendations: {
+    service_error: "El servicio de recomendación no responde.",
     heading: "Descubre",
     filters: {
       all: "Todos",
@@ -187,53 +189,32 @@ export const es = {
     },
     legend: {
       recommended: "Recomendado",
-      in_plan: "En tu plan",
+      liked: "Te gusta",
     },
+    liked_heading: "Te gustan",
+    search_placeholder: "Busca lugares (p. ej. iglesias góticas)",
+    search_results: "Resultados de la búsqueda",
+    search_empty: "Ningún lugar coincide con tu búsqueda",
+    reasons: {
+      popular: "Entre los más visitados",
+      near: "A {km} km de un lugar que te gusta",
+      near_named: "A {km} km de {poi}",
+      similar: "Quien visita {poi} también viene aquí",
+    },
+    popularity_predicted: "Pocas visitas registradas: popularidad estimada a partir de su descripción",
     empty: "No se encontraron recomendaciones",
     open: "Abierto",
     closed: "Cerrado",
   },
-  planner: {
-    back: "Explorar",
-    title: "Mi Plan",
-    tabs: {
-      places: "Lugares",
-      itinerary: "Itinerario",
-    },
-    toast: {
-      error_title: "No se pudo generar el itinerario",
-      error_desc: "Revisa los datos de inicio o intentalo de nuevo.",
-    },
-    selected: {
-      empty_title: "Tu plan esta vacio",
-      empty_desc: "Explora Valencia y anade lugares que te interesen para crear tu itinerario personalizado.",
-      summary: {
-        singular: "{count} lugar seleccionado",
-        plural: "{count} lugares seleccionados",
-      },
-      generate: "Generar Itinerario",
-      generating: "Generando...",
-    },
-    detail: {
-      direction: "Como llegar",
-      in_plan: "En tu plan",
-      add_plan: "Anadir al plan",
-      open_now: "Abierto ahora",
-      closed_now: "Cerrado ahora",
-      fallback_desc: "Descubre este increible lugar en Valencia.",
-    },
-    itinerary: {
-      empty_title: "Sin itinerario todavía",
-      empty_desc: "Genera un itinerario desde la pestaña de lugares para ver tu ruta optimizada.",
-      title: "Tu itinerario",
-      stops: "{count} paradas",
-      open_maps: "Abrir en Google Maps",
-      first_stop: "Primera parada",
-      unnamed: "Sin nombre",
-      start_title: "Punto de partida",
-      start_location: "Ubicacion actual",
-      start_to: "Hasta {name}",
-      visit_time: "Tiempo de visita: {duration}",
-    },
+  poi: {
+    direction: "Cómo llegar",
+    like: "Me gusta",
+    liked: "Te gusta",
+    dislike: "No me interesa",
+    open_now: "Abierto ahora",
+    closed_now: "Cerrado ahora",
+    fallback_desc: "No hay descripción disponible para este lugar.",
+    generated_desc: "Descripción generada automáticamente a partir de datos abiertos.",
+    why: "Por qué aparece",
   },
 };

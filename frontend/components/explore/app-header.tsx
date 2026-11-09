@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { MapPin, Calendar, User, LogOut } from "lucide-react";
+import { MapPin, User, LogOut } from "lucide-react";
 import { useUser } from "@/lib/user-context";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
@@ -14,12 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-interface AppHeaderProps {
-  acceptedCount: number;
-  onPlanClick: () => void;
-}
-
-export function AppHeader({ acceptedCount, onPlanClick }: AppHeaderProps) {
+export function AppHeader() {
   const { profile, resetUser } = useUser();
   const router = useRouter();
   const { t } = useI18n();
@@ -44,21 +39,6 @@ export function AppHeader({ acceptedCount, onPlanClick }: AppHeaderProps) {
 
         {/* Actions */}
         <div className="flex items-center gap-3">
-          {/* Plan Button */}
-          <Button
-            onClick={onPlanClick}
-            variant={acceptedCount > 0 ? "default" : "outline"}
-            className="rounded-full"
-          >
-            <Calendar className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">{t("header.plan_button")}</span>
-            {acceptedCount > 0 && (
-              <span className="ml-2 bg-primary-foreground text-primary w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium">
-                {acceptedCount}
-              </span>
-            )}
-          </Button>
-
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
