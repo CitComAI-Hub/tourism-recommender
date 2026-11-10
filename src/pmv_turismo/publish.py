@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any, Dict, List
+from typing import Any
 
 from pmv_turismo.common import load_poi_list, processed_dir
 from pmv_turismo.data_source import SDM_POI_CONTEXT
@@ -24,9 +24,9 @@ logger = logging.getLogger(__name__)
 BATCH = 100
 
 
-def normalized(poi: Dict[str, Any]) -> Dict[str, Any]:
+def normalized(poi: dict[str, Any]) -> dict[str, Any]:
     """keyValues -> normalized NGSI-LD (batch operations of Orion-LD 1.6 reject keyValues)."""
-    out: Dict[str, Any] = {"id": poi["id"], "type": poi.get("type", "PointOfInterest")}
+    out: dict[str, Any] = {"id": poi["id"], "type": poi.get("type", "PointOfInterest")}
     for key, value in poi.items():
         if key in ("id", "type", "@context") or value is None:
             continue
@@ -35,12 +35,12 @@ def normalized(poi: Dict[str, Any]) -> Dict[str, Any]:
     return out
 
 
-def is_sourced(poi: Dict[str, Any]) -> bool:
+def is_sourced(poi: dict[str, Any]) -> bool:
     links = poi.get("refSeeAlso") or []
     return bool(poi.get("heritageInventoryId")) or any("wikidata.org" in str(u) for u in links)
 
 
-def select(pois: List[Dict[str, Any]], subset: str) -> List[Dict[str, Any]]:
+def select(pois: list[dict[str, Any]], subset: str) -> list[dict[str, Any]]:
     if subset == "all":
         return pois
     if subset == "sourced":

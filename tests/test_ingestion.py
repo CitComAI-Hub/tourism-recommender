@@ -8,9 +8,8 @@ from pmv_turismo.ingestion import (
     _is_low_value_information,
     _osm_address,
     _osm_image,
-    _synthetic_opening_hours,
     _shorten_to_sentence,
-    _title_matches_name,
+    _synthetic_opening_hours,
     canonical_category,
     estimate_visit_minutes,
 )
@@ -61,21 +60,39 @@ def test_osm_images_only_from_wikimedia():
     assert _osm_image({"wikimedia_commons": "Category:Valencia"}) is None
 
 
-def test_commons_title_must_name_the_poi():
-    assert _title_matches_name("File:Pont_de_Fusta_-_Pintades_2024.jpg", "Pont de Fusta")
-    assert _title_matches_name("File:131_Palau_de_la_Scala,_pl._Manises_(València).JPG", "Palau del Marqués de la Scala")
-    assert _title_matches_name("File:Vicent_Doménech_el_Palleter.jpg", "El Palleter")
-    assert not _title_matches_name("File:Finca_Roja,_Valencia_02.jpg", "Sirena Antiaèria")
-    assert not _title_matches_name("File:Monumento_a_Marqués_de_Campo_02.jpg", "Marqués del Túria")
+def test_article_language_priority():
+    ent = {"sitelinks": {"cawiki": {"title": "Llotja"}, "enwiki": {"title": "Lonja"}}}
+    assert ingestion._choose_article({}, ent) == ("en", "Lonja")
+    ent["sitelinks"]["eswiki"] = {"title": "Lonja de la Seda"}
+    assert ingestion._choose_article({"wikipedia": "ca:Llotja"}, ent) == ("es", "Lonja de la Seda")
+    assert ingestion._choose_article({"wikipedia": "ca:Llotja"}, None) == ("ca", "Llotja")
 
 
-def test_commons_search_rejects_unrelated_nearby_photos(monkeypatch):
-    pages = {
-        "1": {"index": 1, "title": "File:Finca_Roja.jpg", "imageinfo": [{"url": "wrong"}]},
-        "2": {"index": 2, "title": "File:Sirena_antiaèria_València.jpg", "imageinfo": [{"url": "right"}]},
-    }
-    monkeypatch.setattr(ingestion, "_http_get_json", lambda *a, **k: {"query": {"pages": pages}})
-    assert ingestion._fetch_commons_image("Sirena Antiaèria", lat=39.4, lon=-0.3) == "right"
+def test_description_language_follows_the_tag():
+    tags = {"description:ca": "Text", "tourism": "artwork"}
+    (poi,) = _extract_pois([_element("node", 1, 39.47, -0.37, name="A", **tags)])
+    assert poi["description_language"] == "ca"
+    (poi,) = _extract_pois([_element("node", 1, 39.47, -0.37, name="A", description="x",
+                                     **{"description:es": "Texto", "tourism": "artwork"})])
+    assert (poi["description"], poi["description_language"]) == ("Texto", "es")
+
+
+def test_artworks_in_an_area_become_one_collection(monkeypatch):
+    square = [[-0.35, 39.47], [-0.34, 39.47], [-0.34, 39.48], [-0.35, 39.48], [-0.35, 39.47]]
+    import pmv_turismo.geometry as geometry
+    monkeypatch.setattr(geometry, "fetch_geometries", lambda *a, **k: {"x": {"kind": "polygon", "rings": [square]}})
+    inside = [{"id": f"node:{i}", "name": f"S{i}", "category": "artwork", "lat": 39.475, "lon": -0.345,
+               "tags": {"artist_name": f"Artist {i % 3}"}} for i in range(6)]
+    outside = {"id": "node:99", "name": "Out", "category": "artwork", "lat": 39.40, "lon": -0.30, "tags": {}}
+    church = {"id": "way:5", "name": "Ermita", "category": "place_of_worship", "lat": 39.475, "lon": -0.345, "tags": {}}
+    pois, removed = ingestion._aggregate_artworks(
+        inside + [outside, church],
+        [{"area_relation": 7, "wikidata": "Q1", "name": "Campus", "area_name": "campus X"}], [], 10)
+    assert removed == 6
+    assert {p["name"] for p in pois} == {"Out", "Ermita", "Campus"}
+    col = next(p for p in pois if p["name"] == "Campus")
+    assert col["id"] == "relation:7" and col["wikidata"] == "Q1" and col["description_generated"]
+    assert "6 esculturas" in col["description"] and "Artist 0" in col["description"]
 
 
 class _Response:
@@ -130,7 +147,8 @@ def test_wikipedia_extract_is_cut_at_a_sentence():
     text = "Primera frase. Segunda frase bastante más larga que no cabe."
     assert _shorten_to_sentence(text, max_chars=30) == "Primera frase."
     assert _shorten_to_sentence("Texto  completo.\n", max_chars=30) == "Texto completo."
-    assert _shorten_to_sentence("Es un BIC desde 1931.\u200b\u200b Tiene torre .", 200) == "Es un BIC desde 1931. Tiene torre."
+    text = "Es un BIC desde 1931.\u200b\u200b Tiene torre ."
+    assert _shorten_to_sentence(text, 200) == "Es un BIC desde 1931. Tiene torre."
 
 
 def test_mediawiki_batches_follow_redirects_and_continue(monkeypatch):

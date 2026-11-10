@@ -4,7 +4,7 @@ import json
 import logging
 import threading
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -15,7 +15,7 @@ DEFAULT_MODEL_ID = "google/embeddinggemma-300m"
 logger = logging.getLogger(__name__)
 
 
-def _format_poi_text(poi: Dict[str, Any]) -> str:
+def _format_poi_text(poi: dict[str, Any]) -> str:
     """Build the text to embed using name, description, and categories."""
     name = str(poi.get("name") or "").strip()
     desc = str(poi.get("description") or "").strip()
@@ -37,8 +37,8 @@ def embeddings_path(config: dict) -> Path:
 
 def generate_embeddings(
     config: dict,
-    poi_data: Optional[List[Dict[str, Any]]] = None,
-) -> List[Dict[str, Any]]:
+    poi_data: list[dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
     """Generate embeddings for POIs and store them in a JSONL file."""
     # Imported lazily: torch/sentence-transformers are only needed for this step.
     from sentence_transformers import SentenceTransformer
@@ -53,8 +53,8 @@ def generate_embeddings(
 
     poi_items = poi_data or load_poi_list(processed_dir(config) / "poi.jsonld")
 
-    texts: List[str] = []
-    poi_ids: List[str] = []
+    texts: list[str] = []
+    poi_ids: list[str] = []
     for poi in poi_items:
         poi_id = poi.get("id")
         if not poi_id:
@@ -76,9 +76,9 @@ def generate_embeddings(
     )
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output: List[Dict[str, Any]] = []
+    output: list[dict[str, Any]] = []
     with output_path.open("w", encoding="utf-8") as f:
-        for poi_id, text, vec in zip(poi_ids, texts, vectors):
+        for poi_id, text, vec in zip(poi_ids, texts, vectors, strict=False):
             record = {
                 "id": poi_id,
                 "model": model_id,
@@ -91,13 +91,13 @@ def generate_embeddings(
     return output
 
 
-_MODEL_CACHE: Dict[Tuple[str, str], Any] = {}
+_MODEL_CACHE: dict[tuple[str, str], Any] = {}
 # A request arriving during the API warm-up waits for it instead of loading a second copy.
 _MODEL_LOCK = threading.Lock()
-_QUERY_CACHE: Dict[Tuple[str, str], np.ndarray] = {}
+_QUERY_CACHE: dict[tuple[str, str], np.ndarray] = {}
 
 
-def encode_query(config: dict, text: str) -> Optional[np.ndarray]:
+def encode_query(config: dict, text: str) -> np.ndarray | None:
     """Unit vector for a free-text interest, in the same space as the POIs.
 
     The model is loaded on first use and kept in memory; vectors are cached
@@ -131,28 +131,28 @@ def encode_query(config: dict, text: str) -> Optional[np.ndarray]:
 class EmbeddingIndex:
     """Embedding matrix plus id lookup (accepts bare OSM ids or NGSI-LD URNs)."""
 
-    def __init__(self, matrix: np.ndarray, id_to_idx: Dict[str, int]):
+    def __init__(self, matrix: np.ndarray, id_to_idx: dict[str, int]):
         self.matrix = matrix
         self.id_to_idx = id_to_idx
         norms = np.maximum(np.linalg.norm(matrix, axis=1, keepdims=True), 1e-9)
         self.units = matrix / norms
 
-    def index_of(self, poi_id: str) -> Optional[int]:
+    def index_of(self, poi_id: str) -> int | None:
         if poi_id in self.id_to_idx:
             return self.id_to_idx[poi_id]
         return self.id_to_idx.get(f"{POI_URN_PREFIX}{poi_id}")
 
-    def indices_of(self, poi_ids: List[str]) -> List[int]:
+    def indices_of(self, poi_ids: list[str]) -> list[int]:
         return [idx for pid in poi_ids if (idx := self.index_of(pid)) is not None]
 
-    def resolve(self, poi_id: str) -> Optional[Tuple[str, np.ndarray]]:
+    def resolve(self, poi_id: str) -> tuple[str, np.ndarray] | None:
         for key in (poi_id, f"{POI_URN_PREFIX}{poi_id}"):
             if key in self.id_to_idx:
                 return key, self.matrix[self.id_to_idx[key]]
         return None
 
 
-_INDEX_CACHE: Dict[str, Tuple[float, EmbeddingIndex]] = {}
+_INDEX_CACHE: dict[str, tuple[float, EmbeddingIndex]] = {}
 
 
 def load_embedding_index(path: str | Path) -> EmbeddingIndex:
@@ -165,8 +165,8 @@ def load_embedding_index(path: str | Path) -> EmbeddingIndex:
     if cached and cached[0] == mtime:
         return cached[1]
 
-    id_to_idx: Dict[str, int] = {}
-    vectors: List[List[float]] = []
+    id_to_idx: dict[str, int] = {}
+    vectors: list[list[float]] = []
     for line in embedding_path.read_text(encoding="utf-8").splitlines():
         if not line.strip():
             continue

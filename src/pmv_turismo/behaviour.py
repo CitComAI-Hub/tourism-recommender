@@ -21,9 +21,10 @@ from __future__ import annotations
 import json
 import logging
 import math
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any
 
 import numpy as np
 
@@ -38,20 +39,20 @@ RIDGE = 1.0
 
 
 def model_path(config: dict) -> Path:
-    from pmv_turismo.common import processed_dir
-
     import os
+
+    from pmv_turismo.common import processed_dir
 
     configured = os.environ.get("BEHAVIOUR_MODEL_PATH") or config.get("behaviour", {}).get("model_path")
     return Path(configured or processed_dir(config) / "behaviour_model.npz")
 
 
-def poi_radius_km(poi: Dict[str, Any]) -> float:
+def poi_radius_km(poi: dict[str, Any]) -> float:
     return AREA_RADIUS_KM if set(poi.get("category") or []) & AREA_CATEGORIES else POINT_RADIUS_KM
 
 
-def assign_visits(photos: Iterable[Dict[str, Any]], pois: List[Dict[str, Any]],
-                  shapes: Optional[Dict[str, Any]] = None) -> Dict[str, set[int]]:
+def assign_visits(photos: Iterable[dict[str, Any]], pois: list[dict[str, Any]],
+                  shapes: dict[str, Any] | None = None) -> dict[str, set[int]]:
     """user -> indices of the POIs they photographed.
 
     With `shapes` (see geometry.py) a photo is a visit to every POI whose real
@@ -65,7 +66,7 @@ def assign_visits(photos: Iterable[Dict[str, Any]], pois: List[Dict[str, Any]],
     lat = np.array([float(p["lat"]) for p in photos])
     lon = np.array([float(p["lon"]) for p in photos])
     users = [str(p["user"]) for p in photos]
-    visits: Dict[str, set[int]] = {}
+    visits: dict[str, set[int]] = {}
     if shapes:
         from pmv_turismo.geometry import assign_photos
 
@@ -83,13 +84,13 @@ def assign_visits(photos: Iterable[Dict[str, Any]], pois: List[Dict[str, Any]],
         inside = dk <= radius
         if inside.any():
             target[k] = int(np.argmin(np.where(inside, dk, np.inf)))
-    for user, j in zip(users, target):
+    for user, j in zip(users, target, strict=False):
         if j >= 0:
             visits.setdefault(user, set()).add(int(j))
     return visits
 
 
-def _categories(pois: List[Dict[str, Any]], vocabulary: List[str]) -> np.ndarray:
+def _categories(pois: list[dict[str, Any]], vocabulary: list[str]) -> np.ndarray:
     return np.array([[1.0 if c in (p.get("category") or []) else 0.0 for c in vocabulary] for p in pois])
 
 
@@ -99,18 +100,18 @@ def _ridge(x: np.ndarray, y: np.ndarray, lam: float) -> np.ndarray:
 
 @dataclass
 class BehaviourModel:
-    ids: List[str]
+    ids: list[str]
     visitors: np.ndarray
     emb_mean: np.ndarray
     pca: np.ndarray            # (components, dim)
-    vocabulary: List[str]
+    vocabulary: list[str]
     pop_mean_x: np.ndarray
     pop_mean_y: float
     pop_weights: np.ndarray
     projection: np.ndarray     # (dim, factors)
-    meta: Dict[str, Any]
+    meta: dict[str, Any]
 
-    def predicted_popularity(self, pois: List[Dict[str, Any]], units: np.ndarray) -> np.ndarray:
+    def predicted_popularity(self, pois: list[dict[str, Any]], units: np.ndarray) -> np.ndarray:
         """log(1 + visitors) predicted from content, for POIs without visits."""
         x = np.hstack([(units - self.emb_mean) @ self.pca.T, _categories(pois, self.vocabulary)])
         return (x - self.pop_mean_x) @ self.pop_weights + self.pop_mean_y
@@ -128,7 +129,7 @@ class BehaviourModel:
         )
 
     @classmethod
-    def load(cls, path: Path) -> "BehaviourModel":
+    def load(cls, path: Path) -> BehaviourModel:
         with np.load(path, allow_pickle=False) as d:
             return cls(
                 ids=[str(x) for x in d["ids"]], visitors=d["visitors"], emb_mean=d["emb_mean"], pca=d["pca"],
@@ -138,7 +139,7 @@ class BehaviourModel:
             )
 
 
-def train(pois: List[Dict[str, Any]], units: np.ndarray, visits: Dict[str, set[int]], source: str) -> BehaviourModel:
+def train(pois: list[dict[str, Any]], units: np.ndarray, visits: dict[str, set[int]], source: str) -> BehaviourModel:
     """Fit the popularity model and the projection on one city's visits."""
     n = len(pois)
     visitors = np.zeros(n)
@@ -174,7 +175,7 @@ def train(pois: List[Dict[str, Any]], units: np.ndarray, visits: Dict[str, set[i
                           mean_x, mean_y, pop_weights, projection, meta)
 
 
-def load_model(config: dict) -> Optional[BehaviourModel]:
+def load_model(config: dict) -> BehaviourModel | None:
     path = model_path(config)
     if not path.exists():
         return None
@@ -185,7 +186,7 @@ def load_model(config: dict) -> Optional[BehaviourModel]:
         return None
 
 
-def read_photos(path: Path) -> List[Dict[str, Any]]:
+def read_photos(path: Path) -> list[dict[str, Any]]:
     """Photo records from a JSON Lines file (optionally gzip): user, lat, lon[, ts]."""
     import gzip
 

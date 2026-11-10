@@ -18,6 +18,13 @@ ingestion:
     sources:
       BIC: https://dadesobertes.gva.es/dataset/da443c69-9c66-4e25-bdd7-8fdb8fe7cda9/resource/2271efdd-d0cc-4126-a9a0-dd11d56acbde/download/bienes_inmuebles_interes_cultural.csv
       BRL: https://dadesobertes.gva.es/dataset/da443c69-9c66-4e25-bdd7-8fdb8fe7cda9/resource/0619adb1-e458-4b2a-ae6a-6bad5f00b6c9/download/bienes_inmuebles_relevancia_local.csv
+  # Artworks inside these areas become one POI for the whole collection
+  # (individually they are rarely visited and would flood the catalog).
+  artwork_collections:
+    - area_relation: 3322903        # Campus de Vera de la UPV (OSM)
+      wikidata: Q30133840           # Campus Escultòric de la UPV
+      name: "Campus Escultòric de la Universitat Politècnica de València"
+      area_name: "campus de Vera de la Universitat Politècnica de València"
   osm:
     enabled: true
   overpass_urls:

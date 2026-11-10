@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import yaml
 
@@ -25,7 +25,7 @@ def load_dotenv(path: str | Path = ".env") -> None:
         os.environ.setdefault(key.strip(), value.strip().strip("\"'"))
 
 
-def _inject_secrets(data: Dict[str, Any]) -> None:
+def _inject_secrets(data: dict[str, Any]) -> None:
     for env_var, keys in SECRET_ENV_VARS.items():
         value = os.environ.get(env_var)
         if not value:
@@ -40,12 +40,12 @@ def _inject_secrets(data: Dict[str, Any]) -> None:
 
 @dataclass
 class Config:
-    data: Dict[str, Any]
+    data: dict[str, Any]
 
     @classmethod
     def load(cls, path: str | Path) -> "Config":
         load_dotenv()
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
         _inject_secrets(data)
         return cls(data=data)

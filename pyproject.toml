@@ -36,3 +36,11 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["frontend", "venv", "research"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]

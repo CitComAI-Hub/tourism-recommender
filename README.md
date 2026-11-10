@@ -115,13 +115,20 @@ inventory code) for protected heritage.
 
 ### Ingestion pipeline and data quality
 1. **OSM (Overpass):** named elements inside the municipality. The
-   description comes from `description:es` > `description` > `description:ca`
-   > `description:en`; the address includes house number and postcode; OSM
+   description comes from the tags in the order of
+   `ingestion.description_languages` (Valencia: `description:es` >
+   `description:en` > `description` > `description:ca`), and its language is
+   recorded in `descriptionLanguage`; the address includes house number and postcode; OSM
    images are only accepted from Wikimedia Commons.
 2. **Deduplication** by name and distance. The best record of each group
    becomes the primary one (with Wikidata, way/relation before node,
    information boards last); the others only fill gaps.
-3. `tourism=information` elements that are not tourist offices (boards, maps,
+3. **Artwork collections** (`ingestion.artwork_collections`): the artworks
+   inside a given area become one POI for the whole collection, with the
+   area's OSM relation as identity and a Wikidata item for enrichment. In
+   Valencia, the 65 sculptures of the UPV Vera campus (median of one Flickr
+   visitor each) become the "Campus Escultòric" (Q30133840).
+   `tourism=information` elements that are not tourist offices (boards, maps,
    guideposts) are dropped: they are not destinations. So are falla
    monuments (`artwork_type=falla`): they stand only in March.
 4. **Protected heritage:** each POI (except artworks) is matched to the
@@ -135,10 +142,12 @@ inventory code) for protected heritage.
    not a person, and the POI is not a monument to someone. OSM sometimes
    links a namesake (the artwork "Marqués del Túria" links the noble title,
    the bullring links Alicante's); those links are ignored.
-6. **Enrichment** (parallel, `ingestion.workers`): Wikipedia article (Spanish
-   preferred), description when OSM's is too short (<80 characters; the
-   extract is cut at a full sentence), photo from Wikidata (P18) or from
-   Commons only when the file title names the place, and popularity = page
+6. **Enrichment** (parallel, `ingestion.workers`): Wikipedia article (in the order of
+   `description_languages`), description when OSM's is too short (<80
+   characters; the extract is cut at a full sentence), photo from OSM
+   (Commons only) or Wikidata (P18), never from a search by name (in the
+   manual audit that returned a photo of something else 4 times out of 5),
+   and popularity = page
    views over the last `pageview_days` days summed over the Wikipedia
    editions in `pageview_languages`. Requests are batched (50 Wikidata
    entities, 20 extracts or 50 articles per call), rate-limited per host and

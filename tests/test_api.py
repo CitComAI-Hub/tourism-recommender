@@ -1,8 +1,8 @@
 import pytest
+from conftest import poi_id
 from fastapi.testclient import TestClient
 
 import pmv_turismo.api as api
-from conftest import poi_id
 
 
 @pytest.fixture

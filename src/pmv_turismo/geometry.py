@@ -22,8 +22,9 @@ from __future__ import annotations
 import json
 import logging
 import math
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any
 
 import numpy as np
 import requests
@@ -41,7 +42,7 @@ def geometry_path(config: dict) -> Path:
     return processed_dir(config) / "poi_geometry.json"
 
 
-def osm_ref(poi_id: str) -> Optional[tuple[str, int]]:
+def osm_ref(poi_id: str) -> tuple[str, int] | None:
     """`urn:ngsi-ld:PointOfInterest:way:123` -> ("way", 123)."""
     parts = str(poi_id).split(":")
     if len(parts) >= 2 and parts[-2] in ("node", "way", "relation") and parts[-1].isdigit():
@@ -49,9 +50,11 @@ def osm_ref(poi_id: str) -> Optional[tuple[str, int]]:
     return None
 
 
-def fetch_geometries(pois: Sequence[Dict[str, Any]], overpass_urls: Sequence[str], timeout: int = 180) -> Dict[str, Any]:
+def fetch_geometries(
+    pois: Sequence[dict[str, Any]], overpass_urls: Sequence[str], timeout: int = 180
+) -> dict[str, Any]:
     """{poi id: {"kind": "polygon"|"line", "rings": [[[lon, lat], ...], ...]}} for ways and relations."""
-    refs: Dict[tuple[str, int], str] = {}
+    refs: dict[tuple[str, int], str] = {}
     for p in pois:
         ref = osm_ref(p.get("id", ""))
         if ref and ref[0] != "node":
@@ -62,7 +65,7 @@ def fetch_geometries(pois: Sequence[Dict[str, Any]], overpass_urls: Sequence[str
     rels = ",".join(str(i) for kind, i in refs if kind == "relation")
     query = f"[out:json][timeout:{timeout}];(" + (f"way(id:{ways});" if ways else "") + (
         f"relation(id:{rels});" if rels else "") + ");out geom;"
-    last_error: Optional[Exception] = None
+    last_error: Exception | None = None
     for url in overpass_urls:
         try:
             resp = requests.post(url, data={"data": query}, timeout=timeout + 30,
@@ -76,7 +79,7 @@ def fetch_geometries(pois: Sequence[Dict[str, Any]], overpass_urls: Sequence[str
     else:
         raise RuntimeError(f"No Overpass endpoint answered: {last_error}")
 
-    out: Dict[str, Any] = {}
+    out: dict[str, Any] = {}
     for el in elements:
         pid = refs.get((el.get("type"), el.get("id")))
         if not pid:
@@ -108,7 +111,7 @@ def save_geometries(config: dict) -> None:
     print(f"geometry: {len(shapes)} shapes saved to {geometry_path(config)}")
 
 
-def load_geometries(config: dict) -> Dict[str, Any]:
+def load_geometries(config: dict) -> dict[str, Any]:
     path = geometry_path(config)
     return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
 
@@ -124,7 +127,7 @@ class _Projector:
         return np.asarray(lon) * self.kx, np.asarray(lat) * self.ky
 
 
-def _segments(rings: List[np.ndarray]) -> tuple[np.ndarray, np.ndarray]:
+def _segments(rings: list[np.ndarray]) -> tuple[np.ndarray, np.ndarray]:
     a = np.concatenate([r[:-1] for r in rings])
     b = np.concatenate([r[1:] for r in rings])
     return a, b
@@ -155,15 +158,15 @@ def _inside(px: np.ndarray, py: np.ndarray, a: np.ndarray, b: np.ndarray) -> np.
     return inside
 
 
-def assign_photos(pois: Sequence[Dict[str, Any]], shapes: Dict[str, Any],
-                  lat: np.ndarray, lon: np.ndarray) -> List[np.ndarray]:
+def assign_photos(pois: Sequence[dict[str, Any]], shapes: dict[str, Any],
+                  lat: np.ndarray, lon: np.ndarray) -> list[np.ndarray]:
     """For each POI, the indices of the photos that show it."""
     lat, lon = np.asarray(lat, dtype=float), np.asarray(lon, dtype=float)
     if not len(pois) or not len(lat):
         return [np.zeros(0, dtype=int) for _ in pois]
     proj = _Projector(float(np.mean([p["location"]["coordinates"][1] for p in pois])))
     px, py = proj(lon, lat)
-    out: List[np.ndarray] = []
+    out: list[np.ndarray] = []
     for poi in pois:
         shape = shapes.get(str(poi.get("id")))
         if not shape:
@@ -186,3 +189,15 @@ def assign_photos(pois: Sequence[Dict[str, Any]], shapes: Dict[str, Any],
             match = dist <= POINT_RADIUS_KM
         out.append(idx[match])
     return out
+
+
+def points_in_shape(shape: dict[str, Any], lat: Sequence[float], lon: Sequence[float]) -> np.ndarray:
+    """True for the points inside a polygon shape (as returned by fetch_geometries)."""
+    lat, lon = np.asarray(lat, dtype=float), np.asarray(lon, dtype=float)
+    if not lat.size:
+        return np.zeros(0, dtype=bool)
+    proj = _Projector(float(np.mean(lat)))
+    px, py = proj(lon, lat)
+    rings = [np.column_stack(proj(np.array(r)[:, 0], np.array(r)[:, 1])) for r in shape["rings"]]
+    a, b = _segments(rings)
+    return _inside(px, py, a, b)

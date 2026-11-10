@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any, Dict, List
+from typing import Any
 
 from pmv_turismo.common import load_poi_list, processed_dir
 
@@ -40,7 +40,7 @@ def refresh_seconds() -> int:
     return int(os.environ.get("POI_REFRESH_SECONDS", "3600"))
 
 
-def load_pois(config: Dict[str, Any]) -> List[Dict[str, Any]]:
+def load_pois(config: dict[str, Any]) -> list[dict[str, Any]]:
     kind = source_kind()
     if kind == "file":
         return load_poi_list(processed_dir(config) / "poi.jsonld")
@@ -49,7 +49,7 @@ def load_pois(config: Dict[str, Any]) -> List[Dict[str, Any]]:
     raise ValueError(f"Unknown POI_SOURCE: {kind}")
 
 
-def _broker_pois() -> List[Dict[str, Any]]:
+def _broker_pois() -> list[dict[str, Any]]:
     from filip.clients.ngsi_ld.cb import ContextBrokerLDClient
     from filip.models.base import FiwareLDHeader
 
@@ -74,7 +74,7 @@ def _broker_pois() -> List[Dict[str, Any]]:
     return valid
 
 
-def _has_point(poi: Dict[str, Any]) -> bool:
+def _has_point(poi: dict[str, Any]) -> bool:
     loc = poi.get("location")
     if isinstance(loc, dict) and "value" in loc:
         loc = loc["value"]

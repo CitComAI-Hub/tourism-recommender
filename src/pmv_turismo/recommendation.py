@@ -20,8 +20,9 @@ from __future__ import annotations
 import logging
 import re
 import unicodedata
+from collections.abc import Sequence
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -56,10 +57,10 @@ class Recommender:
 
     def __init__(
         self,
-        pois: List[Dict[str, Any]],
+        pois: list[dict[str, Any]],
         index: EmbeddingIndex,
-        model: Optional[BehaviourModel] = None,
-        config: Optional[Dict[str, Any]] = None,
+        model: BehaviourModel | None = None,
+        config: dict[str, Any] | None = None,
     ) -> None:
         rec = (config or {}).get("recommendation", {})
         self.distance_scale_km = float(rec.get("distance_scale_km", 0.3))
@@ -87,7 +88,7 @@ class Recommender:
 
     # ------------------------------------------------------------------ signals
 
-    def _popularity(self, model: Optional[BehaviourModel]) -> tuple[np.ndarray, List[str]]:
+    def _popularity(self, model: BehaviourModel | None) -> tuple[np.ndarray, list[str]]:
         """log(1 + visitors) per POI and where each value comes from.
 
         Visited POIs use their real count; the rest the count predicted from their
@@ -100,7 +101,7 @@ class Recommender:
                              for p in self.pois])
             return 3.0 * _rank01(wiki), ["wikipedia"] * n
         predicted = np.clip(model.predicted_popularity(self.pois, self.units), 0.0, None)
-        visitors = dict(zip(model.ids, model.visitors))
+        visitors = dict(zip(model.ids, model.visitors, strict=False))
         pop, source = predicted.copy(), ["predicted"] * n
         for i, pid in enumerate(self.ids):
             if visitors.get(pid, 0) > 0:
@@ -115,10 +116,10 @@ class Recommender:
     def _distances_from(self, i: int) -> np.ndarray:
         return self._distances_km(float(np.degrees(self.lat[i])), float(np.degrees(self.lon[i])))
 
-    def _indices(self, ids: Optional[Sequence[str]]) -> List[int]:
+    def _indices(self, ids: Sequence[str] | None) -> list[int]:
         return [self.position[str(x)] for x in ids or [] if str(x) in self.position]
 
-    def _in_categories(self, categories: Optional[Sequence[str]]) -> np.ndarray:
+    def _in_categories(self, categories: Sequence[str] | None) -> np.ndarray:
         wanted = {str(c).lower() for c in categories or [] if c}
         if not wanted:
             return np.ones(len(self.ids), dtype=bool)
@@ -126,8 +127,8 @@ class Recommender:
 
     # ------------------------------------------------------------------ API
 
-    def onboarding_cards(self, k: int, seen: Optional[Sequence[str]] = None,
-                         categories: Optional[Sequence[str]] = None) -> List[Dict[str, Any]]:
+    def onboarding_cards(self, k: int, seen: Sequence[str] | None = None,
+                         categories: Sequence[str] | None = None) -> list[dict[str, Any]]:
         """The k most popular POIs not shown yet, optionally within some categories."""
         mask = self._in_categories(categories)
         mask[self._indices(seen)] = False
@@ -136,13 +137,13 @@ class Recommender:
 
     def recommend(
         self,
-        liked: Optional[Sequence[str]] = None,
-        disliked: Optional[Sequence[str]] = None,
-        location: Optional[Dict[str, float]] = None,
-        categories: Optional[Sequence[str]] = None,
-        top_n: Optional[int] = None,
-        at: Optional[datetime] = None,
-    ) -> List[Dict[str, Any]]:
+        liked: Sequence[str] | None = None,
+        disliked: Sequence[str] | None = None,
+        location: dict[str, float] | None = None,
+        categories: Sequence[str] | None = None,
+        top_n: int | None = None,
+        at: datetime | None = None,
+    ) -> list[dict[str, Any]]:
         n = len(self.ids)
         if n == 0:
             return []
@@ -188,10 +189,10 @@ class Recommender:
             results.append(item)
         return results
 
-    def _reasons(self, i: int, liked_idx: List[int], nearest_km: np.ndarray, has_anchor: bool,
-                 similar_cut: Optional[float], top_popular: set) -> List[Dict[str, Any]]:
+    def _reasons(self, i: int, liked_idx: list[int], nearest_km: np.ndarray, has_anchor: bool,
+                 similar_cut: float | None, top_popular: set) -> list[dict[str, Any]]:
         """Why a POI is in the list, for the explanation shown to the user."""
-        reasons: List[Dict[str, Any]] = []
+        reasons: list[dict[str, Any]] = []
         if i in top_popular:
             reasons.append({"type": "popular"})
         if has_anchor and nearest_km[i] <= 0.5:
@@ -204,8 +205,8 @@ class Recommender:
                 reasons.append({"type": "similar", "poi": self.pois[j].get("name")})
         return reasons
 
-    def search(self, query_unit: Optional[np.ndarray], limit: int = 20,
-               categories: Optional[Sequence[str]] = None) -> List[Dict[str, Any]]:
+    def search(self, query_unit: np.ndarray | None, limit: int = 20,
+               categories: Sequence[str] | None = None) -> list[dict[str, Any]]:
         """Free-text search over the descriptions (plain embeddings, not the adapted ones)."""
         if query_unit is None or not self.ids:
             return []
@@ -215,7 +216,7 @@ class Recommender:
         return [{**self.pois[i], "rank": r, "score": round(float(score[i]), 4)} for r, i in enumerate(order, start=1)]
 
     def text_search(self, query: str, limit: int = 20,
-                    categories: Optional[Sequence[str]] = None) -> List[Dict[str, Any]]:
+                    categories: Sequence[str] | None = None) -> list[dict[str, Any]]:
         """Word search over name and description, when the text model is not installed.
 
         Each query word (3+ letters, accents ignored) found in the name counts 3,

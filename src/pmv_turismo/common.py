@@ -7,7 +7,7 @@ import re
 import tempfile
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 from zoneinfo import ZoneInfo
 
 LOCAL_TZ = ZoneInfo("Europe/Madrid")
@@ -24,7 +24,7 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     return 2 * r * math.asin(math.sqrt(a))
 
 
-def poi_coordinates(item: Dict[str, Any]) -> Optional[List[float]]:
+def poi_coordinates(item: dict[str, Any]) -> list[float] | None:
     """Return [lon, lat] for a POI or a wrapped {"poi": {...}} record."""
     coords = (item.get("location") or {}).get("coordinates") or (
         (item.get("poi") or {}).get("location") or {}
@@ -34,11 +34,11 @@ def poi_coordinates(item: Dict[str, Any]) -> Optional[List[float]]:
     return coords
 
 
-def processed_dir(config: Dict[str, Any]) -> Path:
+def processed_dir(config: dict[str, Any]) -> Path:
     return Path(config.get("data", {}).get("processed_dir", "data/processed"))
 
 
-def load_poi_list(path: Path) -> List[Dict[str, Any]]:
+def load_poi_list(path: Path) -> list[dict[str, Any]]:
     if not path.exists():
         raise FileNotFoundError(f"Processed POI file not found: {path}")
     data = json.loads(path.read_text(encoding="utf-8"))

@@ -2,7 +2,10 @@ from pmv_turismo.descriptions import build_description
 from pmv_turismo.heritage import match_heritage, names_match, parse_inventory, utm_to_latlon
 from pmv_turismo.ingestion import _extract_pois, _haversine_m, _is_falla, _wikidata_matches_poi
 
-HEADER = "igpcv;denominacion;provincia;municipio;utmeste;utmnorte;codclasificacion;clasificacion;codcategoria;categoria\n"
+HEADER = (
+    "igpcv;denominacion;provincia;municipio;utmeste;utmnorte;"
+    "codclasificacion;clasificacion;codcategoria;categoria\n"
+)
 
 
 def test_utm_conversion_lands_on_the_monument():

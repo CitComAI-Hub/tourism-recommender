@@ -9,7 +9,7 @@ shown in English. The entity is flagged with `descriptionGenerated: true`.
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 from .heritage import DESIGNATION_LABEL
 
@@ -57,7 +57,7 @@ def _year(value: Any) -> str | None:
     return match.group(1) if match else None
 
 
-def _kind(tags: Dict[str, Any], subcategory: str) -> str:
+def _kind(tags: dict[str, Any], subcategory: str) -> str:
     if subcategory == "place_of_worship" and tags.get("religion") in _RELIGION:
         return _RELIGION[str(tags["religion"])]
     for value in (tags.get("artwork_type"), tags.get("memorial"), tags.get("building"), subcategory):
@@ -67,8 +67,8 @@ def _kind(tags: Dict[str, Any], subcategory: str) -> str:
 
 
 def build_description(
-    tags: Dict[str, Any], subcategory: str, heritage: Dict[str, Any] | None = None
-) -> Tuple[str, int]:
+    tags: dict[str, Any], subcategory: str, heritage: dict[str, Any] | None = None
+) -> tuple[str, int]:
     """(description, number of facts beyond the kind of place).
 
     The kind alone ("Escultura.") says nothing a category does not; the
@@ -90,7 +90,7 @@ def build_description(
     if year:
         head += f" ({year})"
         facts += 1
-    sentences: List[str] = [head + "."]
+    sentences: list[str] = [head + "."]
 
     if tags.get("architect") and not tags.get("artist_name"):
         # Often a studio rather than a person: no "the architect X".

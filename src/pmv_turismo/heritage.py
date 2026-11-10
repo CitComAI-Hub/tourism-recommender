@@ -16,8 +16,9 @@ import csv
 import io
 import math
 import unicodedata
+from collections.abc import Iterable
 from difflib import SequenceMatcher
-from typing import Any, Dict, Iterable, List, Tuple
+from typing import Any
 
 # ETRS89 / UTM zone 30N (EPSG:25830). GRS80 and WGS84 differ by < 1 mm here.
 _A = 6378137.0
@@ -83,7 +84,7 @@ def _normalize(text: str) -> str:
     return " ".join(text.split())
 
 
-def _words(text: str) -> List[str]:
+def _words(text: str) -> list[str]:
     words = [_WORD_FORMS.get(w, w) for w in _normalize(text).split()]
     return [w for w in words if w and w not in _GENERIC_WORDS]
 
@@ -110,7 +111,7 @@ def names_match(osm_name: str, heritage_name: str) -> bool:
     return all(_similar_word(w, heritage_words) for w in osm_words)
 
 
-def utm_to_latlon(easting: float, northing: float, zone: int = _ZONE) -> Tuple[float, float]:
+def utm_to_latlon(easting: float, northing: float, zone: int = _ZONE) -> tuple[float, float]:
     """Inverse transverse Mercator (northern hemisphere), accurate to centimetres."""
     e2 = _F * (2 - _F)
     ep2 = e2 / (1 - e2)
@@ -145,7 +146,7 @@ def utm_to_latlon(easting: float, northing: float, zone: int = _ZONE) -> Tuple[f
     return math.degrees(lat), math.degrees(lon0 + lon)
 
 
-def _coordinates(row: Dict[str, str]) -> Tuple[float, float] | None:
+def _coordinates(row: dict[str, str]) -> tuple[float, float] | None:
     """(lat, lon) of a row. The BIC file swaps the `utmeste`/`utmnorte`
     columns, so the axis is told apart by magnitude: in this zone eastings
     have 6 digits and northings 7."""
@@ -159,9 +160,9 @@ def _coordinates(row: Dict[str, str]) -> Tuple[float, float] | None:
     return utm_to_latlon(easting, northing)
 
 
-def parse_inventory(text: str, designation: str, municipality: str) -> List[Dict[str, Any]]:
+def parse_inventory(text: str, designation: str, municipality: str) -> list[dict[str, Any]]:
     """Visitable entries of one inventory CSV (`;`-separated) in a municipality."""
-    entries: List[Dict[str, Any]] = []
+    entries: list[dict[str, Any]] = []
     wanted = municipality.strip().upper()
     for row in csv.DictReader(io.StringIO(text.lstrip("﻿")), delimiter=";"):
         if (row.get("municipio") or "").strip().upper() != wanted:
@@ -184,20 +185,20 @@ def parse_inventory(text: str, designation: str, municipality: str) -> List[Dict
 
 
 def match_heritage(
-    pois: Iterable[Dict[str, Any]],
-    entries: List[Dict[str, Any]],
+    pois: Iterable[dict[str, Any]],
+    entries: list[dict[str, Any]],
     distance_fn: Any,
     max_distance_m: float = 60.0,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Attach the closest inventory entry with a similar name to each POI.
 
     Sets `poi["heritage"]` and returns one report row per match. Position alone
     is not enough: a protected church and the square in front of it are a few
     metres apart. BIC wins over BRL when both match.
     """
-    rows: List[Dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
     for poi in pois:
-        best: Tuple[int, float, Dict[str, Any]] | None = None
+        best: tuple[int, float, dict[str, Any]] | None = None
         for entry in entries:
             dist = distance_fn(float(poi["lat"]), float(poi["lon"]), entry["lat"], entry["lon"])
             if dist > max_distance_m:

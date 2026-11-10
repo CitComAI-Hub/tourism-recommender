@@ -2,13 +2,12 @@ from datetime import datetime
 
 import numpy as np
 import pytest
+from conftest import POIS, poi_id
 
 from pmv_turismo.behaviour import BehaviourModel, assign_visits, train
 from pmv_turismo.common import LOCAL_TZ, load_poi_list, opening_hours_cover_duration
 from pmv_turismo.embeddings import embeddings_path, load_embedding_index
 from pmv_turismo.recommendation import Recommender
-
-from conftest import POIS, poi_id
 
 WEDNESDAY_11 = datetime(2026, 6, 10, 11, 0, tzinfo=LOCAL_TZ)
 MONDAY_11 = datetime(2026, 6, 8, 11, 0, tzinfo=LOCAL_TZ)
@@ -102,7 +101,7 @@ def test_behaviour_model_roundtrip_and_sources(config, workspace, tmp_path):
     loaded = BehaviourModel.load(tmp_path / "m.npz")
     assert loaded.meta["users"] == 10 and loaded.ids == model.ids
     rec = Recommender(pois, index, loaded, config)
-    source = dict(zip([p["name"] for p in rec.pois], rec.popularity_source))
+    source = dict(zip([p["name"] for p in rec.pois], rec.popularity_source, strict=False))
     assert source["m1"] == "visits" and source["v1"] == "predicted"
     # the most visited places lead the onboarding
     assert {c["name"] for c in rec.onboarding_cards(2)} == {"m1", "c1"}

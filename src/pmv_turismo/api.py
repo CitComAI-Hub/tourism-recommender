@@ -10,10 +10,11 @@ import logging
 import os
 import threading
 import time
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
-from typing import Any, AsyncIterator, Dict, List, Optional
+from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,8 +22,8 @@ from pydantic import BaseModel, Field, field_validator
 
 from pmv_turismo.behaviour import load_model, model_path
 from pmv_turismo.common import poi_coordinates, processed_dir
-from pmv_turismo.data_source import load_pois, refresh_seconds, source_kind
 from pmv_turismo.config import Config
+from pmv_turismo.data_source import load_pois, refresh_seconds, source_kind
 from pmv_turismo.embeddings import embeddings_path, encode_query, load_embedding_index
 from pmv_turismo.recommendation import Recommender
 
@@ -31,7 +32,7 @@ logger = logging.getLogger(__name__)
 MAX_IDS = 200
 
 
-def _config() -> Dict[str, Any]:
+def _config() -> dict[str, Any]:
     return Config.load(CONFIG_PATH).data
 
 
@@ -45,8 +46,8 @@ class _State:
 
     def __init__(self) -> None:
         self._lock = threading.Lock()
-        self._key: Optional[tuple] = None
-        self._recommender: Optional[Recommender] = None
+        self._key: tuple | None = None
+        self._recommender: Recommender | None = None
 
     def get(self) -> Recommender:
         config = _config()
@@ -104,48 +105,48 @@ class Location(BaseModel):
 
 
 class Feedback(BaseModel):
-    liked: List[str] = Field(default_factory=list, max_length=MAX_IDS)
-    disliked: List[str] = Field(default_factory=list, max_length=MAX_IDS)
-    categories: List[str] = Field(default_factory=list, max_length=50)
+    liked: list[str] = Field(default_factory=list, max_length=MAX_IDS)
+    disliked: list[str] = Field(default_factory=list, max_length=MAX_IDS)
+    categories: list[str] = Field(default_factory=list, max_length=50)
 
 
 class CardsRequest(Feedback):
-    seen: List[str] = Field(default_factory=list, max_length=MAX_IDS)
+    seen: list[str] = Field(default_factory=list, max_length=MAX_IDS)
     limit: int = Field(default=6, ge=1, le=50)
 
 
 class RecommendationRequest(Feedback):
-    location: Optional[Location] = None
+    location: Location | None = None
     top_n: int = Field(default=30, ge=1, le=200)
-    at: Optional[datetime] = None
+    at: datetime | None = None
 
     @field_validator("at")
     @classmethod
-    def _aware(cls, v: Optional[datetime]) -> Optional[datetime]:
+    def _aware(cls, v: datetime | None) -> datetime | None:
         if v is not None and v.tzinfo is None:
             raise ValueError("`at` must include a timezone")
         return v
 
 
-def _csv(raw: Optional[str]) -> List[str]:
+def _csv(raw: str | None) -> list[str]:
     return [x.strip().lower() for x in raw.split(",") if x.strip()] if raw else []
 
 
 @app.get("/health")
-def health() -> Dict[str, Any]:
+def health() -> dict[str, Any]:
     rec = STATE.get()
     return {"status": "ok", "pois": len(rec.ids), "source": source_kind(), "behaviourModel": rec.model_meta}
 
 
 @app.get("/pois")
 def list_pois(
-    category: Optional[str] = Query(default=None, description="Comma-separated categories"),
-    limit: Optional[int] = Query(default=None, ge=1, le=2000),
-    min_lat: Optional[float] = None,
-    min_lon: Optional[float] = None,
-    max_lat: Optional[float] = None,
-    max_lon: Optional[float] = None,
-) -> List[Dict[str, Any]]:
+    category: str | None = Query(default=None, description="Comma-separated categories"),
+    limit: int | None = Query(default=None, ge=1, le=2000),
+    min_lat: float | None = None,
+    min_lon: float | None = None,
+    max_lat: float | None = None,
+    max_lon: float | None = None,
+) -> list[dict[str, Any]]:
     rec = STATE.get()
     wanted = set(_csv(category))
     bbox = None if None in (min_lat, min_lon, max_lat, max_lon) else (min_lat, min_lon, max_lat, max_lon)
@@ -162,7 +163,7 @@ def list_pois(
 
 
 @app.get("/pois/{poi_id}")
-def get_poi(poi_id: str) -> Dict[str, Any]:
+def get_poi(poi_id: str) -> dict[str, Any]:
     rec = STATE.get()
     if poi_id not in rec.position:
         raise HTTPException(status_code=404, detail="POI not found")
@@ -170,13 +171,13 @@ def get_poi(poi_id: str) -> Dict[str, Any]:
 
 
 @app.post("/onboarding/cards", summary="Next onboarding cards: the most popular places not shown yet")
-def onboarding_cards(payload: CardsRequest) -> List[Dict[str, Any]]:
+def onboarding_cards(payload: CardsRequest) -> list[dict[str, Any]]:
     return STATE.get().onboarding_cards(payload.limit, seen=payload.seen + payload.liked + payload.disliked,
                                         categories=payload.categories)
 
 
 @app.post("/recommendations")
-def recommendations(payload: RecommendationRequest) -> Dict[str, Any]:
+def recommendations(payload: RecommendationRequest) -> dict[str, Any]:
     rec = STATE.get()
     results = rec.recommend(
         liked=payload.liked, disliked=payload.disliked,
@@ -190,8 +191,8 @@ def recommendations(payload: RecommendationRequest) -> Dict[str, Any]:
 def search(
     q: str = Query(min_length=2, max_length=300),
     limit: int = Query(default=20, ge=1, le=100),
-    category: Optional[str] = Query(default=None),
-) -> List[Dict[str, Any]]:
+    category: str | None = Query(default=None),
+) -> list[dict[str, Any]]:
     rec = STATE.get()
     query = encode_query(_config(), q)
     if query is None:  # no text model in this deployment: word search
