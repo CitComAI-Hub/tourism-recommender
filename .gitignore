@@ -232,3 +232,6 @@ data/cities/
 # Static export of the web app (built in the image)
 frontend/out/
 frontend/.next/
+
+# Manual audit answers (research/audit_app.py)
+data/audit/
