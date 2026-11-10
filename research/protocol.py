@@ -42,6 +42,7 @@ K = 10
 GRID_TAU = (0.15, 0.3, 0.6, 1.0)
 GRID_SIM = (0.0, 0.15, 0.3, 0.5)
 GRID_SEASON = (0.0, 0.25, 0.5, 0.75)
+GRID_NEXT = (0.0, 0.25, 0.5, 1.0)
 TOURIST_MAX_DAYS = 21
 
 
@@ -79,7 +80,7 @@ class City:
             self.by_user[p["user"]].append(p)
 
     def cases(self, users: Sequence[str]) -> List[tuple]:
-        """(user, liked ids, held-out index, date of the held-out visit)."""
+        """(user, liked ids, held-out index, date of the held-out visit, POI visited just before)."""
         out = []
         for u in sorted(users):
             v = self.visits.get(u, {})
@@ -87,7 +88,8 @@ class City:
                 continue
             seq = sorted(v, key=v.get)
             for held in seq[-2:]:
-                out.append((u, [self.ids[x] for x in seq if x != held][-10:], held, v[held]))
+                prev = seq[seq.index(held) - 1]
+                out.append((u, [self.ids[x] for x in seq if x != held][-10:], held, v[held], prev))
         return out
 
     def model(self, photos: List[dict]):
@@ -101,18 +103,35 @@ class City:
                 seen[(photos[k]["user"], j, season(photos[k]["ts"]))].add(1)
         for (_, j, s) in seen:
             seasonal[s, j] += 1
+        first: dict = collections.defaultdict(dict)
+        for j, idx in enumerate(assign_photos(self.pois, self.shapes, lat, lon)):
+            for k in idx:
+                u, ts = photos[k]["user"], photos[k]["ts"]
+                first[u][j] = min(first[u].get(j, ts), ts)
+        trans = np.zeros((len(self.pois), len(self.pois)))
+        for v in first.values():
+            seq = sorted(v, key=v.get)
+            for a, b in zip(seq, seq[1:], strict=False):
+                trans[a, b] += 1
+        trans = trans / np.maximum(trans.sum(axis=1, keepdims=True), 1)  # P(next | current)
+        self._trans = trans
         return train(self.pois, self.units, visits, "eval"), np.log1p(seasonal)
 
 
 def evaluate(city: City, rec: Recommender, cases: List[tuple], tau: float, sim: float,
-             seasonal: np.ndarray | None = None, season_w: float = 0.0, pop_only: bool = False) -> np.ndarray:
+             seasonal: np.ndarray | None = None, season_w: float = 0.0, pop_only: bool = False,
+             trans: np.ndarray | None = None, next_w: float = 0.0) -> np.ndarray:
     r = copy.copy(rec)
     r.distance_scale_km, r.similarity_weight = tau, sim
     hits = np.zeros(len(cases))
     base_pop = rec.popularity
-    for n, (_, liked, held, ts) in enumerate(cases):
+    for n, (_, liked, held, ts, prev) in enumerate(cases):
+        r.popularity = base_pop
         if seasonal is not None and season_w:
             r.popularity = (1 - season_w) * base_pop + season_w * seasonal[season(ts)]
+        if trans is not None and next_w:
+            # P(next | the POI visited just before), on the scale of log popularity
+            r.popularity = r.popularity + next_w * np.log1p(100 * trans[prev])
         if pop_only:
             liked_set = {rec.position[x] for x in liked}
             top = [i for i in np.argsort(-r.popularity, kind="stable") if i not in liked_set][:K]
@@ -151,8 +170,12 @@ def run_split(city: City, train_users, test_cases, val_users, val_cases_fn, labe
                  if photo_filter is None or photo_filter(p)]
     m_val, s_val = city.model(val_train)
     rec_val = Recommender(city.pois, city.index, m_val, city.cfg)
-    tau, sim, sw = choose(city, rec_val, val_cases_fn(), s_val)
+    val_cases = val_cases_fn()
+    tau, sim, sw = choose(city, rec_val, val_cases, s_val)
+    t_val = city._trans
+    nw = max(GRID_NEXT, key=lambda w: evaluate(city, rec_val, val_cases, tau, sim, trans=t_val, next_w=w).mean())
     model, seasonal = city.model(photos)
+    trans = city._trans
     rec = Recommender(city.pois, city.index, model, city.cfg)
     wiki = Recommender(city.pois, city.index, None, city.cfg)
     rows = {
@@ -161,8 +184,10 @@ def run_split(city: City, train_users, test_cases, val_users, val_cases_fn, labe
         "gravity (no similarity)": evaluate(city, rec, test_cases, tau, 0.0),
         "service": evaluate(city, rec, test_cases, tau, sim),
         "service + season": evaluate(city, rec, test_cases, tau, sim, seasonal, sw),
+        "service + next POI": evaluate(city, rec, test_cases, tau, sim, trans=trans, next_w=nw),
     }
-    return {"split": label, "chosen": {"tau_km": tau, "similarity_weight": sim, "season_weight": sw}, "rows": rows}
+    return {"split": label, "chosen": {"tau_km": tau, "similarity_weight": sim, "season_weight": sw, "next_weight": nw},
+            "rows": rows}
 
 
 def main():
@@ -214,9 +239,12 @@ def main():
             print(f"   {a} vs popularity: diff {t['diff']:+.3f} CI95 [{t['ci95'][0]:+.3f}, {t['ci95'][1]:+.3f}] McNemar p={t['mcnemar_p']:.2g}")
         t = paired(rows["service + season"], rows["service"])
         print(f"   season vs service: diff {t['diff']:+.3f} CI95 [{t['ci95'][0]:+.3f}, {t['ci95'][1]:+.3f}] McNemar p={t['mcnemar_p']:.2g}")
+        tn = paired(rows["service + next POI"], rows["service"])
+        print(f"   next POI vs service: diff {tn['diff']:+.3f} CI95 [{tn['ci95'][0]:+.3f}, {tn['ci95'][1]:+.3f}] McNemar p={tn['mcnemar_p']:.2g}")
         report["splits"][label] = {"cases": n, "chosen": chosen, "hit@10": {k: float(h.mean()) for k, h in rows.items()},
                                    "service_vs_popularity": paired(rows["service"], rows["popularity"]),
-                                   "season_vs_service": t}
+                                   "season_vs_service": t,
+                                   "next_vs_service": paired(rows["service + next POI"], rows["service"])}
     out = processed_dir(city.cfg) / "protocol_report.json"
     out.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"\nreport: {out}")
