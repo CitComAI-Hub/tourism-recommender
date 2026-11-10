@@ -45,25 +45,11 @@ export function MapView({
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    // Leaflet is bundled (no third-party CDN); its CSS is imported in app/layout.tsx.
     const loadLeaflet = async () => {
-      // Add CSS
-      if (!document.querySelector('link[href*="leaflet.css"]')) {
-        const link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-        document.head.appendChild(link);
-      }
-
-      // Add JS
       if (!window.L) {
-        await new Promise<void>((resolve) => {
-          const script = document.createElement("script");
-          script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-          script.onload = () => resolve();
-          document.head.appendChild(script);
-        });
+        window.L = (await import("leaflet")).default;
       }
-
       setIsLoaded(true);
     };
 

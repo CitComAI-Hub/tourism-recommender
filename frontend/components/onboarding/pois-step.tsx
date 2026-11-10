@@ -86,7 +86,7 @@ export function POIsStep({
           if (imgUrl) {
             const resolved = normalizeImageUrl(imgUrl);
             const preload = new window.Image();
-            preload.src = `/_next/image?url=${encodeURIComponent(resolved)}&w=640&q=75`;
+            preload.src = resolved;
           }
         }
 
@@ -280,7 +280,7 @@ export function POIsStep({
       {!isLoading && !isFinished && currentPOI && (
         <div className="relative h-[420px] mb-6">
           {/* Hidden preloaders: render upcoming images off-screen via next/image so the
-              /_next/image optimized version is already cached when the user swipes */}
+              image is already cached when the user swipes */}
           <div aria-hidden className="absolute w-0 h-0 overflow-hidden">
             {prefetchPOIs.map((poi) => (
               <Image
@@ -326,7 +326,7 @@ export function POIsStep({
             >
               <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-xl">
                 <OptimizedImage
-                  src={currentPOI.image || "/placeholder.svg"}
+                  src={currentPOI.image || `${process.env.NEXT_PUBLIC_BASE_PATH || ""}/placeholder.svg`}
                   alt={currentPOI.name}
                   fill
                   sizes="(max-width: 768px) 100vw, 448px"

@@ -17,6 +17,8 @@ see research/ and docs/proposal.md):
 """
 from __future__ import annotations
 
+import re
+import unicodedata
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Sequence
 
@@ -33,6 +35,11 @@ EARTH_KM = 6371.0
 def _minmax(x: np.ndarray) -> np.ndarray:
     span = float(np.ptp(x)) if x.size else 0.0
     return (x - x.min()) / span if span > 1e-12 else np.full_like(x, 0.5, dtype=float)
+
+
+def _fold(text: str) -> str:
+    """Lowercase without accents, for matching typed text."""
+    return unicodedata.normalize("NFKD", text.lower()).encode("ascii", "ignore").decode()
 
 
 def _rank01(x: np.ndarray) -> np.ndarray:
@@ -194,3 +201,25 @@ class Recommender:
         mask = self._in_categories(categories)
         order = [i for i in np.argsort(-score) if mask[i]][:limit]
         return [{**self.pois[i], "rank": r, "score": round(float(score[i]), 4)} for r, i in enumerate(order, start=1)]
+
+    def text_search(self, query: str, limit: int = 20,
+                    categories: Optional[Sequence[str]] = None) -> List[Dict[str, Any]]:
+        """Word search over name and description, when the text model is not installed.
+
+        Each query word (3+ letters, accents ignored) found in the name counts 3,
+        in the description 1; ties go to the more popular POI.
+        """
+        words = [w for w in re.findall(r"\w+", _fold(query)) if len(w) >= 3]
+        if not words or not self.ids:
+            return []
+        mask = self._in_categories(categories)
+        scored = []
+        for i, poi in enumerate(self.pois):
+            if not mask[i]:
+                continue
+            name, desc = _fold(str(poi.get("name") or "")), _fold(str(poi.get("description") or ""))
+            score = sum(3 * (w in name) + (w in desc) for w in words)
+            if score:
+                scored.append((score, float(self.popularity[i]), i))
+        scored.sort(key=lambda t: (-t[0], -t[1]))
+        return [{**self.pois[i], "rank": r, "score": float(sc)} for r, (sc, _, i) in enumerate(scored[:limit], start=1)]

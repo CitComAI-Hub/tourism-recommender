@@ -5,22 +5,27 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pmv-turismo"
 version = "0.1.0"
-description = "PMV IA Turismo (Valencia)"
+description = "Tourism recommender: semantic POI model calibrated with real visitor behaviour"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
-  "pyyaml",
-  "requests",
-  "numpy",
-  "fastapi",
-  "pydantic>=2",
-  "uvicorn",
+  "pyyaml>=6,<7",
+  "requests>=2.32,<3",
+  "numpy>=2.0,<3",
+  "fastapi>=0.115,<1",
+  "pydantic>=2.7,<3",
+  "uvicorn>=0.30,<1",
 ]
 
 [project.optional-dependencies]
 # Only needed to (re)generate embeddings: pulls in torch.
 embeddings = ["sentence-transformers>=3.1.0", "torch>=2.3"]
-dev = ["pytest", "httpx", "jsonschema[format-nongpl]"]
+# Reading the POIs from an NGSI-LD broker / data space connector
+dataspace = [
+  "filip~=0.8.1",
+  "ds-consumer-auth @ git+https://github.com/CitComAI-Hub/ds-consumer-auth@v0.1.0",
+]
+dev = ["pytest", "httpx", "jsonschema[format-nongpl]", "ruff"]
 
 [tool.setuptools]
 package-dir = {"" = "src"}

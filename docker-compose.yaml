@@ -1,0 +1,48 @@
+# Local level-1 test: an NGSI-LD broker (Orion-LD) with the catalog and the service
+# reading it from there.
+#
+#   docker compose up -d --build orion mongo
+#   docker compose run --rm publish        # upserts the 'sourced' POIs
+#   docker compose up -d app               # http://localhost:8000/
+services:
+  mongo:
+    image: mongo:4.4
+    volumes:
+      - mongo:/data/db
+
+  orion:
+    image: quay.io/fiware/orion-ld:1.6.0
+    command: -dbhost mongo -logLevel WARN
+    depends_on: [mongo]
+    restart: on-failure
+    ports:
+      - "1026:1026"
+
+  publish:
+    build:
+      context: .
+      args:
+        BASE_PATH: ""
+    profiles: [publish]
+    depends_on: [orion]
+    environment:
+      NGSI_LD_URL: http://orion:1026
+      PUBLISH_SUBSET: sourced
+      PUBLISH_DRY_RUN: "0"
+    command: python -m pmv_turismo.cli --step publish
+
+  app:
+    build:
+      context: .
+      args:
+        BASE_PATH: ""
+    depends_on: [orion]
+    environment:
+      POI_SOURCE: ngsi-ld
+      NGSI_LD_URL: http://orion:1026
+      POI_REFRESH_SECONDS: "300"
+    ports:
+      - "${APP_PORT:-8000}:8000"
+
+volumes:
+  mongo:

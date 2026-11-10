@@ -16,7 +16,7 @@ def client(workspace, monkeypatch):
 
 def test_health_reports_catalog(client):
     body = client.get("/health").json()
-    assert body == {"status": "ok", "pois": 10, "behaviourModel": None}
+    assert body == {"status": "ok", "pois": 10, "source": "file", "behaviourModel": None}
 
 
 def test_pois_filters(client):
@@ -52,10 +52,58 @@ def test_recommendations_validation(client, payload):
     assert client.post("/recommendations", json=payload).status_code == 422
 
 
-def test_search_without_text_model(client):
-    assert client.get("/search?q=gothic churches").status_code == 503
+def test_search_without_text_model_falls_back_to_words(client):
+    # encode_query is patched to None (no text model): word search, nothing matches here
+    response = client.get("/search?q=gothic churches")
+    assert response.status_code == 200 and response.json() == []
+    assert client.get("/search?q=a").status_code == 422
 
 
 def test_no_user_storage_endpoints(client):
     for path in ("/user/preferences", "/itinerary", "/run/ingestion", "/embedding/x"):
         assert client.get(path).status_code in (404, 405)
+
+
+def test_broker_source_keeps_last_catalog_on_failure(client, monkeypatch):
+    import pmv_turismo.data_source as ds
+
+    assert client.get("/health").json()["pois"] == 10
+    monkeypatch.setenv("POI_SOURCE", "ngsi-ld")
+    monkeypatch.setattr(api, "load_pois", lambda cfg: (_ for _ in ()).throw(RuntimeError("broker down")))
+    assert client.get("/health").json()["pois"] == 10
+    monkeypatch.setattr(api, "load_pois", lambda cfg: ds.load_poi_list(api.processed_dir(cfg) / "poi.jsonld")[:4])
+    monkeypatch.setenv("POI_REFRESH_SECONDS", "1")
+    import time
+    time.sleep(1.1)
+    assert client.get("/health").json()["pois"] == 4
+
+
+def test_server_serves_api_and_web(workspace, monkeypatch, tmp_path):
+    import importlib
+
+    web = tmp_path / "out"
+    (web / "explore").mkdir(parents=True)
+    (web / "index.html").write_text("<html>home</html>")
+    (web / "explore" / "index.html").write_text("<html>explore</html>")
+    monkeypatch.setenv("WEB_DIR", str(web))
+    monkeypatch.setattr(api, "CONFIG_PATH", workspace / "config.yaml")
+    monkeypatch.setattr(api, "STATE", api._State())
+    import pmv_turismo.server as server
+
+    server = importlib.reload(server)
+    with TestClient(server.app) as c:
+        assert c.get("/healthz").json() == {"status": "ok"}
+        assert c.get("/api/health").json()["pois"] == 10
+        assert "explore" in c.get("/explore/").text
+        assert c.get("/").status_code == 200
+
+
+def test_publish_normalizes_and_selects_sourced():
+    from pmv_turismo.publish import normalized, select
+
+    poi = {"id": "urn:x", "type": "PointOfInterest", "@context": ["c"], "name": "A", "image": None,
+           "location": {"type": "Point", "coordinates": [0, 0]}, "refSeeAlso": ["https://www.wikidata.org/wiki/Q1"]}
+    n = normalized(poi)
+    assert n["location"]["type"] == "GeoProperty" and n["name"] == {"type": "Property", "value": "A"}
+    assert "@context" not in n and "image" not in n
+    assert select([poi, {"id": "urn:y"}], "sourced") == [poi]

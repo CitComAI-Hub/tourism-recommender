@@ -6,8 +6,10 @@ connector the user is already authenticated by APISIX.
 """
 from __future__ import annotations
 
+import logging
 import os
 import threading
+import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
@@ -18,12 +20,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
 
 from pmv_turismo.behaviour import load_model, model_path
-from pmv_turismo.common import load_poi_list, poi_coordinates, processed_dir
+from pmv_turismo.common import poi_coordinates, processed_dir
+from pmv_turismo.data_source import load_pois, refresh_seconds, source_kind
 from pmv_turismo.config import Config
 from pmv_turismo.embeddings import embeddings_path, encode_query, load_embedding_index
 from pmv_turismo.recommendation import Recommender
 
 CONFIG_PATH = Path(os.environ.get("PMV_CONFIG", "configs/base.yaml"))
+logger = logging.getLogger(__name__)
 MAX_IDS = 200
 
 
@@ -32,7 +36,12 @@ def _config() -> Dict[str, Any]:
 
 
 class _State:
-    """Recommender built from the files on disk, rebuilt when any of them changes."""
+    """Recommender over the current catalog.
+
+    Rebuilt when a local file changes (catalog, embeddings, behaviour model) and,
+    when the POIs come from a broker, every POI_REFRESH_SECONDS. If a broker read
+    fails, the previous catalog keeps being served.
+    """
 
     def __init__(self) -> None:
         self._lock = threading.Lock()
@@ -43,15 +52,23 @@ class _State:
         config = _config()
         paths = [processed_dir(config) / "poi.jsonld", embeddings_path(config), model_path(config)]
         key = tuple(p.stat().st_mtime if p.exists() else None for p in paths)
+        if source_kind() != "file":
+            key = key[1:] + (int(time.time() // max(refresh_seconds(), 1)),)
         with self._lock:
             if self._recommender is None or key != self._key:
                 try:
-                    pois = load_poi_list(paths[0])
+                    pois = load_pois(config)
                     index = load_embedding_index(paths[1])
-                except FileNotFoundError as exc:
+                except Exception as exc:
+                    if self._recommender is not None:
+                        logger.warning("Catalog refresh failed, serving the previous one: %s", exc)
+                        self._key = key
+                        return self._recommender
                     raise HTTPException(status_code=503, detail=f"Catalog not ready: {exc}") from exc
-                self._recommender = Recommender(pois, index, load_model(config), config)
-                self._key = key
+                rec = Recommender(pois, index, load_model(config), config)
+                if len(rec.ids) < len(pois):
+                    logger.warning("%d POIs without embeddings left out", len(pois) - len(rec.ids))
+                self._recommender, self._key = rec, key
             return self._recommender
 
 
@@ -117,7 +134,7 @@ def _csv(raw: Optional[str]) -> List[str]:
 @app.get("/health")
 def health() -> Dict[str, Any]:
     rec = STATE.get()
-    return {"status": "ok", "pois": len(rec.ids), "behaviourModel": rec.model_meta}
+    return {"status": "ok", "pois": len(rec.ids), "source": source_kind(), "behaviourModel": rec.model_meta}
 
 
 @app.get("/pois")
@@ -169,13 +186,14 @@ def recommendations(payload: RecommendationRequest) -> Dict[str, Any]:
     return {"results": results, "behaviourModel": rec.model_meta}
 
 
-@app.get("/search", summary="Free-text search over the POI descriptions")
+@app.get("/search", summary="Free-text search: semantic with the text model, by words without it")
 def search(
     q: str = Query(min_length=2, max_length=300),
     limit: int = Query(default=20, ge=1, le=100),
     category: Optional[str] = Query(default=None),
 ) -> List[Dict[str, Any]]:
+    rec = STATE.get()
     query = encode_query(_config(), q)
-    if query is None:
-        raise HTTPException(status_code=503, detail="Text search needs the embeddings extra installed")
-    return STATE.get().search(query, limit=limit, categories=_csv(category))
+    if query is None:  # no text model in this deployment: word search
+        return rec.text_search(q, limit=limit, categories=_csv(category))
+    return rec.search(query, limit=limit, categories=_csv(category))

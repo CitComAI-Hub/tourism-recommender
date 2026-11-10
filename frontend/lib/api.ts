@@ -1,4 +1,7 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+// Same origin in production (the API container serves the app under BASE_PATH);
+// set NEXT_PUBLIC_API_URL=http://127.0.0.1:8000/api for `pnpm dev`.
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_BASE_PATH || ""}/api`;
 
 export interface Location {
   lat: number;

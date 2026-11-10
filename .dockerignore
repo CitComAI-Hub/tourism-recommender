@@ -1,0 +1,16 @@
+.git
+venv
+.venv
+**/__pycache__
+**/node_modules
+frontend/.next
+frontend/out
+data/raw
+data/cities
+data/processed/*
+!data/processed/poi.jsonld
+!data/processed/embeddings.jsonl
+research
+docs
+tests
+.env

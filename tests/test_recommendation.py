@@ -124,3 +124,13 @@ def test_search_ranks_by_text_similarity(config, workspace):
     churches = np.array([0.0, 0.0, 1.0, 0.0])
     assert [r["name"] for r in rec.search(churches, limit=3)][0] == "c1"
     assert rec.search(None) == []
+
+
+def test_text_search_by_words(config, workspace):
+    pois, index = _catalog(config, workspace)
+    pois[0]["name"], pois[0]["description"] = "Museu de Belles Arts", "Pintura gòtica"
+    pois[6]["description"] = "Església gòtica del segle XIV"
+    rec = Recommender(pois, index, config=config)
+    names = [r["name"] for r in rec.text_search("gotica belles")]
+    assert names[0] == "Museu de Belles Arts" and "c1" in names
+    assert rec.text_search("xy") == []

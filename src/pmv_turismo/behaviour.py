@@ -39,7 +39,10 @@ RIDGE = 1.0
 def model_path(config: dict) -> Path:
     from pmv_turismo.common import processed_dir
 
-    return Path(config.get("behaviour", {}).get("model_path") or processed_dir(config) / "behaviour_model.npz")
+    import os
+
+    configured = os.environ.get("BEHAVIOUR_MODEL_PATH") or config.get("behaviour", {}).get("model_path")
+    return Path(configured or processed_dir(config) / "behaviour_model.npz")
 
 
 def poi_radius_km(poi: Dict[str, Any]) -> float:
