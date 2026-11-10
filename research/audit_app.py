@@ -123,7 +123,9 @@ def poi_page(state: dict, idx: int) -> str:
 <dt>Fuentes</dt><dd>{e(p.get('dataProvider'))}</dd>
 </dl>
 <form method="post" action="/answer/{idx}">
-<p style="margin-top:0"><b>¿Es correcto?</b> Si no, marca qué falla (los campos marcados como estimados no cuentan como error).</p>
+<p style="margin-top:0"><b>¿Es correcto?</b> Faltar no es error: un error es un dato <i>presente y falso</i>
+(imagen de otro sitio, ubicación desplazada, descripción de otra cosa, categoría absurda, ya no existe).
+Horario y duración <i>estimados</i> no cuentan salvo que sean absurdos. "Fuentes" no se evalúa (fallo conocido).</p>
 <div>{checks}</div>
 <textarea name="comment" rows="2" placeholder="Comentario (opcional)">{html.escape(prev.get('comment', ''))}</textarea>
 <button id="yes" class=ok name="ok" value="yes">Sí, correcto (y)</button>

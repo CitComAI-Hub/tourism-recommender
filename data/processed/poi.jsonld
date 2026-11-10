@@ -20,7 +20,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Hospital%20viejo%20Guillem%20de%20Castro%2005.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/4790961",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q11940172",
       "https://ca.wikipedia.org/wiki/Parc_de_l%27Hospital"
@@ -59,7 +59,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/%D0%A4%D0%B0%D1%81%D0%B0%D0%B4%20%D1%86%D0%B5%D0%BD%D1%82%D1%80%D0%B0%D0%BB%D1%8C%D0%BD%D0%BE%D0%B3%D0%BE%20%D1%80%D1%8B%D0%BD%D0%BA%D0%B0%20%D0%92%D0%B0%D0%BB%D0%B5%D0%BD%D1%81%D0%B8%D0%B8.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/5007139",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.mercadocentralvalencia.es",
       "https://www.wikidata.org/wiki/Q2197068",
@@ -102,7 +102,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Jardines%20de%20Monforte%20Valencia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/8082828",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q2743957",
       "https://ca.wikipedia.org/wiki/Jard%C3%AD_de_Monforte"
@@ -141,7 +141,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Torres%20serrans%20abril.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/9281502",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q2455550",
       "https://es.wikipedia.org/wiki/Torres_de_Serranos"
@@ -180,7 +180,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Arbres%20als%20jardins%20de%20Vivers%20de%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/9289283",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q5926337",
       "https://es.wikipedia.org/wiki/Jardines_del_Real"
@@ -221,7 +221,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Umbracle%20del%20Jard%C3%AD%20Bot%C3%A0nic%20de%20Val%C3%A8ncia%20zinc.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/10115902",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "http://www.jardibotanic.org/",
       "https://www.wikidata.org/wiki/Q9010986",
@@ -263,7 +263,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Mercado%20de%20Colon%20106.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/10120283",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://mercadocolon.es/",
       "https://www.wikidata.org/wiki/Q3393246",
@@ -305,7 +305,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Valencia%20dworzec.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/10153012",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q1102684",
       "https://ca.wikipedia.org/wiki/Estaci%C3%B3_del_Nord_%28Val%C3%A8ncia%29"
@@ -344,7 +344,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Aduana_de_valencia_y_edificios_anexos_02.jpg/1280px-Aduana_de_valencia_y_edificios_anexos_02.jpg",
     "source": "https://www.openstreetmap.org/way/10380367",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q106163969"
     ],
@@ -383,7 +383,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Vista%20del%20parc%20de%20Benicalap.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/11823737",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q11940158",
       "https://ca.wikipedia.org/wiki/Parc_Municipal_de_Benicalap"
@@ -420,7 +420,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Val%C3%A8ncia%20torres%20quart%20muntatge.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/13073736",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q2343754",
       "https://ca.wikipedia.org/wiki/Porta_de_Quart"
@@ -461,7 +461,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Museu%20Valenci%C3%A0%20de%20la%20Il%C2%B7lustraci%C3%B3%20i%20de%20la%20Modernitat%2C%20Val%C3%A8ncia%2C%20Pa%C3%ADs%20Valenci%C3%A0.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/15218690",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "http://www.muvim.es/",
       "https://www.wikidata.org/wiki/Q7883975",
@@ -504,7 +504,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Ermita%20de%20santa%20Ll%C3%BAcia%20-%20Val%C3%A8ncia.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/15218691",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://santallucia.org/",
       "https://www.wikidata.org/wiki/Q5836321",
@@ -542,7 +542,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Esgl%C3%A9sia%20del%20Pilar%20de%20Val%C3%A8ncia%2C%20vista%20general.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/15218699",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q9006935",
       "https://ca.wikipedia.org/wiki/Esgl%C3%A9sia_del_Pilar_%28Val%C3%A8ncia%29"
@@ -581,7 +581,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Jard%C3%AD%20d%27Albalat%20dels%20Tarongers%20de%20Val%C3%A8ncia%2C%20bardisses%20i%20arbre.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/15881110",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q17606973",
       "https://ca.wikipedia.org/wiki/Jard%C3%AD_d%27Albalat_dels_Tarongers"
@@ -618,7 +618,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Baixada%20a%20l%27alqueria%20de%20Barrinto.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/18439297",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q11940157",
       "https://es.wikipedia.org/wiki/Parque_de_Marxalenes"
@@ -655,7 +655,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Puerta%20del%20Mar%20de%20Javier%20Goerlich%20Lle%C3%B3%20%281944-1946%29%20en%20Valencia.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/23309513",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q18005693",
       "https://ca.wikipedia.org/wiki/Pla%C3%A7a_de_la_Porta_de_la_Mar"
@@ -694,7 +694,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Consulado%20del%20Mar%20y%20Lonja%20de%20la%20Seda%20en%20Valencia.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/23377876",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.comunitatvalenciana.com/es/valencia/valencia/monumentos/lonja-de-la-seda-1",
       "https://www.wikidata.org/wiki/Q588009",
@@ -737,7 +737,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Palauet%20d%27Aiora.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/23413021",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q9054302",
       "https://ca.wikipedia.org/wiki/Palauet_d%27Aiora"
@@ -776,7 +776,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Palauet%20d%27Aiora.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/23413023",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q9054302",
       "https://es.wikipedia.org/wiki/Palacete_de_Ayora"
@@ -817,7 +817,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/L%27Oceanografic%2C%20Valencia%2C%20Spain%201%20-%20Jan%2007.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/23433776",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.oceanografic.org",
       "https://www.wikidata.org/wiki/Q2447851",
@@ -858,7 +858,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Val%C3%A8ncia.%20Estaci%C3%B3%20del%20Grau.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/23524457",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q42885186"
     ],
@@ -897,7 +897,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/El%20parc%20de%20l%27Oest%20de%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/23548211",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q18005413",
       "https://ca.wikipedia.org/wiki/Parc_de_l%27Oest"
@@ -934,7 +934,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Parc%20de%20la%20Rambleta%20de%20Val%C3%A8ncia%2C%20llacuna%20i%20banc.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/23576268",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q11940177",
       "https://ca.wikipedia.org/wiki/Parc_de_la_Rambleta_%28Val%C3%A8ncia%29"
@@ -971,7 +971,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Estany%20del%20jard%C3%AD%20d%27Orriols%2C%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/23793811",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q11940154",
       "https://ca.wikipedia.org/wiki/Parc_Municipal_d%27Orriols"
@@ -1010,7 +1010,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Val%C3%A8ncia%2C%20exterior%20del%20Museu%20de%20Ci%C3%A8ncies%20Naturals.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/23807859",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q9047012",
       "https://es.wikipedia.org/wiki/Museo_de_Ciencias_Naturales_de_Valencia"
@@ -1050,7 +1050,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Parc%20Central%20de%20Val%C3%A8ncia%20%281%29.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/23807910",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q11940150",
       "https://es.wikipedia.org/wiki/Valencia_Parque_Central"
@@ -1089,7 +1089,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Valenciabasilica.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/135630265",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q978306",
       "https://ca.wikipedia.org/wiki/Bas%C3%ADlica_de_la_Mare_de_D%C3%A9u_dels_Desemparats"
@@ -1128,7 +1128,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Catedral%20de%20Valencia%2C%20Valencia%2C%20Espa%C3%B1a%2C%202014-06-30%2C%20DD%20160.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/135630267",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q1466926",
       "https://es.wikipedia.org/wiki/Catedral_de_Santa_Mar%C3%ADa_%28Valencia%29"
@@ -1167,7 +1167,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Torre%20Santa%20Catalina%20-%20Francesco%20Crippa.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/135638445",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q2839013",
       "https://ca.wikipedia.org/wiki/Esgl%C3%A9sia_de_Santa_Caterina_%28Val%C3%A8ncia%29"
@@ -1206,7 +1206,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Valencia%20Esgl%C3%A9sia%20de%20la%20Mare%20de%20D%C3%A9u%20de%20Mont-Olivet%20across%20the%20road.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/147064106",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q118680898"
     ],
@@ -1243,7 +1243,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Monestir%20de%20Sant%20Miquel%20dels%20Reis%20Monasterio%20de%20San%20Miguel%20de%20los%20Reyes.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/150244048",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q4891102",
       "https://ca.wikipedia.org/wiki/Monestir_de_Sant_Miquel_dels_Reis"
@@ -1283,7 +1283,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Biblioteca%20Municipal%20Palau%20de%20l%27Exposicio%20-%20panoramio.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/150277194",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q48975834",
       "https://ca.wikipedia.org/wiki/Palau_de_l%27Exposici%C3%B3"
@@ -1322,7 +1322,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Playa%20de%20El%20Cabanyal%20%28Valencia%29%2003.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/150794803",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q9060786",
       "https://es.wikipedia.org/wiki/Playa_del_Caba%C3%B1al"
@@ -1359,7 +1359,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Playa%20de%20la%20Malvarrosa%20%28Valencia%29%2001.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/150794807",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q3331761",
       "https://es.wikipedia.org/wiki/Playa_de_la_Malvarrosa"
@@ -1396,7 +1396,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Carpesa.%20Ermita%20de%20sant%20Roc.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/169204655",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q42884337"
     ],
@@ -1435,7 +1435,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Valencia%2C%20chiesa%20dei%20Santos%20Juanes%2C%2001%2C0.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/183237709",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://santosjuanesvalencia.com/",
       "https://www.wikidata.org/wiki/Q3393224",
@@ -1478,7 +1478,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Pinada%20de%20la%20Playa%20de%20El%20Saler.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/187152775",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q104162115",
       "https://ca.wikipedia.org/wiki/Platja_del_Saler"
@@ -1515,7 +1515,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Marjal%20Sud.%20Casa%20dels%20Catalans%20i%20solcs%202.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/209610562",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://parquesnaturales.gva.es/va/web/pn-l-albufera",
       "https://www.wikidata.org/wiki/Q2367959",
@@ -1554,7 +1554,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/20211115.Valencia.-071.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/216891044",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q42884300"
     ],
@@ -1595,7 +1595,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Camp%20de%20xufa%20i%20l%27ermita%20de%20Vera%2C%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/217845184",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q91237552"
     ],
@@ -1634,7 +1634,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Banys%20arabs3.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/218841695",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.banysdelalmirall.org/",
       "https://www.wikidata.org/wiki/Q511925",
@@ -1676,7 +1676,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Esgl%C3%A9sia%20del%20col%C2%B7legi%20Avemaria%2C%20Benim%C3%A0met.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/220262964",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q93275283"
     ],
@@ -1716,7 +1716,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/L%27almod%C3%AD%20de%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/227916537",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q8196158",
       "https://es.wikipedia.org/wiki/Almud%C3%ADn_de_Valencia"
@@ -1757,7 +1757,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Esgl%C3%A9sia%20de%20Sant%20Agust%C3%ADde%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/239784943",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.parroquiasanagustin.es/",
       "https://www.wikidata.org/wiki/Q9007399",
@@ -1800,7 +1800,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Antic%20Mercat%20d%27Abastiments%20de%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/243447549",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q8200942",
       "https://es.wikipedia.org/wiki/Mercado_de_Abastos_de_Valencia"
@@ -1837,7 +1837,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Fa%C3%A7ana%20del%20Carme%20abans%20de%20la%20seua%20restauraci%C3%B3.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/264453281",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q126111434",
       "https://es.wikipedia.org/wiki/Iglesia_de_la_Sant%C3%ADsima_Cruz_%28Valencia%29"
@@ -1874,7 +1874,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Esgl%C3%A9sia%20de%20Sant%20Esteve%20voltes.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/279478350",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q9007046",
       "https://ca.wikipedia.org/wiki/Esgl%C3%A9sia_de_Sant_Esteve_%28Val%C3%A8ncia%29"
@@ -1913,7 +1913,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Convent%20de%20santa%20Clara%2C%20Val%C3%A8ncia.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/290065016",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q42884383",
       "https://es.wikipedia.org/wiki/Convento_de_Santa_Clara_%28Valencia%29"
@@ -1954,7 +1954,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Esgl%C3%A9sia%20de%20Sant%20Lloren%C3%A7%20de%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/413146304",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q42884282"
     ],
@@ -1993,7 +1993,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Valencia%2C%20chiesa%20domenicana%20di%20san%20vincenzo%20ferrer%2C%2001.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/414889062",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q42884348"
     ],
@@ -2034,7 +2034,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Sala%20del%20Museu%20Faller%20de%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/444067498",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.valencia.es/-/infociudad-museo-fallero-de-valencia",
       "https://www.wikidata.org/wiki/Q27924428",
@@ -2076,7 +2076,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Casa%20Jueva%2C%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/478348143",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q50419723",
       "https://es.wikipedia.org/wiki/Casa_Jud%C3%ADa"
@@ -2113,7 +2113,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Esgl%C3%A9sia%20Ntra%20Sra%20Puig%20b.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/493034848",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q42884521"
     ],
@@ -2153,7 +2153,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Palau%20de%20Forcall%C3%B3%2C%20imagen%20tomada%20a%20la%20luz%20del%20mediod%C3%ADa%20el%2022-04-2024.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/493777421",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q8350003",
       "https://ca.wikipedia.org/wiki/Consell_Valenci%C3%A0_de_Cultura"
@@ -2192,7 +2192,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Esgl%C3%A9sia%20de%20Sant%20Tom%C3%A0s%20Ap%C3%B2stol%20i%20Sant%20Felip%20Neri%20P1400059.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/495038787",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q598219",
       "https://ca.wikipedia.org/wiki/Esgl%C3%A9sia_de_Sant_Tom%C3%A0s_i_Sant_Felip_Neri"
@@ -2233,7 +2233,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Palau%20de%20Cervell%C3%B3%2C%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/495233207",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.valencia.es/",
       "https://www.wikidata.org/wiki/Q9054454",
@@ -2278,7 +2278,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Palau%20dels%20Bo%C3%AFl%20d%27Aren%C3%B3s%2C%20seu%20de%20la%20Borsa%20de%20Val%C3%A8ncia.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/495741186",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q11697429",
       "https://ca.wikipedia.org/wiki/Palau_dels_Bo%C3%AFl_d%27Aren%C3%B3s"
@@ -2319,7 +2319,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Bioparc%20-%20Jirafa%20de%20fondo%20Valencia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/512393709",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q1954263",
       "https://es.wikipedia.org/wiki/Bioparc_Valencia"
@@ -2358,7 +2358,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Casa%20Museu%20de%20Blasco%20Ib%C3%A1%C3%B1ez%2C%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/512676794",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q13548107",
       "https://ca.wikipedia.org/wiki/Casa-Museu_de_Blasco_Ib%C3%A1%C3%B1ez"
@@ -2397,7 +2397,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Valencia%2C%20Ciudad%20de%20las%20Ciencias%20y%20de%20las%20Artes.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/513681817",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.cac.es/",
       "https://www.wikidata.org/wiki/Q239935",
@@ -2438,7 +2438,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Edificio%20de%20Correos%20y%20Tel%C3%A9grafos%2C%20Valencia%2C%20Espa%C3%B1a%2C%202014-06-30%2C%20DD%20129.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/513696236",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q21711039",
       "https://ca.wikipedia.org/wiki/Edifici_de_Correus_%28Val%C3%A8ncia%29"
@@ -2477,7 +2477,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Cripta%20arqueol%C3%B2gica%20de%20la%20pres%C3%B3%20de%20Sant%20Vicent%20M%C3%A0rtir%20de%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/513699154",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q11916088"
     ],
@@ -2515,7 +2515,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Esgl%C3%A9sia%20parroquial%20de%20la%20Mare%20de%20D%C3%A9u%20del%20Carme%2C%20Val%C3%A8ncia.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/513975081",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q42884295"
     ],
@@ -2556,7 +2556,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Esgl%C3%A9sia%20de%20sant%20Joan%20de%20la%20Creu%20o%20de%20sant%20Andreu%2C%20campanar.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/513977884",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q5657503",
       "https://ca.wikipedia.org/wiki/Esgl%C3%A9sia_de_Sant_Joan_de_la_Creu_%28Val%C3%A8ncia%29"
@@ -2597,7 +2597,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Santjoanhospital%20porta%20nord.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/514000994",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q9007135",
       "https://ca.wikipedia.org/wiki/Esgl%C3%A9sia_de_Sant_Joan_de_l%27Hospital"
@@ -2636,7 +2636,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Esgl%C3%A9sia%20del%20Rosari%20del%20cabanyal.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/514287755",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q42884486"
     ],
@@ -2675,7 +2675,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Iglesia%20de%20San%20Isidro%20del%20Cam%C3%AD%20Vell%20de%20Torrente%2001.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/514307766",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q42884548"
     ],
@@ -2715,7 +2715,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Esgl%C3%A9sia%20de%20Sant%20Nicolau%20de%20Val%C3%A8ncia%2C%20rosassa%20i%20campanar.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/514601809",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q9007252",
       "https://ca.wikipedia.org/wiki/Esgl%C3%A9sia_de_Sant_Nicolau_%28Val%C3%A8ncia%29"
@@ -2756,7 +2756,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Borbot%C3%B3%2008001.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/514605000",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q42884335"
     ],
@@ -2797,7 +2797,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Colegio%20del%20Arte%20Mayor%20de%20la%20Seda%2C%20Valencia%2002.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/514894836",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q8347734",
       "https://ca.wikipedia.org/wiki/Col%C2%B7legi_de_l%27Art_Major_de_la_Seda_%28Val%C3%A8ncia%29"
@@ -2838,7 +2838,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Museu%20d%27Hist%C3%B2ria%20de%20Val%C3%A8ncia.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/514898814",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "http://www.mhv.com.es",
       "https://www.wikidata.org/wiki/Q9047049",
@@ -2879,7 +2879,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Palacio%20de%20Fuentehermosa%20de%20Joaqu%C3%ADn%20Mar%C3%ADa%20Arnau%20Miram%C3%B3n%20en%20Valencia%202.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/515080603",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q943466",
       "https://ca.wikipedia.org/wiki/Palau_de_Castellfort"
@@ -2916,7 +2916,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Valencia%2C%20palazzo%20de%20marchese%20di%20Dos%20Aig%C3%BCes%2C%20esterno%2001.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/515082661",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q1993940",
       "https://ca.wikipedia.org/wiki/Palau_del_Marqu%C3%A9s_de_Dosaig%C3%BCes"
@@ -2955,7 +2955,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/001_Metro_X%C3%A0tiva_i_pla%C3%A7a_de_bous_de_Val%C3%A8ncia.JPG/1280px-001_Metro_X%C3%A0tiva_i_pla%C3%A7a_de_bous_de_Val%C3%A8ncia.JPG",
     "source": "https://www.openstreetmap.org/way/515256276",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "http://www.xn--plaadebous-q6a.es/"
     ],
@@ -2994,7 +2994,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Pont%20albereda%20valencia.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/515329754",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q1983772",
       "https://ca.wikipedia.org/wiki/Pont_de_l%27Exposici%C3%B3"
@@ -3031,7 +3031,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Escala%20del%20pont%20de%20la%20Trinitat%20de%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/515337491",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q11942327",
       "https://ca.wikipedia.org/wiki/Pont_de_la_Trinitat"
@@ -3070,7 +3070,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Puente%20del%20Mar%20Valencia%20Spain.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/515339216",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q18005859",
       "https://ca.wikipedia.org/wiki/Pont_de_la_Mar"
@@ -3111,7 +3111,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Santdomenec%20claustre1.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/515350925",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q8350474",
       "https://ca.wikipedia.org/wiki/Convent_de_Sant_Dom%C3%A9nec_%28Val%C3%A8ncia%29"
@@ -3151,7 +3151,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Pont%20dels%20Serrans%20de%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/516051598",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q11942346",
       "https://ca.wikipedia.org/wiki/Pont_dels_Serrans"
@@ -3190,7 +3190,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/2020-07-03%20Rotonda%20Torreta%20de%20Miramar.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/552435372",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q133930845",
       "https://ca.wikipedia.org/wiki/Torre_Miramar"
@@ -3227,7 +3227,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/El%20Parterre%20%28Val%C3%A8ncia%29%2010.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/556834653",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q97798254",
       "https://en.wikipedia.org/wiki/Monument_to_James_I_%28Valencia%29"
@@ -3264,7 +3264,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Parc%20de%20Cap%C3%A7alera%20de%20Val%C3%A8ncia%20un%20dia%20de%20pluja.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/623955259",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q11940173",
       "https://ca.wikipedia.org/wiki/Parc_de_Cap%C3%A7alera"
@@ -3301,7 +3301,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/El%20Miguelete%20clue169.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/625039852",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q2975344",
       "https://ca.wikipedia.org/wiki/Micalet"
@@ -3338,7 +3338,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Cases%20de%20B%C3%A0rcena.%20Ermita%202.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/629258035",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q23498804",
       "https://ca.wikipedia.org/wiki/Ermita_del_Pilar_de_les_Cases_de_B%C3%A0rcena"
@@ -3378,7 +3378,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Sant%20Mart%C3%AD%20Bisbe%20DSCN2890.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/661320825",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q9007196",
       "https://ca.wikipedia.org/wiki/Esgl%C3%A9sia_de_Sant_Mart%C3%AD_%28Val%C3%A8ncia%29"
@@ -3417,7 +3417,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Alqueria%20de%20Falc%C3%B3%2C%20Torrefiel%2C%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/679556173",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q8196504",
       "https://es.wikipedia.org/wiki/Alquer%C3%ADa_de_Falc%C3%B3"
@@ -3457,7 +3457,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Sant%20Vicent%20de%20la%20Roqueta%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/686349139",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q5560429",
       "https://es.wikipedia.org/wiki/Iglesia_de_San_Vicente_de_la_Roqueta"
@@ -3498,7 +3498,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Parroquia%20de%20San%20Roque%2001.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/687557652",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q42884511"
     ],
@@ -3535,7 +3535,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Ermita%20del%20Fiscal%20de%20La%20Punta.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/688589848",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q94574284"
     ],
@@ -3574,7 +3574,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Pont%20del%20Real%20de%20Val%C3%A8ncia.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/738683717",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q9064478",
       "https://ca.wikipedia.org/wiki/Pont_del_Real"
@@ -3613,7 +3613,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Ciutat%20de%20les%20Arts%20i%20les%20Ci%C3%A8ncies%2C%20Val%C3%A8ncia%2C%20Valencia%2C%20Spain%20-%20panoramio%20%285%29%20%28cropped%29.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/738978512",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q2458493",
       "https://ca.wikipedia.org/wiki/Pont_de_l%27Assut_de_l%27Or"
@@ -3650,7 +3650,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Calatrava%20Bridge.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/738981357",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q18005867",
       "https://ca.wikipedia.org/wiki/Pont_de_Montolivet"
@@ -3687,7 +3687,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Puente%20del%20Angel%20Custodio%20Valencia%20Spain.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/739170405",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q28711021",
       "https://ca.wikipedia.org/wiki/Pont_de_l%27%C3%80ngel_Custodi"
@@ -3726,7 +3726,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Puente%20de%20Aragon%20Valencia%20Spain.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/739639299",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q11942300",
       "https://ca.wikipedia.org/wiki/Pont_d%27Arag%C3%B3"
@@ -3763,7 +3763,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Puente%20de%20las%20flores.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/739644369",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q1996276",
       "https://ca.wikipedia.org/wiki/Pont_de_les_Flors"
@@ -3800,7 +3800,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Puente%20de%20las%20Artes%20Valencia%20Spain.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/743428514",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q11942334",
       "https://ca.wikipedia.org/wiki/Pont_de_les_Arts"
@@ -3837,7 +3837,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/567%20Pont%20de%20Sant%20Josep%20i%20jard%C3%AD%20del%20T%C3%BAria%20%28Val%C3%A8ncia%29.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/743462722",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q11942317",
       "https://ca.wikipedia.org/wiki/Pont_de_Sant_Josep"
@@ -3876,7 +3876,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Pont%20de%20les%20Drassanes%2C%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/743819219",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q11942331",
       "https://ca.wikipedia.org/wiki/Pont_de_les_Drassanes"
@@ -3913,7 +3913,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Puente%20de%20las%20Glorias%20Valencianas.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/744208301",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q18005840",
       "https://ca.wikipedia.org/wiki/Pont_d%27Adem%C3%BAs"
@@ -3950,7 +3950,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Puente%20Campanar%20Valencia%20Spain.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/744712813",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q18005850",
       "https://ca.wikipedia.org/wiki/Pont_de_Campanar"
@@ -3987,7 +3987,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Iglesia%20de%20Santa%20%C3%9Arsula%2C%20Valencia%2C%20Espa%C3%B1a%2C%202014-06-30%2C%20DD%2087.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/783760610",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q42884379",
       "https://es.wikipedia.org/wiki/Convento_de_Santa_%C3%9Arsula_%28Valencia%29"
@@ -4026,7 +4026,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Torre%20de%20Sant%20Bartomeu%2C%20Val%C3%A8ncia.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/807759872",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q6150461",
       "https://es.wikipedia.org/wiki/Torre_de_San_Bartolom%C3%A9_%28Valencia%29"
@@ -4067,7 +4067,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Alqueria%20de%20Juli%C3%A0%20de%20Val%C3%A8ncia.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/892377652",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q5488956",
       "https://es.wikipedia.org/wiki/Alquer%C3%ADa_de_Juli%C3%A1"
@@ -4106,7 +4106,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Alqueria%20del%20Moro%2C%20Benicalap.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/1115796656",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q5670595",
       "https://es.wikipedia.org/wiki/Alquer%C3%ADa_del_Moro"
@@ -4145,7 +4145,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Wikiencuentro%2013-03-10%20-%20Valencia%20-%2023.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/1180933287",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q11680508",
       "https://es.wikipedia.org/wiki/Capilla_del_antiguo_colegio_San_Pablo"
@@ -4184,7 +4184,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/25.12.2021%20in%20Valencia.%2019.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/1286369610",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q3068088",
       "https://es.wikipedia.org/wiki/Palacio_de_Benicarl%C3%B3"
@@ -4221,7 +4221,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Playa%20de%20Pinedo%2073.jpg?width=1200",
     "source": "https://www.openstreetmap.org/way/1459912044",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q9060712",
       "https://ca.wikipedia.org/wiki/Platja_de_Pinedo"
@@ -4258,7 +4258,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Bombas%20Gens%2016.JPG?width=1200",
     "source": "https://www.openstreetmap.org/way/1550827165",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.bombasgens.com/",
       "https://www.wikidata.org/wiki/Q16911704",
@@ -4299,7 +4299,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/2010%2009%2002%20Marjal%20de%20Massamagrell.jpg?width=1200",
     "source": "https://www.openstreetmap.org/relation/2169637",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q10611370",
       "https://ca.wikipedia.org/wiki/Marjal_de_Rafalell_i_Vistabella"
@@ -4338,7 +4338,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Centre%20cultural%20la%20Benefic%C3%A8ncia%20de%20Val%C3%A8ncia.jpg?width=1200",
     "source": "https://www.openstreetmap.org/relation/3865968",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "http://www.labeneficencia.es/",
       "https://www.wikidata.org/wiki/Q8343592",
@@ -4381,7 +4381,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Palacio%20Marques%20de%20Campo1.JPG?width=1200",
     "source": "https://www.openstreetmap.org/relation/7286126",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q5644720",
       "https://ca.wikipedia.org/wiki/Palau_del_Marqu%C3%A9s_de_Campo"
@@ -4422,7 +4422,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Iglesia%20de%20Campanar.jpg?width=1200",
     "source": "https://www.openstreetmap.org/relation/7356910",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.parroquiadecampanar.es/",
       "https://www.wikidata.org/wiki/Q5661486",
@@ -4465,7 +4465,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Pla%C3%A7a%20marededeu.jpg?width=1200",
     "source": "https://www.openstreetmap.org/relation/7893046",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q1779244",
       "https://ca.wikipedia.org/wiki/Pla%C3%A7a_de_la_Mare_de_D%C3%A9u"
@@ -4504,7 +4504,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Museu%20belles%20arts%20val%C3%A8ncia2.jpg?width=1200",
     "source": "https://www.openstreetmap.org/relation/11026210",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "http://museobellasartesvalencia.gva.es/",
       "https://www.wikidata.org/wiki/Q1748404",
@@ -4545,7 +4545,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Palau%20de%20la%20Generalitat-%20Valencia.jpg?width=1200",
     "source": "https://www.openstreetmap.org/relation/11137438",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q3393221",
       "https://ca.wikipedia.org/wiki/Palau_de_la_Generalitat_Valenciana"
@@ -4582,7 +4582,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Centre%20arqueol%C3%B2gic%20de%20l%27Almoina%20de%20Val%C3%A8ncia%2C%20exterior.JPG?width=1200",
     "source": "https://www.openstreetmap.org/relation/11150998",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q3867999"
     ],
@@ -4617,7 +4617,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/relation/11195454",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "refSeeAlso": [
       "http://valencia.es/ayuntamiento/infociudad_accesible.nsf/vDocumentosWebListadov/55BB0B184AACB248C125739B0043B748?OpenDocument&bdOrigen=ayuntamiento/laciudad.nsf&idapoyo=7A56E0AFD4368CBFC12571A900268CE5&nivel=5&lang=2"
     ],
@@ -4657,7 +4657,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Monestir%20de%20la%20Trinitat%20cap%C3%A7alera.JPG?width=1200",
     "source": "https://www.openstreetmap.org/relation/11289994",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q11702312",
       "https://ca.wikipedia.org/wiki/Monestir_de_la_Trinitat"
@@ -4694,7 +4694,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Sciences%20museum%20of%20valencia.jpg?width=1200",
     "source": "https://www.openstreetmap.org/relation/14693200",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q939288",
       "https://ca.wikipedia.org/wiki/Museu_de_les_Ci%C3%A8ncies_Pr%C3%ADncep_Felip"
@@ -4731,7 +4731,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Palau%20dels%20Catal%C3%A0%20de%20Valeriola%2C%20fa%C3%A7ana.jpg?width=1200",
     "source": "https://www.openstreetmap.org/relation/16754082",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q9054644",
       "https://es.wikipedia.org/wiki/Palacio_de_los_Catal%C3%A1_de_Valeriola"
@@ -4772,7 +4772,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Museo%20hist%C3%B3rico%20militar%2C%20Valencia%2C%20Espa%C3%B1a%2C%202014-06-30%2C%20DD%20168.JPG?width=1200",
     "source": "https://www.openstreetmap.org/relation/17051090",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons",
     "refSeeAlso": [
       "https://ejercito.defensa.gob.es/unidades/Madrid/ihycm/Museos/valencia.html",
       "https://www.wikidata.org/wiki/Q61608450"
@@ -4813,7 +4813,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Convent%20de%20sant%20Josep%20de%20Val%C3%A8ncia.jpg?width=1200",
     "source": "https://www.openstreetmap.org/relation/17657779",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q42884373"
     ],
@@ -4852,7 +4852,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Pont%20del%20Regne%20de%20Valencia%2042.JPG?width=1200",
     "source": "https://www.openstreetmap.org/relation/18015804",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q11942344",
       "https://ca.wikipedia.org/wiki/Pont_del_Regne_de_Val%C3%A8ncia"
@@ -4889,7 +4889,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Patriarca%20fa%C3%A7ana.jpg?width=1200",
     "source": "https://www.openstreetmap.org/relation/18681030",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q4984364",
       "https://ca.wikipedia.org/wiki/Reial_Col%C2%B7legi_Seminari_de_Corpus_Christi"
@@ -4928,7 +4928,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Parotet.JPG?width=1200",
     "source": "https://www.openstreetmap.org/node/2048687600",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q9055725",
       "https://ca.wikipedia.org/wiki/Parotet"
@@ -4965,7 +4965,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/El%20Saler.%20Casa%20de%20la%20Deman%C3%A0%201.JPG?width=1200",
     "source": "https://www.openstreetmap.org/node/2477521730",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q89914333"
     ],
@@ -5004,7 +5004,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Puertataurino.jpg?width=1200",
     "source": "https://www.openstreetmap.org/node/2508173010",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "http://www.museotaurinovalencia.es/",
       "https://www.wikidata.org/wiki/Q1431438",
@@ -5047,7 +5047,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Fachada%20Museo%20l%27Iber.JPG?width=1200",
     "source": "https://www.openstreetmap.org/node/2700282752",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.museoliber.org/",
       "https://www.wikidata.org/wiki/Q9047028",
@@ -5088,7 +5088,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Dama%20de%20Elche%20Avenida%20Cortes%20Valencianas%20Valencia.jpg?width=1200",
     "source": "https://www.openstreetmap.org/node/3540456749",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q16745578",
       "https://es.wikipedia.org/wiki/Dama_Ib%C3%A9rica"
@@ -5127,7 +5127,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Centre%20cultural%20la%20Benefic%C3%A8ncia%20de%20Val%C3%A8ncia.jpg?width=1200",
     "source": "https://www.openstreetmap.org/node/4854372337",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://mupreva.org",
       "https://www.wikidata.org/wiki/Q2701512",
@@ -5170,7 +5170,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Museu%20Valenci%C3%A0%20d%27Etnologia%2C%20sala%20Sec%C3%A0%20i%20Muntanya%2C%20carro%20de%20televisions.JPG?width=1200",
     "source": "https://www.openstreetmap.org/node/4854372524",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://letno.dival.es",
       "https://www.wikidata.org/wiki/Q1577723",
@@ -5211,7 +5211,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Patriarca%20fa%C3%A7ana.jpg?width=1200",
     "source": "https://www.openstreetmap.org/node/4870255195",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q4984364"
     ],
@@ -5251,7 +5251,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Valencia%2C%20palazzo%20de%20marchese%20di%20Dos%20Aig%C3%BCes%2C%20esterno%2001.jpg?width=1200",
     "source": "https://www.openstreetmap.org/node/5126811958",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q9046886",
       "https://ca.wikipedia.org/wiki/Museu_Nacional_de_Cer%C3%A0mica_i_de_les_Arts_Sumptu%C3%A0ries_%C2%ABGonz%C3%A1lez_Mart%C3%AD%C2%BB"
@@ -5290,7 +5290,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Museu%20de%20l%27arr%C3%B2s%20de%20la%20ciutat%20de%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/node/5167202796",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q107509424"
     ],
@@ -5332,7 +5332,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Bombas%20Gens%20Centre%20d%27Art%2C%20A%20trav%C3%A9s%2C%20Cristina%20Iglesias.jpg?width=1200",
     "source": "https://www.openstreetmap.org/node/6603785865",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q107260498"
     ],
@@ -5369,7 +5369,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Refugio%20anti%C3%A1reo%20%28Ayuntamiento%20de%20Valencia%29%20%2803%29.jpg?width=1200",
     "source": "https://www.openstreetmap.org/node/6660593039",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons",
     "refSeeAlso": [
       "https://refugivalencia.webs.upv.es",
       "https://www.wikidata.org/wiki/Q68284046"
@@ -5409,7 +5409,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Escola%20pia.jpg?width=1200",
     "source": "https://www.openstreetmap.org/node/7193746298",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q11682927",
       "https://es.wikipedia.org/wiki/Iglesia_de_las_Escuelas_P%C3%ADas_%28Valencia%29"
@@ -5448,7 +5448,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Font%20P%C3%BAblica%20o%20la%20Pantera%20Rosa%2C%20Val%C3%A8ncia.jpg?width=1200",
     "source": "https://www.openstreetmap.org/node/7272744221",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.wikidata.org/wiki/Q8962947",
       "https://es.wikipedia.org/wiki/Fuente_P%C3%BAblica_%28Valencia%29"
@@ -5486,7 +5486,7 @@
       "postalCode": "46022"
     },
     "source": "https://www.openstreetmap.org/node/7600453744",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata",
     "refSeeAlso": [
       "https://museo.inf.upv.es/",
       "https://www.wikidata.org/wiki/Q96657803"
@@ -5527,7 +5527,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Patriarca%20darrere.jpg?width=1200",
     "source": "https://www.openstreetmap.org/node/12997141042",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons",
     "refSeeAlso": [
       "https://patriarcavalencia.es/",
       "https://www.wikidata.org/wiki/Q5484867"
@@ -5566,7 +5566,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Palacio%20Marques%20de%20Campo1.JPG?width=1200",
     "source": "https://www.openstreetmap.org/node/13012356018",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://www.visitvalencia.com/que-hacer-valencia/cultura-valenciana/museos-en-valencia/museo-ciudad-palacio-marques-campo",
       "https://www.wikidata.org/wiki/Q18005084",
@@ -5604,7 +5604,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Refugi%20antiaeri%20al%20carrer%20de%20l%27Espasa.JPG?width=1200",
     "source": "https://www.openstreetmap.org/node/13022649055",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://links.uv.es/ahmd/refugiespasa",
       "https://www.wikidata.org/wiki/Q90700981"
@@ -5646,7 +5646,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Fachada%20del%20IVAM%20febrero%202018.jpg?width=1200",
     "source": "https://www.openstreetmap.org/node/13198848139",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://ivam.es",
       "https://www.wikidata.org/wiki/Q1600831",
@@ -5684,7 +5684,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/aa/Jaume_I_i_palmeres%2C_el_Parterre_de_Val%C3%A8ncia.JPG/1280px-Jaume_I_i_palmeres%2C_el_Parterre_de_Val%C3%A8ncia.JPG",
     "source": "https://www.openstreetmap.org/way/7724652",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "garden",
@@ -5720,7 +5720,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4c/161_Ficus_macrophylla%2C_jardins_de_la_Glorieta_%28Val%C3%A8ncia%29.jpg/1280px-161_Ficus_macrophylla%2C_jardins_de_la_Glorieta_%28Val%C3%A8ncia%29.jpg",
     "source": "https://www.openstreetmap.org/way/7970450",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://ca.wikipedia.org/wiki/Jardins_de_la_Glorieta"
     ],
@@ -5759,7 +5759,7 @@
       "postalCode": "46024"
     },
     "source": "https://www.openstreetmap.org/way/168836971",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "Mo-Su 09:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "building",
@@ -5792,7 +5792,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/way/219805226",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "Tu-Su 10:00-19:00; Mo off",
     "openingHoursEstimated": true,
     "subcategory": "museum",
@@ -5825,7 +5825,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2e/Alqueria_de_Canet%2C_jardins_del_Real_de_Val%C3%A8ncia.JPG/1280px-Alqueria_de_Canet%2C_jardins_del_Real_de_Val%C3%A8ncia.JPG",
     "source": "https://www.openstreetmap.org/way/277513380",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 09:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "building",
@@ -5861,7 +5861,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/32/Comportes_de_la_Casa_de_l%27Aigua%2C_Val%C3%A8ncia.JPG/1280px-Comportes_de_la_Casa_de_l%27Aigua%2C_Val%C3%A8ncia.JPG",
     "source": "https://www.openstreetmap.org/way/290142591",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "Mo-Su 09:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "historic",
@@ -5895,7 +5895,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/Benim%C3%A0met._Esgl%C3%A9sia_de_Sant_Vicent_M%C3%A0rtir._Placa.jpg/1280px-Benim%C3%A0met._Esgl%C3%A9sia_de_Sant_Vicent_M%C3%A0rtir._Placa.jpg",
     "source": "https://www.openstreetmap.org/way/347777472",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -5931,7 +5931,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Retablos_cer%C3%A1micos_en_la_fa_hada_de_Santa_M%C3%B3nica_02.jpg/1280px-Retablos_cer%C3%A1micos_en_la_fa_hada_de_Santa_M%C3%B3nica_02.jpg",
     "source": "https://www.openstreetmap.org/way/365932675",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -5968,7 +5968,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b5/Escala_del_palau_de_Cerver%C3%B3%2C_Val%C3%A8ncia.JPG/1280px-Escala_del_palau_de_Cerver%C3%B3%2C_Val%C3%A8ncia.JPG",
     "source": "https://www.openstreetmap.org/way/413146307",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 09:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "manor",
@@ -6004,7 +6004,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e9/19.11_IGLESIA_DEL_NI%C3%91O_JESUS_DEL_HUERTO_firmado.pdf/page1-960px-19.11_IGLESIA_DEL_NI%C3%91O_JESUS_DEL_HUERTO_firmado.pdf.jpg",
     "source": "https://www.openstreetmap.org/way/418666697",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -6042,7 +6042,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ad/San_Rafael%2C_Santa_Mar%C3%ADa_del_Mar.jpg/1280px-San_Rafael%2C_Santa_Mar%C3%ADa_del_Mar.jpg",
     "source": "https://www.openstreetmap.org/way/460058205",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -6077,7 +6077,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/way/493777441",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "Mo-Su 09:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "ruins",
@@ -6111,7 +6111,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ec/Palau_de_Pineda_de_Val%C3%A8ncia.JPG/1280px-Palau_de_Pineda_de_Val%C3%A8ncia.JPG",
     "source": "https://www.openstreetmap.org/way/493777443",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 09:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "manor",
@@ -6149,7 +6149,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/Bas%C3%ADlica_de_San_Vicente_Ferrer._Igelsia_del_Convento-Colegio_de_Dominicos.jpg/1280px-Bas%C3%ADlica_de_San_Vicente_Ferrer._Igelsia_del_Convento-Colegio_de_Dominicos.jpg",
     "source": "https://www.openstreetmap.org/way/495750409",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.misas.org/p/parroquia-de-san-juan-y-san-vicente-valencia"
     ],
@@ -6191,7 +6191,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1a/Paroquia_San_Sebastian_-_panoramio.jpg/1280px-Paroquia_San_Sebastian_-_panoramio.jpg",
     "source": "https://www.openstreetmap.org/way/497514270",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "contactPoint": {
       "telephone": "+34 963 91 00 57"
     },
@@ -6231,7 +6231,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cd/Parroquia_de_Santiago_Ap%C3%B3stol_de_Valencia_1.JPG/1280px-Parroquia_de_Santiago_Ap%C3%B3stol_de_Valencia_1.JPG",
     "source": "https://www.openstreetmap.org/way/500693624",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -6268,7 +6268,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Retablo_Virgen_de_los_Dolores%2C_Fachada_parroquia_Ntra._Sra._de_los_%C3%81ngeles%2C_Valencia_03.jpg/1280px-Retablo_Virgen_de_los_Dolores%2C_Fachada_parroquia_Ntra._Sra._de_los_%C3%81ngeles%2C_Valencia_03.jpg",
     "source": "https://www.openstreetmap.org/way/510284610",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -6306,7 +6306,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/63/Escut_a_les_drassanes_del_Grau%2C_Val%C3%A8ncia.JPG/1280px-Escut_a_les_drassanes_del_Grau%2C_Val%C3%A8ncia.JPG",
     "source": "https://www.openstreetmap.org/way/512378878",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://ca.wikipedia.org/wiki/Drassanes_del_Grau"
     ],
@@ -6346,7 +6346,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/19.09_IGL_CRISTO_DE_LA_AGON%C3%8DA_firmado.pdf/page1-960px-19.09_IGL_CRISTO_DE_LA_AGON%C3%8DA_firmado.pdf.jpg",
     "source": "https://www.openstreetmap.org/way/514008574",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -6384,7 +6384,7 @@
     },
     "image": "https://upload.wikimedia.org/wikipedia/commons/7/78/Carpesa._Esgl%C3%A9sia_dels_sants_Abd%C3%B3_i_Senent.jpg",
     "source": "https://www.openstreetmap.org/way/514030718",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -6422,7 +6422,7 @@
     },
     "image": "https://upload.wikimedia.org/wikipedia/commons/7/7e/Iglesia_de_San_Antonio_Abad_%28Salesianos%29.jpg",
     "source": "https://www.openstreetmap.org/way/514313233",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -6460,7 +6460,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fd/Casa-Museu_Concha_Piquer_01.jpg/1280px-Casa-Museu_Concha_Piquer_01.jpg",
     "source": "https://www.openstreetmap.org/way/514893106",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "Tu-Su 10:00-19:00; Mo off",
     "openingHoursEstimated": true,
     "subcategory": "museum",
@@ -6495,7 +6495,7 @@
       "postalCode": "46003"
     },
     "source": "https://www.openstreetmap.org/way/515033618",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikipedia (CC BY-SA)",
     "refSeeAlso": [
       "https://ca.wikipedia.org/wiki/Reial_Mestran%C3%A7a_de_Cavalleria_de_Val%C3%A8ncia"
     ],
@@ -6532,7 +6532,7 @@
       "postalCode": "46012"
     },
     "source": "https://www.openstreetmap.org/way/515247682",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -6568,7 +6568,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/Calle_del_portal_de_Valldigna_-_panoramio.jpg/1280px-Calle_del_portal_de_Valldigna_-_panoramio.jpg",
     "source": "https://www.openstreetmap.org/way/515327993",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "city_gate",
@@ -6602,7 +6602,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ce/Falla_infantil_Arzobispo_Olaechea-San_Marcelino_2025_02.jpg/1280px-Falla_infantil_Arzobispo_Olaechea-San_Marcelino_2025_02.jpg",
     "source": "https://www.openstreetmap.org/way/683517568",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -6639,7 +6639,7 @@
       "postalCode": "46024"
     },
     "source": "https://www.openstreetmap.org/way/688514111",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -6674,7 +6674,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/way/719497339",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "Mo-Su 09:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "bunker",
@@ -6708,7 +6708,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/85/Valencia_Campo_de_F%C3%BAtbol_Pont_de_Fusta.jpg/1280px-Valencia_Campo_de_F%C3%BAtbol_Pont_de_Fusta.jpg",
     "source": "https://www.openstreetmap.org/way/738677223",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikipedia (CC BY-SA), Wikimedia Commons",
     "refSeeAlso": [
       "https://ca.wikipedia.org/wiki/Pont_de_Fusta"
     ],
@@ -6744,7 +6744,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/17.09_IGLESIA_PARROQUIAL_DE_SANTA_MARIA_MAGDALENA_firmado.pdf/page1-960px-17.09_IGLESIA_PARROQUIAL_DE_SANTA_MARIA_MAGDALENA_firmado.pdf.jpg",
     "source": "https://www.openstreetmap.org/way/789259398",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -6780,7 +6780,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Muralla_%C3%A0rab_Val%C3%A8ncia.jpg/1280px-Muralla_%C3%A0rab_Val%C3%A8ncia.jpg",
     "source": "https://www.openstreetmap.org/way/807466054",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "Mo-Su 09:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "ruins",
@@ -6814,7 +6814,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/Est%C3%A0tua_de_sant_Carles_Borromeo%2C_esgl%C3%A9sia_de_sant_Felip_i_sant_Tom%C3%A0s%2C_Val%C3%A8ncia.JPG/1280px-Est%C3%A0tua_de_sant_Carles_Borromeo%2C_esgl%C3%A9sia_de_sant_Felip_i_sant_Tom%C3%A0s%2C_Val%C3%A8ncia.JPG",
     "source": "https://www.openstreetmap.org/way/810488998",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -6850,7 +6850,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1f/Esgl%C3%A9sia_i_Palau_del_Temple.jpg/1280px-Esgl%C3%A9sia_i_Palau_del_Temple.jpg",
     "source": "https://www.openstreetmap.org/way/813424045",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -6886,7 +6886,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/Palau_dels_marquesos_de_Montortal_de_Val%C3%A8ncia.JPG/1280px-Palau_dels_marquesos_de_Montortal_de_Val%C3%A8ncia.JPG",
     "source": "https://www.openstreetmap.org/way/813605747",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 09:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "manor",
@@ -6922,7 +6922,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Muralla_%C3%A0rab_Val%C3%A8ncia.jpg/1280px-Muralla_%C3%A0rab_Val%C3%A8ncia.jpg",
     "source": "https://www.openstreetmap.org/way/820143057",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 09:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "ruins",
@@ -6958,7 +6958,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Muralla_%C3%A0rab_Val%C3%A8ncia.jpg/1280px-Muralla_%C3%A0rab_Val%C3%A8ncia.jpg",
     "source": "https://www.openstreetmap.org/way/821108020",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "Mo-Su 09:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "ruins",
@@ -6992,7 +6992,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Muralla_%C3%A0rab_Val%C3%A8ncia.jpg/1280px-Muralla_%C3%A0rab_Val%C3%A8ncia.jpg",
     "source": "https://www.openstreetmap.org/way/823845745",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "Mo-Su 09:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "ruins",
@@ -7026,7 +7026,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Muralla_%C3%A0rab_Val%C3%A8ncia.jpg/1280px-Muralla_%C3%A0rab_Val%C3%A8ncia.jpg",
     "source": "https://www.openstreetmap.org/way/825882173",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "Mo-Su 09:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "ruins",
@@ -7060,7 +7060,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/Porta_de_l%27esgl%C3%A9sia_de_Sant_Benet_de_Mauella.jpg/1280px-Porta_de_l%27esgl%C3%A9sia_de_Sant_Benet_de_Mauella.jpg",
     "source": "https://www.openstreetmap.org/way/891042024",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -7096,7 +7096,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b7/Palau_de_la_Batlia_-_Bandera_Ucra%C3%AFnesa.jpg/1280px-Palau_de_la_Batlia_-_Bandera_Ucra%C3%AFnesa.jpg",
     "source": "https://www.openstreetmap.org/way/1303164127",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://ca.wikipedia.org/wiki/Palau_de_la_Batlia"
     ],
@@ -7136,7 +7136,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/Iglesia_del_convento_del_Corpus_Christi.jpg/1280px-Iglesia_del_convento_del_Corpus_Christi.jpg",
     "source": "https://www.openstreetmap.org/relation/7324552",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://www.valencia.es/"
     ],
@@ -7178,7 +7178,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/Retablo_de_San_Miguel_Arc%C3%A1ngel%2C_I._San_Valero%2C_Valencia_02.jpg/1280px-Retablo_de_San_Miguel_Arc%C3%A1ngel%2C_I._San_Valero%2C_Valencia_02.jpg",
     "source": "https://www.openstreetmap.org/relation/9498243",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -7214,7 +7214,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/18.01_EPH_Mol%C3%AD_de_Bonany_%28Benimamet%29_firmado.pdf/page1-960px-18.01_EPH_Mol%C3%AD_de_Bonany_%28Benimamet%29_firmado.pdf.jpg",
     "source": "https://www.openstreetmap.org/relation/9572980",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 09:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "building",
@@ -7252,7 +7252,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/Interior_Iglesia_del_Monasterio_de_San_Crist%C3%B3bal_de_Valencia_02.jpg/1280px-Interior_Iglesia_del_Monasterio_de_San_Crist%C3%B3bal_de_Valencia_02.jpg",
     "source": "https://www.openstreetmap.org/relation/10184189",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -7286,7 +7286,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b5/Galer%C3%ADa_del_Tossal_-_Muralla_%C3%81rabe_-_Bab_Al-Hanax_-_Arab_Wall_in_Valencia_Spain.jpg/1280px-Galer%C3%ADa_del_Tossal_-_Muralla_%C3%81rabe_-_Bab_Al-Hanax_-_Arab_Wall_in_Valencia_Spain.jpg",
     "source": "https://www.openstreetmap.org/relation/11187344",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "Tu-Su 10:00-19:00; Mo off",
     "openingHoursEstimated": true,
     "subcategory": "gallery",
@@ -7321,7 +7321,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/131_Palau_de_la_Scala%2C_pl._Manises_%28Val%C3%A8ncia%29.JPG/1280px-131_Palau_de_la_Scala%2C_pl._Manises_%28Val%C3%A8ncia%29.JPG",
     "source": "https://www.openstreetmap.org/relation/11270791",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikipedia (CC BY-SA), Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "refSeeAlso": [
       "https://ca.wikipedia.org/wiki/Palau_del_Marqu%C3%A9s_de_la_Scala"
     ],
@@ -7359,7 +7359,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Gulliver%20in%20Valencia%20-%202013.07%20-%20panoramio.jpg?width=1200",
     "source": "https://www.openstreetmap.org/relation/17246175",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -7393,7 +7393,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/Casa_de_les_Roques_c.jpg/1280px-Casa_de_les_Roques_c.jpg",
     "source": "https://www.openstreetmap.org/relation/17718678",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "refSeeAlso": [
       "http://www.valencia.es/ayuntamiento/Infociudad_accesible.nsf/vDocumentosWebListado/3A693428E5AAA5B0C12572C20023FE0F?OpenDocument&bdOrigen=ayuntamiento/laciudad.nsf"
     ],
@@ -7430,7 +7430,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/45/Fonteta_de_Sant_Llu%C3%ADs._Esgl%C3%A9sia_de_Sant_Llu%C3%ADs_Bertran_1.JPG/1280px-Fonteta_de_Sant_Llu%C3%ADs._Esgl%C3%A9sia_de_Sant_Llu%C3%ADs_Bertran_1.JPG",
     "source": "https://www.openstreetmap.org/node/255312237",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -7466,7 +7466,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Olivar_en_oto%C3%B1o_en_La_Campi%C3%B1a_de_Valencia_de_Alc%C3%A1ntara.jpg/1280px-Olivar_en_oto%C3%B1o_en_La_Campi%C3%B1a_de_Valencia_de_Alc%C3%A1ntara.jpg",
     "source": "https://www.openstreetmap.org/node/2701558998",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -7499,7 +7499,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/3041127210",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -7535,7 +7535,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4e/Benim%C3%A0met%2C_esgl%C3%A9sia_de_l%27Ave_Maria_i_sant_Josep.JPG/1280px-Benim%C3%A0met%2C_esgl%C3%A9sia_de_l%27Ave_Maria_i_sant_Josep.JPG",
     "source": "https://www.openstreetmap.org/node/3415662078",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -7570,7 +7570,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/3467890617",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -7603,7 +7603,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/3927593254",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "memorial",
@@ -7637,7 +7637,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/Reina_Mariana_de_Manolo_Vald%C3%A9s%2C_carrer_de_sant_Vicent_de_Val%C3%A8ncia.JPG/1280px-Reina_Mariana_de_Manolo_Vald%C3%A9s%2C_carrer_de_sant_Vicent_de_Val%C3%A8ncia.JPG",
     "source": "https://www.openstreetmap.org/node/5046970847",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -7673,7 +7673,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/94/Cartel_del_Museo_de_la_Samana_Santa.jpg/1280px-Cartel_del_Museo_de_la_Samana_Santa.jpg",
     "source": "https://www.openstreetmap.org/node/5167202797",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Tu-Su 10:00-19:00; Mo off",
     "openingHoursEstimated": true,
     "subcategory": "museum",
@@ -7708,7 +7708,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/5469619907",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "Mo-Sa 10:30-14:00,17:00-20:00",
     "openingHoursEstimated": false,
     "subcategory": "aquarium",
@@ -7742,7 +7742,7 @@
     },
     "image": "https://upload.wikimedia.org/wikipedia/commons/f/f2/Benifaraig._Creu.jpg",
     "source": "https://www.openstreetmap.org/node/5472773678",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "Mo-Su 09:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "wayside_cross",
@@ -7776,7 +7776,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ce/La_Creu_Coberta_06.JPG/1280px-La_Creu_Coberta_06.JPG",
     "source": "https://www.openstreetmap.org/node/5472798401",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "Mo-Su 09:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "wayside_cross",
@@ -7809,7 +7809,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/5781888088",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "memorial",
@@ -7841,7 +7841,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/5781888107",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "memorial",
@@ -7875,7 +7875,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/Carril_bici_al_carrer_del_Comte_de_Lumiares_%28Val%C3%A8ncia%29_02.jpg/1280px-Carril_bici_al_carrer_del_Comte_de_Lumiares_%28Val%C3%A8ncia%29_02.jpg",
     "source": "https://www.openstreetmap.org/node/5980341052",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "memorial",
@@ -7909,7 +7909,7 @@
     },
     "image": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Tasquita_La_Estrecha.jpg",
     "source": "https://www.openstreetmap.org/node/5992755287",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "Tu-Su 10:00-19:00; Mo off",
     "openingHoursEstimated": true,
     "subcategory": "attraction",
@@ -7941,7 +7941,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/6364661361",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "memorial",
@@ -7973,7 +7973,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/6451764666",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "memorial",
@@ -8006,7 +8006,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Vicent_Dom%C3%A9nech_el_Palleter.jpg/1280px-Vicent_Dom%C3%A9nech_el_Palleter.jpg",
     "source": "https://www.openstreetmap.org/node/6553720067",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8038,7 +8038,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/6594333507",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "refSeeAlso": [
       "https://www.uv.es/republica/qr/qr6.html"
     ],
@@ -8074,7 +8074,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1a/Toro_de_Osborne_en_la_polit%C3%A9cnica.JPG/1280px-Toro_de_Osborne_en_la_polit%C3%A9cnica.JPG",
     "source": "https://www.openstreetmap.org/node/6611098433",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8108,7 +8108,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e8/Vicente_Blasco_Ib%C3%A1%C3%B1ez_in_1919_%28cropped%29.jpg/1280px-Vicente_Blasco_Ib%C3%A1%C3%B1ez_in_1919_%28cropped%29.jpg",
     "source": "https://www.openstreetmap.org/node/6758003386",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "memorial",
@@ -8141,7 +8141,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/6919965789",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8174,7 +8174,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/6919965791",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8208,7 +8208,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/Mural_de_Margarita_Salas%2C_Rectorado_UPV%2C_Cam%C3%AD_de_Vera%2C_Valencia_07.jpg/1280px-Mural_de_Margarita_Salas%2C_Rectorado_UPV%2C_Cam%C3%AD_de_Vera%2C_Valencia_07.jpg",
     "source": "https://www.openstreetmap.org/node/7051978512",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8241,7 +8241,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/98/Monumento_a_Teodoro_Llorente_02.jpg/1280px-Monumento_a_Teodoro_Llorente_02.jpg",
     "source": "https://www.openstreetmap.org/node/7195620349",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "memorial",
@@ -8274,7 +8274,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/7262857969",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8307,7 +8307,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/7262927720",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8340,7 +8340,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/7263342923",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8374,7 +8374,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/Valencia_Carrer_de_Nino_Bravo_1-3.jpg/1280px-Valencia_Carrer_de_Nino_Bravo_1-3.jpg",
     "source": "https://www.openstreetmap.org/node/7264221639",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8408,7 +8408,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/70/Statue_of_Atenea_%28Athena%29_in_Valencia_Spain.jpg/1280px-Statue_of_Atenea_%28Athena%29_in_Valencia_Spain.jpg",
     "source": "https://www.openstreetmap.org/node/7265675935",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8442,7 +8442,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b5/Indument%C3%A0ria_de_dona_valenciana%2C_segle_XVIII_-_XIX%2C_museu_de_la_Ciutat%2C_Val%C3%A8ncia.jpg/1280px-Indument%C3%A0ria_de_dona_valenciana%2C_segle_XVIII_-_XIX%2C_museu_de_la_Ciutat%2C_Val%C3%A8ncia.jpg",
     "source": "https://www.openstreetmap.org/node/7265688496",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8476,7 +8476,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/55/128_Monument_a_la_Pau_i_a_la_Conc%C3%B2rdia%2C_pl._de_la_Reina_%28Val%C3%A8ncia%29%2C_amb_el_Micalet_al_fons.jpg/1280px-128_Monument_a_la_Pau_i_a_la_Conc%C3%B2rdia%2C_pl._de_la_Reina_%28Val%C3%A8ncia%29%2C_amb_el_Micalet_al_fons.jpg",
     "source": "https://www.openstreetmap.org/node/7271318040",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8510,7 +8510,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/El_Cudol_de_Tr%C3%A0nsits_4560.jpg/1280px-El_Cudol_de_Tr%C3%A0nsits_4560.jpg",
     "source": "https://www.openstreetmap.org/node/7271354979",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8544,7 +8544,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/81/Comedia_famosa_-_La_bella_inglesa_Pamela_en_el_estado_de_casada_%28IA_HHAZ378807%29.pdf/page1-500px-Comedia_famosa_-_La_bella_inglesa_Pamela_en_el_estado_de_casada_%28IA_HHAZ378807%29.pdf.jpg",
     "source": "https://www.openstreetmap.org/node/7271389489",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8578,7 +8578,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Escultura_al_saque_del_pelotari%2C_plaza_de_N%C3%A1poles_y_Sicilia.AB.jpg/1280px-Escultura_al_saque_del_pelotari%2C_plaza_de_N%C3%A1poles_y_Sicilia.AB.jpg",
     "source": "https://www.openstreetmap.org/node/7282632627",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8611,7 +8611,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bc/Monument_al_llaurador_valenci%C3%A0_a_la_Gran_Via_del_Marqu%C3%A9s_del_T%C3%BAria.JPG/1280px-Monument_al_llaurador_valenci%C3%A0_a_la_Gran_Via_del_Marqu%C3%A9s_del_T%C3%BAria.JPG",
     "source": "https://www.openstreetmap.org/node/7282633230",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8644,7 +8644,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/7282641946",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8678,7 +8678,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/Colegio_LLuis_Vives_de_Valencia_05.jpg/1280px-Colegio_LLuis_Vives_de_Valencia_05.jpg",
     "source": "https://www.openstreetmap.org/node/7283286199",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8711,7 +8711,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/7328835174",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8744,7 +8744,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/7331511350",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8777,7 +8777,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/7555079886",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8811,7 +8811,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/87/Bust_de_Mar%C3%A7al_de_Sax%2C_Val%C3%A8ncia.jpg/1280px-Bust_de_Mar%C3%A7al_de_Sax%2C_Val%C3%A8ncia.jpg",
     "source": "https://www.openstreetmap.org/node/7606377717",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8845,7 +8845,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e3/Escultura_a_Ausias_March_en_los_Jardines_del_Real%2C_Valencia_01.jpg/1280px-Escultura_a_Ausias_March_en_los_Jardines_del_Real%2C_Valencia_01.jpg",
     "source": "https://www.openstreetmap.org/node/7622760090",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "memorial",
@@ -8878,7 +8878,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/9397516685",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8910,7 +8910,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/9397538115",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -8943,7 +8943,7 @@
     },
     "image": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Rodriguez_Fornos.jpg",
     "source": "https://www.openstreetmap.org/node/9433220867",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "memorial",
@@ -8977,7 +8977,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2e/Tumba_de_Manuel_Granero_Valls.jpg/1280px-Tumba_de_Manuel_Granero_Valls.jpg",
     "source": "https://www.openstreetmap.org/node/9877493400",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9010,7 +9010,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/9878401668",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9043,7 +9043,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/9878401670",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9076,7 +9076,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/9878405214",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9109,7 +9109,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/9878509934",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9143,7 +9143,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/Valencia-Quatre_Carreres%2C_Escultura_de_Neptuno_ontworpen_door_Marta_S._Gufstasson_IMG_2775_2026-08-24_10.37.jpg/1280px-Valencia-Quatre_Carreres%2C_Escultura_de_Neptuno_ontworpen_door_Marta_S._Gufstasson_IMG_2775_2026-08-24_10.37.jpg",
     "source": "https://www.openstreetmap.org/node/9878509941",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9177,7 +9177,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/Rafael_Guastavino_Moreno_2.jpg/1280px-Rafael_Guastavino_Moreno_2.jpg",
     "source": "https://www.openstreetmap.org/node/9918913247",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9213,7 +9213,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/Valencia-Quartre_Carreres%2C_Pont_de_Montolivet_met_op_de_achtergrond_L%27Hemisf%C3%A8ric%2C_el_Museu_de_les_Ci%C3%A8ncies_Pr%C3%ADncep_Felip_en_CaixaForum_Val%C3%A8ncia_IMG_2915.jpg/1280px-Valencia-Quartre_Carreres%2C_Pont_de_Montolivet_met_op_de_achtergrond_L%27Hemisf%C3%A8ric%2C_el_Museu_de_les_Ci%C3%A8ncies_Pr%C3%ADncep_Felip_en_CaixaForum_Val%C3%A8ncia_IMG_2915.jpg",
     "source": "https://www.openstreetmap.org/node/9983879720",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "refSeeAlso": [
       "https://caixaforum.org/es/valencia"
     ],
@@ -9252,7 +9252,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/10189291078",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9288,7 +9288,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f1/Museu_de_l%27Artista_Faller.jpg/1280px-Museu_de_l%27Artista_Faller.jpg",
     "source": "https://www.openstreetmap.org/node/10559894250",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "Tu-Su 10:00-19:00; Mo off",
     "openingHoursEstimated": true,
     "subcategory": "museum",
@@ -9322,7 +9322,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/3._Santuari_de_la_Mare_de_D%C3%A9u_del_Castell_i_Castell_%28Cullera%2C_Pa%C3%ADs_Valenci%C3%A0%29.jpg/1280px-3._Santuari_de_la_Mare_de_D%C3%A9u_del_Castell_i_Castell_%28Cullera%2C_Pa%C3%ADs_Valenci%C3%A0%29.jpg",
     "source": "https://www.openstreetmap.org/node/10881746778",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9355,7 +9355,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Breve%2C_pero_exacta_relacion_del_funebre_obelisco_al%C3%A7ado_en_el_sumptuoso_Templo_de_San-Tiago_de_la_fidelissima_ciudad_de_Alcudia_en_el_reyno_de_Mallorca_%28IA_breveperoexactar00full%29.pdf/page1-500px-thumbnail.pdf.jpg",
     "source": "https://www.openstreetmap.org/node/11180756959",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9388,7 +9388,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11416758017",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9421,7 +9421,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734746863",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9455,7 +9455,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fc/Prepar%C3%A1ndose_para_la_Procesi%C3%B3n_del_Corpus_de_Valencia_02.jpg/1280px-Prepar%C3%A1ndose_para_la_Procesi%C3%B3n_del_Corpus_de_Valencia_02.jpg",
     "source": "https://www.openstreetmap.org/node/11734746865",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9489,7 +9489,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ad/Velero_%28445943720%29.jpg/1280px-Velero_%28445943720%29.jpg",
     "source": "https://www.openstreetmap.org/node/11734746866",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9522,7 +9522,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734746867",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9556,7 +9556,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/27_MOVIL.jpg/1280px-27_MOVIL.jpg",
     "source": "https://www.openstreetmap.org/node/11734746868",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9590,7 +9590,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Municipio_de_Alcudia_de_Veo%2C_Castell%C3%B3n.jpg/1280px-Municipio_de_Alcudia_de_Veo%2C_Castell%C3%B3n.jpg",
     "source": "https://www.openstreetmap.org/node/11734753369",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9623,7 +9623,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753374",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9656,7 +9656,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753375",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9689,7 +9689,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753376",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9722,7 +9722,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753378",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9755,7 +9755,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753379",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9788,7 +9788,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753380",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9822,7 +9822,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/74/P%C3%B3rtico_Iglesia_de_la_Encarnaci%C3%B3n_de_Valencia_de_Alc%C3%A1ntara.jpg/1280px-P%C3%B3rtico_Iglesia_de_la_Encarnaci%C3%B3n_de_Valencia_de_Alc%C3%A1ntara.jpg",
     "source": "https://www.openstreetmap.org/node/11734753381",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9856,7 +9856,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Breve%2C_pero_exacta_relacion_del_funebre_obelisco_al%C3%A7ado_en_el_sumptuoso_Templo_de_San-Tiago_de_la_fidelissima_ciudad_de_Alcudia_en_el_reyno_de_Mallorca_%28IA_breveperoexactar00full%29.pdf/page1-500px-thumbnail.pdf.jpg",
     "source": "https://www.openstreetmap.org/node/11734753382",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9889,7 +9889,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753383",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9922,7 +9922,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753384",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9955,7 +9955,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753385",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -9988,7 +9988,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753386",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10021,7 +10021,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753387",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10055,7 +10055,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0f/Vuelo_alicantino-1.JPG/1280px-Vuelo_alicantino-1.JPG",
     "source": "https://www.openstreetmap.org/node/11734753388",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10089,7 +10089,7 @@
     },
     "image": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Paloma_Valencia.png",
     "source": "https://www.openstreetmap.org/node/11734753389",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10122,7 +10122,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753390",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10156,7 +10156,7 @@
     },
     "image": "https://upload.wikimedia.org/wikipedia/commons/1/15/Valencia_-_Macetero_urbano.jpg",
     "source": "https://www.openstreetmap.org/node/11734753391",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10190,7 +10190,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a5/Torso_de_guerrero_ib%C3%A9rico._525-450_a._C._Museu_Monogr%C3%A0fic_de_l%27Alc%C3%BAdia_%28Elx%29~5.jpg/1280px-Torso_de_guerrero_ib%C3%A9rico._525-450_a._C._Museu_Monogr%C3%A0fic_de_l%27Alc%C3%BAdia_%28Elx%29~5.jpg",
     "source": "https://www.openstreetmap.org/node/11734753392",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10223,7 +10223,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753393",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10256,7 +10256,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753394",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10289,7 +10289,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753395",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10323,7 +10323,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5b/Procesi%C3%B3n_de_la_Ma%C3%B1anica_de_Pascua%2C_1962.jpg/1280px-Procesi%C3%B3n_de_la_Ma%C3%B1anica_de_Pascua%2C_1962.jpg",
     "source": "https://www.openstreetmap.org/node/11734753396",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10357,7 +10357,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/Estudio_MAAD_-_2025_-_Calle_de_Valencia_16_-_Madrid_03.jpg/1280px-Estudio_MAAD_-_2025_-_Calle_de_Valencia_16_-_Madrid_03.jpg",
     "source": "https://www.openstreetmap.org/node/11734753397",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10390,7 +10390,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753399",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10423,7 +10423,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753400",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10456,7 +10456,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753401",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10489,7 +10489,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753402",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10522,7 +10522,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753403",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10556,7 +10556,7 @@
     },
     "image": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Celebraci%C3%B3n_del_d%C3%ADa_de_la_mujer_en_Pie_de_la_Cuesta%2C_Acapulco%2C_Valencia_contra_la_Mujer.jpg",
     "source": "https://www.openstreetmap.org/node/11734753404",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10589,7 +10589,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753405",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10623,7 +10623,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f5/Calle_Mayor_de_El_Toro_%28Castell%C3%B3n%29.jpg/1280px-Calle_Mayor_de_El_Toro_%28Castell%C3%B3n%29.jpg",
     "source": "https://www.openstreetmap.org/node/11734753406",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10656,7 +10656,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753407",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10689,7 +10689,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753408",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10722,7 +10722,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753409",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10755,7 +10755,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753410",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10788,7 +10788,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753411",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10822,7 +10822,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/Cactus_-_%C3%80_Punt_-_Territori_Sonor.jpg/1280px-Cactus_-_%C3%80_Punt_-_Territori_Sonor.jpg",
     "source": "https://www.openstreetmap.org/node/11734753412",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10855,7 +10855,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753413",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10889,7 +10889,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/60/%C3%89ter_%28Pulled_Pork%29.jpg/1280px-%C3%89ter_%28Pulled_Pork%29.jpg",
     "source": "https://www.openstreetmap.org/node/11734753414",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10923,7 +10923,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f5/Calle_Mayor_de_El_Toro_%28Castell%C3%B3n%29.jpg/1280px-Calle_Mayor_de_El_Toro_%28Castell%C3%B3n%29.jpg",
     "source": "https://www.openstreetmap.org/node/11734753418",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10956,7 +10956,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753420",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -10990,7 +10990,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/26/Juan_de_pareja%2C_ritratto_dell%27architetto_jos%C3%A9_rat%C3%A9s.jpg/1280px-Juan_de_pareja%2C_ritratto_dell%27architetto_jos%C3%A9_rat%C3%A9s.jpg",
     "source": "https://www.openstreetmap.org/node/11734753421",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11024,7 +11024,7 @@
     },
     "image": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Muchacha_en_jarras.jpg",
     "source": "https://www.openstreetmap.org/node/11734753422",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11058,7 +11058,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Jos%C3%A9_Ortega_Munilla_-_Chispas_del_yunque_-_IAchispasdelyunque00orte.pdf/page1-960px-Jos%C3%A9_Ortega_Munilla_-_Chispas_del_yunque_-_IAchispasdelyunque00orte.pdf.jpg",
     "source": "https://www.openstreetmap.org/node/11734753423",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11091,7 +11091,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753424",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11124,7 +11124,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753426",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11157,7 +11157,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753427",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11190,7 +11190,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753428",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11223,7 +11223,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753429",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11256,7 +11256,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753430",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11289,7 +11289,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753431",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11322,7 +11322,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753432",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11356,7 +11356,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Valencia_Medieval_Wall_at_IVAM_Museum_-_Valencia_Spain.jpg/1280px-Valencia_Medieval_Wall_at_IVAM_Museum_-_Valencia_Spain.jpg",
     "source": "https://www.openstreetmap.org/node/11734753433",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11389,7 +11389,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753434",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11422,7 +11422,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753435",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11455,7 +11455,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753436",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11488,7 +11488,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753437",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11521,7 +11521,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/11734753439",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11556,7 +11556,7 @@
       "postalCode": "46001"
     },
     "source": "https://www.openstreetmap.org/node/11766650800",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "refSeeAlso": [
       "https://www.museomundodeilusionesvalencia.com/"
     ],
@@ -11596,7 +11596,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/19/Casa_natal_de_Alberto_Garc%C3%ADa_Esteve.jpg/1280px-Casa_natal_de_Alberto_Garc%C3%ADa_Esteve.jpg",
     "source": "https://www.openstreetmap.org/node/11926915065",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "memorial",
@@ -11630,7 +11630,7 @@
     },
     "image": "https://upload.wikimedia.org/wikipedia/commons/f/f7/Josep_Aguirre_i_Matiol.jpg",
     "source": "https://www.openstreetmap.org/node/11987693735",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "memorial",
@@ -11665,7 +11665,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/Visita_Centro_de_Arte_Hortensia_Herrero_02.jpg/1280px-Visita_Centro_de_Arte_Hortensia_Herrero_02.jpg",
     "source": "https://www.openstreetmap.org/node/12248484372",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "refSeeAlso": [
       "https://www.cahh.es/"
     ],
@@ -11705,7 +11705,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Bust%20de%20Dami%C3%A0%20Forment.jpg?width=1200",
     "source": "https://www.openstreetmap.org/node/12406605622",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11739,7 +11739,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2f/Pedro_ferrer_calatayud%2C_senza_meta%2C_1922.jpg/1280px-Pedro_ferrer_calatayud%2C_senza_meta%2C_1922.jpg",
     "source": "https://www.openstreetmap.org/node/12406605623",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "memorial",
@@ -11773,7 +11773,7 @@
     },
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Taula%20-%20Te%20-%20Tombant%2C%20jard%C3%AD%20del%20T%C3%BAria%20de%20Val%C3%A8ncia.JPG?width=1200",
     "source": "https://www.openstreetmap.org/node/12417496077",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11806,7 +11806,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/12995925247",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11839,7 +11839,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/12995925248",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11873,7 +11873,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/Andreu_Alfaro%2C_Donant-li_voltes%2C_Val%C3%A8ncia.jpg/1280px-Andreu_Alfaro%2C_Donant-li_voltes%2C_Val%C3%A8ncia.jpg",
     "source": "https://www.openstreetmap.org/node/12996008529",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11907,7 +11907,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/CEIP_San_Juan_de_Ribera.jpg/1280px-CEIP_San_Juan_de_Ribera.jpg",
     "source": "https://www.openstreetmap.org/node/12997141043",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11941,7 +11941,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c1/Statue_of_Juan_Luis_Vives_-_Centre_Cultural_La_Nau_-_Universitat_de_Valencia_-_Ciutat_Vella%2C_Valencia%2C_Spain.jpg/1280px-Statue_of_Juan_Luis_Vives_-_Centre_Cultural_La_Nau_-_Universitat_de_Valencia_-_Ciutat_Vella%2C_Valencia%2C_Spain.jpg",
     "source": "https://www.openstreetmap.org/node/12998792133",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -11974,7 +11974,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/13012168541",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "memorial",
@@ -12008,7 +12008,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/37/Isabel_Lozano_en_el_acto_de_homenaje_a_Margarida_Borr%C3%A0s.jpg/1280px-Isabel_Lozano_en_el_acto_de_homenaje_a_Margarida_Borr%C3%A0s.jpg",
     "source": "https://www.openstreetmap.org/node/13012176737",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "memorial",
@@ -12041,7 +12041,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/13012277017",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -12075,7 +12075,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/99/Monument_a_Marcelino_Olaechea.jpg/1280px-Monument_a_Marcelino_Olaechea.jpg",
     "source": "https://www.openstreetmap.org/node/13012356014",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -12109,7 +12109,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/af/Escultura_llamada_Pax_en_los_Jardines_del_Real%2C_Valencia_02.jpg/1280px-Escultura_llamada_Pax_en_los_Jardines_del_Real%2C_Valencia_02.jpg",
     "source": "https://www.openstreetmap.org/node/13022625239",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -12143,7 +12143,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bb/Xica_reclinada_amb_llibre%2C_Jos%C3%A9_Esteve_Edo%2C_jardins_del_Real%2C_Val%C3%A8ncia.jpg/1280px-Xica_reclinada_amb_llibre%2C_Jos%C3%A9_Esteve_Edo%2C_jardins_del_Real%2C_Val%C3%A8ncia.jpg",
     "source": "https://www.openstreetmap.org/node/13022625240",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -12177,7 +12177,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4e/Homenaje_a_Wangari_Maathai%2C_Jardines_del_Real%2C_Valencia_03.jpg/1280px-Homenaje_a_Wangari_Maathai%2C_Jardines_del_Real%2C_Valencia_03.jpg",
     "source": "https://www.openstreetmap.org/node/13022625244",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -12211,7 +12211,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/Bas%C3%ADlica_de_San_Vicente_Ferrer._Igelsia_del_Convento-Colegio_de_Dominicos.jpg/1280px-Bas%C3%ADlica_de_San_Vicente_Ferrer._Igelsia_del_Convento-Colegio_de_Dominicos.jpg",
     "source": "https://www.openstreetmap.org/node/13043306169",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -12244,7 +12244,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/13179004052",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "refSeeAlso": [
       "https://iluziona.com"
     ],
@@ -12281,7 +12281,7 @@
     },
     "image": "https://upload.wikimedia.org/wikipedia/commons/7/70/2018_08_29_Detalls_de_la_Via_Xurra_18.jpg",
     "source": "https://www.openstreetmap.org/node/13188698274",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "Tu-Su 10:00-19:00; Mo off",
     "openingHoursEstimated": true,
     "subcategory": "attraction",
@@ -12314,7 +12314,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Mural_de_Mar%C3%ADa_Blasco%2C_IES_Sorolla._Calle_Jos%C3%A9_Mar%C3%ADa_Haro%2C_3._Valencia.jpg/1280px-Mural_de_Mar%C3%ADa_Blasco%2C_IES_Sorolla._Calle_Jos%C3%A9_Mar%C3%ADa_Haro%2C_3._Valencia.jpg",
     "source": "https://www.openstreetmap.org/node/13204976581",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -12348,7 +12348,7 @@
       "postalCode": "46002"
     },
     "source": "https://www.openstreetmap.org/node/13294446182",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "refSeeAlso": [
       "https://www.galerie-alaux.com/es/"
     ],
@@ -12386,7 +12386,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/Edifici_Balkis_5362.jpg/1280px-Edifici_Balkis_5362.jpg",
     "source": "https://www.openstreetmap.org/node/13316807562",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "Tu-Su 10:00-19:00; Mo off",
     "openingHoursEstimated": true,
     "subcategory": "gallery",
@@ -12419,7 +12419,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/13386922434",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -12453,7 +12453,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2b/Centro_de_Arte_Contempor%C3%A1neo_Fundaci%C3%B3n_Chirivella_Soriano_01.jpg/1280px-Centro_de_Arte_Contempor%C3%A1neo_Fundaci%C3%B3n_Chirivella_Soriano_01.jpg",
     "source": "https://www.openstreetmap.org/node/13993715351",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "refSeeAlso": [
       "https://www.chirivellasoriano.org/"
     ],
@@ -12489,7 +12489,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/14019874095",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -12522,7 +12522,7 @@
       "addressCountry": "ES"
     },
     "source": "https://www.openstreetmap.org/node/14019886413",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",
@@ -12557,7 +12557,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Cruz_de_Mayo_de_la_parroquia_de_San_Nicol%C3%A1s%2C_2022IMG_8590.jpg/1280px-Cruz_de_Mayo_de_la_parroquia_de_San_Nicol%C3%A1s%2C_2022IMG_8590.jpg",
     "source": "https://www.openstreetmap.org/node/14134712401",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons, Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)",
     "openingHours": "Mo-Su 08:00-20:00",
     "openingHoursEstimated": true,
     "subcategory": "place_of_worship",
@@ -12593,7 +12593,7 @@
     },
     "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/Mural_dones_de_ciencia_en_IES_Juan_de_Garay._%C3%81ngela_P%C3%A9rez_P%C3%A9rez.jpg/1280px-Mural_dones_de_ciencia_en_IES_Juan_de_Garay._%C3%81ngela_P%C3%A9rez_P%C3%A9rez.jpg",
     "source": "https://www.openstreetmap.org/node/14178774818",
-    "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia",
+    "dataProvider": "OpenStreetMap contributors, Wikimedia Commons",
     "openingHours": "24/7",
     "openingHoursEstimated": true,
     "subcategory": "artwork",

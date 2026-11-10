@@ -1116,6 +1116,7 @@ def run_ingestion(config: dict) -> Dict[str, Any]:
         extract = extracts.get(article[0], {}).get(article[1]) if article else None
         if extract and len(extract) > len(poi.get("description") or ""):
             poi["description"] = extract
+            poi["description_from_wikipedia"] = True
         if not poi.get("description"):
             text, facts = build_description(poi.get("tags") or {}, str(poi.get("category") or ""), poi.get("heritage"))
             if facts >= min_facts or canonical_category(poi.get("category")) in _DESTINATION_CATEGORIES:
@@ -1187,6 +1188,20 @@ def run_ingestion(config: dict) -> Dict[str, Any]:
     return report
 
 
+def data_provider(wikidata: bool, wikipedia: bool, commons_image: bool, heritage: bool) -> str:
+    """Only the sources whose content the entity actually carries (attribution)."""
+    parts = ["OpenStreetMap contributors"]
+    if wikidata:
+        parts.append("Wikidata")
+    if wikipedia:
+        parts.append("Wikipedia (CC BY-SA)")
+    if commons_image:
+        parts.append("Wikimedia Commons")
+    if heritage:
+        parts.append("Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)")
+    return ", ".join(parts)
+
+
 def _build_entity(
     poi: Dict[str, Any],
     image_url: str | None,
@@ -1218,8 +1233,12 @@ def _build_entity(
         "address": address,
         "image": image_url,
         "source": _osm_object_url(str(poi.get("id"))),
-        "dataProvider": "OpenStreetMap contributors, Wikidata, Wikipedia"
-        + (", Generalitat Valenciana (Inventario General del Patrimonio Cultural Valenciano)" if heritage else ""),
+        "dataProvider": data_provider(
+            wikidata=bool(poi.get("wikidata")),
+            wikipedia=bool(poi.get("description_from_wikipedia")),
+            commons_image=bool(image_url and "wikimedia.org" in image_url),
+            heritage=bool(heritage),
+        ),
         "refSeeAlso": list(dict.fromkeys(url for url in see_also if url)),
         "contactPoint": {"telephone": poi.get("phone")} if poi.get("phone") else None,
         "openingHours": poi.get("opening_hours") or _synthetic_opening_hours(subcategory),
