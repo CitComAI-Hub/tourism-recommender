@@ -15,6 +15,10 @@ Output (one .npz file, aggregates only, no user data):
 - `projection`: ridge projection W of the embeddings onto the item factors of the
   co-visit matrix. Similarity in E @ W means "visited by the same people" instead of
   "described with similar words" (hit@10 0.29 vs 0.09, research/loo_eval.py).
+- `transitions`: P(next POI | current POI) from the order of each visitor's first
+  photo at every POI (needs `ts` in the photos). Where to go after a place is the
+  strongest signal after popularity and proximity: +0.05 hit@10 in Valencia,
+  +0.08 in Milano (research/protocol.py).
 """
 from __future__ import annotations
 
@@ -53,7 +57,13 @@ def poi_radius_km(poi: dict[str, Any]) -> float:
 
 def assign_visits(photos: Iterable[dict[str, Any]], pois: list[dict[str, Any]],
                   shapes: dict[str, Any] | None = None) -> dict[str, set[int]]:
-    """user -> indices of the POIs they photographed.
+    """user -> indices of the POIs they photographed (see `first_visits`)."""
+    return {u: set(v) for u, v in first_visits(photos, pois, shapes).items()}
+
+
+def first_visits(photos: Iterable[dict[str, Any]], pois: list[dict[str, Any]],
+                 shapes: dict[str, Any] | None = None) -> dict[str, dict[int, str]]:
+    """user -> {POI index: time of their first photo there ("" without `ts`)}.
 
     With `shapes` (see geometry.py) a photo is a visit to every POI whose real
     OSM shape it falls in (or near, for points and lines). Without them, to the nearest
@@ -66,13 +76,19 @@ def assign_visits(photos: Iterable[dict[str, Any]], pois: list[dict[str, Any]],
     lat = np.array([float(p["lat"]) for p in photos])
     lon = np.array([float(p["lon"]) for p in photos])
     users = [str(p["user"]) for p in photos]
-    visits: dict[str, set[int]] = {}
+    times = [str(p.get("ts") or "")[:19] for p in photos]
+    visits: dict[str, dict[int, str]] = {}
+
+    def add(k: int, j: int) -> None:
+        seen = visits.setdefault(users[k], {})
+        seen[j] = min(seen.get(j, times[k]), times[k])
+
     if shapes:
         from pmv_turismo.geometry import assign_photos
 
         for j, photo_idx in enumerate(assign_photos(pois, shapes, lat, lon)):
             for k in photo_idx:
-                visits.setdefault(users[k], set()).add(j)
+                add(int(k), j)
         return visits
     plat = np.array([p["location"]["coordinates"][1] for p in pois], dtype=float)
     plon = np.array([p["location"]["coordinates"][0] for p in pois], dtype=float)
@@ -84,9 +100,9 @@ def assign_visits(photos: Iterable[dict[str, Any]], pois: list[dict[str, Any]],
         inside = dk <= radius
         if inside.any():
             target[k] = int(np.argmin(np.where(inside, dk, np.inf)))
-    for user, j in zip(users, target, strict=False):
+    for k, j in enumerate(target):
         if j >= 0:
-            visits.setdefault(user, set()).add(int(j))
+            add(k, int(j))
     return visits
 
 
@@ -109,6 +125,7 @@ class BehaviourModel:
     pop_mean_y: float
     pop_weights: np.ndarray
     projection: np.ndarray     # (dim, factors)
+    transitions: np.ndarray    # (n, n) P(next | current), aligned with ids
     meta: dict[str, Any]
 
     def predicted_popularity(self, pois: list[dict[str, Any]], units: np.ndarray) -> np.ndarray:
@@ -125,7 +142,8 @@ class BehaviourModel:
         np.savez_compressed(
             path, ids=np.array(self.ids), visitors=self.visitors, emb_mean=self.emb_mean, pca=self.pca,
             vocabulary=np.array(self.vocabulary), pop_mean_x=self.pop_mean_x, pop_mean_y=np.array(self.pop_mean_y),
-            pop_weights=self.pop_weights, projection=self.projection, meta=np.array(json.dumps(self.meta)),
+            pop_weights=self.pop_weights, projection=self.projection,
+            transitions=self.transitions.astype(np.float32), meta=np.array(json.dumps(self.meta)),
         )
 
     @classmethod
@@ -135,12 +153,26 @@ class BehaviourModel:
                 ids=[str(x) for x in d["ids"]], visitors=d["visitors"], emb_mean=d["emb_mean"], pca=d["pca"],
                 vocabulary=[str(x) for x in d["vocabulary"]], pop_mean_x=d["pop_mean_x"],
                 pop_mean_y=float(d["pop_mean_y"]), pop_weights=d["pop_weights"], projection=d["projection"],
-                meta=json.loads(str(d["meta"])),
+                transitions=d["transitions"].astype(float), meta=json.loads(str(d["meta"])),
             )
 
 
-def train(pois: list[dict[str, Any]], units: np.ndarray, visits: dict[str, set[int]], source: str) -> BehaviourModel:
-    """Fit the popularity model and the projection on one city's visits."""
+def transition_matrix(visits: dict[str, dict[int, str]], n: int) -> np.ndarray:
+    """P(next | current) from each user's POIs ordered by their first visit."""
+    counts = np.zeros((n, n))
+    for seen in visits.values():
+        if not all(seen.values()):  # no timestamps: no order
+            continue
+        seq = sorted(seen, key=lambda j: (seen[j], j))
+        for a, b in zip(seq, seq[1:], strict=False):
+            counts[a, b] += 1
+    return counts / np.maximum(counts.sum(axis=1, keepdims=True), 1.0)
+
+
+def train(pois: list[dict[str, Any]], units: np.ndarray, visits: dict[str, dict[int, str]],
+          source: str) -> BehaviourModel:
+    """Fit the popularity model, the projection and the transitions on one city's
+    visits (`first_visits`)."""
     n = len(pois)
     visitors = np.zeros(n)
     co = np.zeros((n, n))
@@ -169,10 +201,12 @@ def train(pois: list[dict[str, Any]], units: np.ndarray, visits: dict[str, set[i
     seen = visitors > 0
     projection = _ridge(units[seen], factors[seen], RIDGE)
 
-    meta = {"source": source, "users": len(visits), "visited_pois": int(seen.sum()), "pois": n}
+    transitions = transition_matrix(visits, n)
+    meta = {"source": source, "users": len(visits), "visited_pois": int(seen.sum()), "pois": n,
+            "transitions": int((transitions > 0).sum())}
     logger.info("Behaviour model: %s", meta)
     return BehaviourModel([str(p["id"]) for p in pois], visitors, emb_mean, pca, vocabulary,
-                          mean_x, mean_y, pop_weights, projection, meta)
+                          mean_x, mean_y, pop_weights, projection, transitions, meta)
 
 
 def load_model(config: dict) -> BehaviourModel | None:
@@ -215,7 +249,7 @@ def train_from_config(config: dict) -> None:
     shapes = load_geometries(config)
     if not shapes:
         logger.warning("No POI geometries (run `--step geometry`): falling back to fixed radii")
-    visits = assign_visits(read_photos(Path(photos_path)), pois, shapes)
+    visits = first_visits(read_photos(Path(photos_path)), pois, shapes)
     model = train(pois, units, visits, str(cfg.get("source", photos_path)))
     model.save(model_path(config))
     print(f"behaviour: model saved to {model_path(config)} ({model.meta})")

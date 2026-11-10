@@ -16,6 +16,7 @@ import { useI18n } from "@/lib/i18n";
 interface RecommendationsListProps {
   recommendations: POI[];
   likedItems: POI[];
+  visitedItems: POI[];
   isLoading: boolean;
   activeFilter: string | null;
   onFilterChange: (filter: string | null) => void;
@@ -27,6 +28,7 @@ interface RecommendationsListProps {
   onLike: (poi: POI) => void;
   onDislike: (poi: POI) => void;
   onUnlike: (poi: POI) => void;
+  onUnvisit: (poi: POI) => void;
   showMap: boolean;
   onToggleMap: () => void;
 }
@@ -34,6 +36,7 @@ interface RecommendationsListProps {
 export function RecommendationsList({
   recommendations,
   likedItems,
+  visitedItems,
   isLoading,
   activeFilter,
   onFilterChange,
@@ -45,10 +48,40 @@ export function RecommendationsList({
   onLike,
   onDislike,
   onUnlike,
+  onUnvisit,
   showMap,
   onToggleMap,
 }: RecommendationsListProps) {
   const { t } = useI18n();
+
+  /** Places the user marked (liked or visited), removable one by one. */
+  const renderChips = (heading: string, items: POI[], onRemove: (poi: POI) => void) =>
+    items.length > 0 && (
+      <div className="mb-2">
+        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">{heading}</p>
+        <div className="flex flex-wrap gap-2">
+          {items.map((poi) => (
+            <span
+              key={poi.id}
+              className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/5 py-1 pl-3 pr-1 text-sm"
+            >
+              <button type="button" className="max-w-[12rem] truncate" onClick={() => onSelectPOI(poi)}>
+                {poi.name}
+              </button>
+              <button
+                type="button"
+                className="rounded-full p-1 text-muted-foreground hover:text-foreground"
+                onClick={() => onRemove(poi)}
+                aria-label={t("common.remove")}
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+
   const safeRecommendations = Array.isArray(recommendations)
     ? recommendations
     : [];
@@ -124,32 +157,11 @@ export function RecommendationsList({
       {/* Recommendations */}
       <ScrollArea className="flex-1 min-h-0">
         <div className="p-4 space-y-3">
-          {!isSearching && likedItems.length > 0 && (
-            <div className="mb-2">
-              <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {t("recommendations.liked_heading")}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {likedItems.map((poi) => (
-                  <span
-                    key={poi.id}
-                    className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/5 py-1 pl-3 pr-1 text-sm"
-                  >
-                    <button type="button" className="max-w-[12rem] truncate" onClick={() => onSelectPOI(poi)}>
-                      {poi.name}
-                    </button>
-                    <button
-                      type="button"
-                      className="rounded-full p-1 text-muted-foreground hover:text-foreground"
-                      onClick={() => onUnlike(poi)}
-                      aria-label={t("common.remove")}
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            </div>
+          {!isSearching && (
+            <>
+              {renderChips(t("recommendations.liked_heading"), likedItems, onUnlike)}
+              {renderChips(t("recommendations.visited_heading"), visitedItems, onUnvisit)}
+            </>
           )}
           {isLoading ? (
             <div className="flex items-center justify-center py-12">

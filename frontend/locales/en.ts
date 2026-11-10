@@ -191,11 +191,13 @@ export const en = {
       recommended: "Recommended",
       liked: "You like it",
     },
+    visited_heading: "Visited",
     liked_heading: "You like",
     search_placeholder: "Search places (e.g. gothic churches)",
     search_results: "Search results",
     search_empty: "No places match your search",
     reasons: {
+      next: "Visitors of {poi} often come here next",
       popular: "Among the most visited",
       near: "{km} km from a place you like",
       near_named: "{km} km from {poi}",
@@ -207,6 +209,8 @@ export const en = {
     closed: "Closed",
   },
   poi: {
+    visit: "I've been here",
+    visited: "Visited",
     direction: "Get directions",
     like: "I like it",
     liked: "You like it",

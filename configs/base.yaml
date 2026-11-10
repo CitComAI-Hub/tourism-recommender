@@ -90,12 +90,17 @@ embeddings:
 
 recommendation:
   top_n: 30
-  # score = minmax(log popularity - distance_km / distance_scale_km)
+  # score = minmax(log popularity + next_weight * log(1 + 100 P(next | last visited))
+  #                - distance_km / distance_scale_km)
   #         + similarity_weight * minmax(behaviour-adapted similarity to the likes)
   #         - dislike_weight * minmax(similarity to the dislikes)
-  # Values measured on real tourist visits (research/loo_eval.py).
+  # Chosen on validation splits of real tourist visits (research/protocol.py,
+  # Valencia and Milano): similarity weight 0 in 9 of 12 choices, next weight 1.0
+  # in most. Dislikes cannot be measured on photos (nobody photographs what they
+  # dislike): a small weight that only reacts to the user's explicit feedback.
   distance_scale_km: 0.3
-  similarity_weight: 0.3
+  similarity_weight: 0.0
+  next_weight: 1.0
   dislike_weight: 0.1
   filter_opening_hours: true
 

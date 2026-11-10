@@ -10,7 +10,11 @@
 3. Paired significance against plain popularity: bootstrap CI of the hit@10
    difference and an exact McNemar test.
 4. Context: popularity of the season of the visit (the date is known when the user
-   asks), blended with the overall one.
+   asks), blended with the overall one; where visitors go next after the POI visited
+   just before (production code: Recommender.recommend(visited=...)).
+5. Besides hit@10: hit@10 of held-out visits outside the 20 most visited POIs (long
+   tail), coverage (share of the catalog in some top 10) and diversity of the top 10
+   (mean pairwise cosine distance of the description embeddings; distinct categories).
 
 Leave-one-out: each of the last two visits of every tourist with >= 3 visited POIs
 is held out; the rest (up to 10) are the likes.
@@ -32,7 +36,7 @@ from typing import Dict, List, Sequence
 import numpy as np
 
 from common import city_photos, load_config, pseudonym
-from pmv_turismo.behaviour import assign_visits, train
+from pmv_turismo.behaviour import first_visits, train
 from pmv_turismo.common import load_poi_list, processed_dir
 from pmv_turismo.embeddings import embeddings_path, load_embedding_index
 from pmv_turismo.geometry import assign_photos, load_geometries
@@ -44,6 +48,7 @@ GRID_SIM = (0.0, 0.15, 0.3, 0.5)
 GRID_SEASON = (0.0, 0.25, 0.5, 0.75)
 GRID_NEXT = (0.0, 0.25, 0.5, 1.0)
 TOURIST_MAX_DAYS = 21
+HEAD = 20
 
 
 def season(ts: str) -> int:
@@ -93,7 +98,7 @@ class City:
         return out
 
     def model(self, photos: List[dict]):
-        visits = assign_visits(photos, self.pois, self.shapes)
+        visits = first_visits(photos, self.pois, self.shapes)
         seasonal = np.zeros((4, len(self.pois)))
         lat = np.array([p["lat"] for p in photos])
         lon = np.array([p["lon"] for p in photos])
@@ -103,42 +108,53 @@ class City:
                 seen[(photos[k]["user"], j, season(photos[k]["ts"]))].add(1)
         for (_, j, s) in seen:
             seasonal[s, j] += 1
-        first: dict = collections.defaultdict(dict)
-        for j, idx in enumerate(assign_photos(self.pois, self.shapes, lat, lon)):
-            for k in idx:
-                u, ts = photos[k]["user"], photos[k]["ts"]
-                first[u][j] = min(first[u].get(j, ts), ts)
-        trans = np.zeros((len(self.pois), len(self.pois)))
-        for v in first.values():
-            seq = sorted(v, key=v.get)
-            for a, b in zip(seq, seq[1:], strict=False):
-                trans[a, b] += 1
-        trans = trans / np.maximum(trans.sum(axis=1, keepdims=True), 1)  # P(next | current)
-        self._trans = trans
         return train(self.pois, self.units, visits, "eval"), np.log1p(seasonal)
+
+
+class Run(np.ndarray):
+    """Hits of one method (a float array, so means and pairing work as before) plus
+    the top 10 of every case, for coverage and diversity."""
+    tops: List[List[int]]
 
 
 def evaluate(city: City, rec: Recommender, cases: List[tuple], tau: float, sim: float,
              seasonal: np.ndarray | None = None, season_w: float = 0.0, pop_only: bool = False,
-             trans: np.ndarray | None = None, next_w: float = 0.0) -> np.ndarray:
+             next_w: float = 0.0) -> Run:
     r = copy.copy(rec)
-    r.distance_scale_km, r.similarity_weight = tau, sim
-    hits = np.zeros(len(cases))
+    r.distance_scale_km, r.similarity_weight, r.next_weight = tau, sim, next_w
+    hits, tops = np.zeros(len(cases)), []
     base_pop = rec.popularity
     for n, (_, liked, held, ts, prev) in enumerate(cases):
         r.popularity = base_pop
         if seasonal is not None and season_w:
             r.popularity = (1 - season_w) * base_pop + season_w * seasonal[season(ts)]
-        if trans is not None and next_w:
-            # P(next | the POI visited just before), on the scale of log popularity
-            r.popularity = r.popularity + next_w * np.log1p(100 * trans[prev])
         if pop_only:
             liked_set = {rec.position[x] for x in liked}
             top = [i for i in np.argsort(-r.popularity, kind="stable") if i not in liked_set][:K]
-            hits[n] = held in top
         else:
-            hits[n] = city.ids[held] in {x["id"] for x in r.recommend(liked=liked, top_n=K)}
-    return hits
+            visited = [city.ids[prev]] if next_w else None
+            top = [r.position[x["id"]] for x in r.recommend(liked=liked, visited=visited, top_n=K)]
+        hits[n] = held in top
+        tops.append(top)
+    out = hits.view(Run)
+    out.tops = tops
+    return out
+
+
+def extra_metrics(city: City, rec: Recommender, cases: List[tuple], run: Run) -> dict:
+    head = set(np.argsort(-rec.popularity, kind="stable")[:HEAD].tolist())
+    tail = np.array([held not in head for (_, _, held, _, _) in cases])
+    seen = {i for top in run.tops for i in top}
+    dist, cats = [], []
+    for top in run.tops:
+        u = city.units[top]
+        sim = u @ u.T
+        m = len(top)
+        dist.append(1.0 - (sim.sum() - np.trace(sim)) / max(m * (m - 1), 1))
+        cats.append(len({c for i in top for c in city.pois[i].get("category") or []}))
+    return {"hit_tail": float(np.asarray(run)[tail].mean()) if tail.any() else float("nan"),
+            "tail_cases": int(tail.sum()), "coverage": len(seen) / len(city.pois),
+            "diversity": float(np.mean(dist)), "categories": float(np.mean(cats))}
 
 
 def choose(city, rec, val_cases, seasonal=None):
@@ -151,6 +167,15 @@ def choose(city, rec, val_cases, seasonal=None):
     if seasonal is not None:
         sw = max(GRID_SEASON, key=lambda w: evaluate(city, rec, val_cases, tau, sim, seasonal, w).mean())
     return tau, sim, sw
+
+
+def weighted_extra(folds: List[dict]) -> dict:
+    """Pool the per-fold extra metrics (tail hit weighted by tail cases; coverage of
+    the union is not recoverable, so the mean per fold)."""
+    tail = sum(f["tail_cases"] for f in folds)
+    hit_tail = (sum(f["hit_tail"] * f["tail_cases"] for f in folds if f["tail_cases"]) / tail) if tail else float("nan")
+    return {"hit_tail": hit_tail, "tail_cases": tail,
+            **{k: float(np.mean([f[k] for f in folds])) for k in ("coverage", "diversity", "categories")}}
 
 
 def paired(a: np.ndarray, b: np.ndarray, seed: int = 0) -> dict:
@@ -172,10 +197,8 @@ def run_split(city: City, train_users, test_cases, val_users, val_cases_fn, labe
     rec_val = Recommender(city.pois, city.index, m_val, city.cfg)
     val_cases = val_cases_fn()
     tau, sim, sw = choose(city, rec_val, val_cases, s_val)
-    t_val = city._trans
-    nw = max(GRID_NEXT, key=lambda w: evaluate(city, rec_val, val_cases, tau, sim, trans=t_val, next_w=w).mean())
+    nw = max(GRID_NEXT, key=lambda w: evaluate(city, rec_val, val_cases, tau, sim, next_w=w).mean())
     model, seasonal = city.model(photos)
-    trans = city._trans
     rec = Recommender(city.pois, city.index, model, city.cfg)
     wiki = Recommender(city.pois, city.index, None, city.cfg)
     rows = {
@@ -184,10 +207,11 @@ def run_split(city: City, train_users, test_cases, val_users, val_cases_fn, labe
         "gravity (no similarity)": evaluate(city, rec, test_cases, tau, 0.0),
         "service": evaluate(city, rec, test_cases, tau, sim),
         "service + season": evaluate(city, rec, test_cases, tau, sim, seasonal, sw),
-        "service + next POI": evaluate(city, rec, test_cases, tau, sim, trans=trans, next_w=nw),
+        "service + next POI": evaluate(city, rec, test_cases, tau, sim, next_w=nw),
     }
+    extra = {k: extra_metrics(city, rec, test_cases, h) for k, h in rows.items()}
     return {"split": label, "chosen": {"tau_km": tau, "similarity_weight": sim, "season_weight": sw, "next_weight": nw},
-            "rows": rows}
+            "rows": rows, "extra": extra}
 
 
 def main():
@@ -213,10 +237,13 @@ def main():
         res = run_split(city, train_users, city.cases(test_users), val_users,
                         lambda val_users=val_users: city.cases(val_users), f"users fold {f}")
         per_fold["chosen"].append(res["chosen"])
+        per_fold["extra"].append(res["extra"])
         for k, h in res["rows"].items():
             per_fold[k].append(h)
-    results.append(("users (5 folds)", {k: np.concatenate(v) for k, v in per_fold.items() if k != "chosen"},
-                    per_fold["chosen"]))
+    extra = {k: weighted_extra([e[k] for e in per_fold["extra"]]) for k in per_fold["extra"][0]}
+    results.append(("users (5 folds)", {k: np.concatenate([np.asarray(x) for x in v])
+                                        for k, v in per_fold.items() if k not in ("chosen", "extra")},
+                    per_fold["chosen"], extra))
 
     # time split: train before the cutoff, test tourists whose visits are all after it
     before = [u for u in users if max(p["ts"] for p in city.by_user[u]) < cutoff]
@@ -225,15 +252,19 @@ def main():
     val_start = times[int(0.8 * len(times))] if times else cutoff
     val_users = {u for u in before if min(p["ts"] for p in city.by_user[u]) >= val_start}
     res = run_split(city, before, city.cases(after), val_users, lambda: city.cases(val_users), "time")
-    results.append((f"time (train < {cutoff}, {len(before)} users; test {len(after)} users)", res["rows"], [res["chosen"]]))
+    results.append((f"time (train < {cutoff}, {len(before)} users; test {len(after)} users)",
+                    {k: np.asarray(v) for k, v in res["rows"].items()}, [res["chosen"]], res["extra"]))
 
     report = {"city": cfg_name, "splits": {}}
-    for label, rows, chosen in results:
+    for label, rows, chosen, extra in results:
         n = len(rows["service"])
         print(f"\n== split: {label}; cases {n} (95% CI ~ +-{1.96 * math.sqrt(0.25 / max(n, 1)):.3f})")
         print(f"   chosen on validation: {chosen}")
+        print(f"   {'':34s} hit@10  tail({extra['service']['tail_cases']})  coverage  diversity  categories")
         for k, h in rows.items():
-            print(f"   {k:34s} hit@10 {h.mean():.3f}")
+            e = extra[k]
+            print(f"   {k:34s} {h.mean():.3f}   {e['hit_tail']:.3f}      {e['coverage']:.3f}     "
+                  f"{e['diversity']:.3f}      {e['categories']:.2f}")
         for a in ("service", "service + season"):
             t = paired(rows[a], rows["popularity"])
             print(f"   {a} vs popularity: diff {t['diff']:+.3f} CI95 [{t['ci95'][0]:+.3f}, {t['ci95'][1]:+.3f}] McNemar p={t['mcnemar_p']:.2g}")
@@ -242,6 +273,7 @@ def main():
         tn = paired(rows["service + next POI"], rows["service"])
         print(f"   next POI vs service: diff {tn['diff']:+.3f} CI95 [{tn['ci95'][0]:+.3f}, {tn['ci95'][1]:+.3f}] McNemar p={tn['mcnemar_p']:.2g}")
         report["splits"][label] = {"cases": n, "chosen": chosen, "hit@10": {k: float(h.mean()) for k, h in rows.items()},
+                                   "extra": extra,
                                    "service_vs_popularity": paired(rows["service"], rows["popularity"]),
                                    "season_vs_service": t,
                                    "next_vs_service": paired(rows["service + next POI"], rows["service"])}

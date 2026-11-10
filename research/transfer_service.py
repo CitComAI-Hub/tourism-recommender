@@ -15,7 +15,7 @@ import sys
 import numpy as np
 
 from common import city_photos, folds, load_config, pseudonym
-from pmv_turismo.behaviour import assign_visits, read_photos, train
+from pmv_turismo.behaviour import first_visits, read_photos, train
 from pmv_turismo.common import load_poi_list, processed_dir
 from pmv_turismo.embeddings import embeddings_path, load_embedding_index
 from pmv_turismo.geometry import assign_photos, load_geometries
@@ -43,7 +43,7 @@ def main():
     s_pois, _, s_units = catalog(src)
     from common import RAW
     s_photos = read_photos(RAW / "valencia_photos.jsonl.gz")
-    valencia = train(s_pois, s_units, assign_visits(s_photos, s_pois, load_geometries(src)), "Valencia")
+    valencia = train(s_pois, s_units, first_visits(s_photos, s_pois, load_geometries(src)), "Valencia")
 
     cfg = load_config(name)
     cfg.setdefault("recommendation", {}).update({"filter_opening_hours": False, "top_n": K})
@@ -92,7 +92,7 @@ def main():
     local = {}
     for f in range(5):
         tr = [p for u, ps in by_user.items() if fold.get(u) != f for p in ps]
-        local[f] = Recommender(pois, index, train(pois, units, assign_visits(tr, pois, shapes), "local"), cfg)
+        local[f] = Recommender(pois, index, train(pois, units, first_visits(tr, pois, shapes), "local"), cfg)
     ids = [p["id"] for p in pois]
     hits = collections.defaultdict(list)
     for u in sorted(t for t in tourist if len(vis.get(t, {})) >= 3):

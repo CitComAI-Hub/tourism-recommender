@@ -8,6 +8,8 @@ interface UserState {
   profile: UserProfile | null;
   likedPOIs: string[];
   dislikedPOIs: string[];
+  /** Places already visited, oldest first: the last one tells where to go next. */
+  visitedPOIs: string[];
   startLocation: Location | null;
   useCurrentLocation: boolean;
   onboardingComplete: boolean;
@@ -20,6 +22,7 @@ interface UserContextType extends UserState {
   like: (poiId: string) => void;
   dislike: (poiId: string) => void;
   clearFeedback: (poiId: string) => void;
+  toggleVisited: (poiId: string) => void;
   setLocationPreference: (startLocation: Location | null, useCurrentLocation: boolean) => void;
   completeOnboarding: () => void;
   resetUser: () => void;
@@ -33,6 +36,7 @@ const DEFAULT_STATE: UserState = {
   profile: null,
   likedPOIs: [],
   dislikedPOIs: [],
+  visitedPOIs: [],
   startLocation: null,
   useCurrentLocation: true,
   onboardingComplete: false,
@@ -53,6 +57,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         ...parsed,
         likedPOIs: Array.isArray(parsed.likedPOIs) ? parsed.likedPOIs : [],
         dislikedPOIs: Array.isArray(parsed.dislikedPOIs) ? parsed.dislikedPOIs : [],
+        visitedPOIs: Array.isArray(parsed.visitedPOIs) ? parsed.visitedPOIs : [],
         isHydrated: true,
       });
     } catch {
@@ -88,6 +93,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
       })),
     clearFeedback: (id) =>
       setState((s) => ({ ...s, likedPOIs: without(s.likedPOIs, id), dislikedPOIs: without(s.dislikedPOIs, id) })),
+    toggleVisited: (id) =>
+      setState((s) => ({
+        ...s,
+        visitedPOIs: s.visitedPOIs.includes(id) ? without(s.visitedPOIs, id) : [...s.visitedPOIs, id],
+      })),
     setLocationPreference: (startLocation, useCurrentLocation) =>
       setState((s) => ({ ...s, startLocation, useCurrentLocation })),
     completeOnboarding: () => setState((s) => ({ ...s, onboardingComplete: true })),

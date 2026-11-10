@@ -116,6 +116,9 @@ class CardsRequest(Feedback):
 
 
 class RecommendationRequest(Feedback):
+    # Places already visited, oldest first: excluded, and the last one brings up
+    # where visitors usually go next.
+    visited: list[str] = Field(default_factory=list, max_length=MAX_IDS)
     location: Location | None = None
     top_n: int = Field(default=30, ge=1, le=200)
     at: datetime | None = None
@@ -182,7 +185,7 @@ def recommendations(payload: RecommendationRequest) -> dict[str, Any]:
     results = rec.recommend(
         liked=payload.liked, disliked=payload.disliked,
         location=payload.location.model_dump() if payload.location else None,
-        categories=payload.categories, top_n=payload.top_n, at=payload.at,
+        categories=payload.categories, top_n=payload.top_n, at=payload.at, visited=payload.visited,
     )
     return {"results": results, "behaviourModel": rec.model_meta}
 

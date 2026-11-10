@@ -191,11 +191,13 @@ export const es = {
       recommended: "Recomendado",
       liked: "Te gusta",
     },
+    visited_heading: "Ya visitados",
     liked_heading: "Te gustan",
     search_placeholder: "Busca lugares (p. ej. iglesias góticas)",
     search_results: "Resultados de la búsqueda",
     search_empty: "Ningún lugar coincide con tu búsqueda",
     reasons: {
+      next: "Quien visita {poi} suele venir después aquí",
       popular: "Entre los más visitados",
       near: "A {km} km de un lugar que te gusta",
       near_named: "A {km} km de {poi}",
@@ -207,6 +209,8 @@ export const es = {
     closed: "Cerrado",
   },
   poi: {
+    visit: "Ya he estado",
+    visited: "Visitado",
     direction: "Cómo llegar",
     like: "Me gusta",
     liked: "Te gusta",

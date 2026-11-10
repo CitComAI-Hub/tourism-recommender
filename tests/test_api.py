@@ -35,17 +35,19 @@ def test_onboarding_cards_exclude_answered(client):
 
 def test_recommendations(client):
     body = client.post("/recommendations", json={
-        "liked": [poi_id("p1")], "location": {"lat": 39.48, "lon": -0.37},
+        "liked": [poi_id("p1")], "visited": [poi_id("m1")], "location": {"lat": 39.48, "lon": -0.37},
         "top_n": 3, "at": "2026-06-10T11:00:00+02:00",
     }).json()
     assert len(body["results"]) == 3
-    assert poi_id("p1") not in [r["id"] for r in body["results"]]
+    ids = [r["id"] for r in body["results"]]
+    assert poi_id("p1") not in ids and poi_id("m1") not in ids
 
 
 @pytest.mark.parametrize("payload", [
     {"at": "2026-06-10T11:00:00"},              # naive datetime
     {"location": {"lat": 120, "lon": 0}},        # out of range
     {"liked": ["x"] * 201},                      # too many ids
+    {"visited": ["x"] * 201},
     {"top_n": 0},
 ])
 def test_recommendations_validation(client, payload):

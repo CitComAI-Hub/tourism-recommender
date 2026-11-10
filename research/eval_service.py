@@ -8,7 +8,7 @@ import json
 import numpy as np
 
 from common import REPO, RAW, city_photos, folds, load_catalog, load_config, pseudonym, visits
-from pmv_turismo.behaviour import assign_visits, train
+from pmv_turismo.behaviour import first_visits, train
 from pmv_turismo.geometry import assign_photos, load_geometries
 from pmv_turismo.recommendation import Recommender
 from pmv_turismo.embeddings import embeddings_path, load_embedding_index
@@ -50,7 +50,7 @@ def main():
     recs = {}
     for f in range(5):
         train_photos = [p for u, ps in by_user.items() if fold.get(u) != f for p in ps]
-        model = train(pois, units, assign_visits(train_photos, pois, shapes), "fold")
+        model = train(pois, units, first_visits(train_photos, pois, shapes), "fold")
         recs[f] = Recommender(pois, index, model, cfg)
     rec_nomodel = Recommender(pois, index, None, cfg)
     ids = [p["id"] for p in pois]

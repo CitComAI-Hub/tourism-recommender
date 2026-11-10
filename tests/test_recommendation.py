@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from conftest import POIS, poi_id
 
-from pmv_turismo.behaviour import BehaviourModel, assign_visits, train
+from pmv_turismo.behaviour import BehaviourModel, first_visits, train
 from pmv_turismo.common import LOCAL_TZ, load_poi_list, opening_hours_cover_duration
 from pmv_turismo.embeddings import embeddings_path, load_embedding_index
 from pmv_turismo.recommendation import Recommender
@@ -47,7 +47,7 @@ def _model(pois, index):
     photos += [_photo(s, f"w{u}") for u in range(3) for s in ("p1", "p2")]
     photos += [_photo("m2", "x0")]
     units = index.units[[index.index_of(p["id"]) for p in pois]]
-    return train(pois, units, assign_visits(photos, pois), "test")
+    return train(pois, units, first_visits(photos, pois), "test")
 
 
 def test_without_model_popularity_comes_from_wikipedia(config, workspace):
@@ -141,3 +141,31 @@ def test_model_of_another_catalog_is_ignored(config, workspace):
     model.ids = [f"urn:other:{i}" for i in range(len(model.ids))]
     rec = Recommender(pois, index, model, config)
     assert rec.model_meta is None and set(rec.popularity_source) == {"wikipedia"}
+
+
+def _trip(user, day, *shorts):
+    return [{**_photo(s, user), "ts": f"2010-05-{day:02d} {10 + h:02d}:00:00"} for h, s in enumerate(shorts)]
+
+
+def test_transitions_follow_visit_order(config, workspace):
+    pois, index = _catalog(config, workspace)
+    # Five visitors go from m1 to c3 (900 m away, otherwise unvisited); one to m2.
+    photos = [p for u in range(5) for p in _trip(f"u{u}", 1, "m1", "c3")]
+    photos += _trip("x", 2, "m1", "m2") + [_photo("p1", "y")]  # y: no timestamp, no order
+    units = index.units[[index.index_of(p["id"]) for p in pois]]
+    model = train(pois, units, first_visits(photos, pois), "test")
+    pos = {p["name"]: i for i, p in enumerate(pois)}
+    assert model.transitions[pos["m1"], pos["c3"]] == pytest.approx(5 / 6)
+    assert model.transitions[pos["c3"]].sum() == 0  # nobody went anywhere after c3
+
+    rec = Recommender(pois, index, model, config)
+    after = rec.recommend(visited=[poi_id("m1")])
+    names = [r["name"] for r in after]
+    assert "m1" not in names
+    assert names[0] == "c3"  # not the nearest, but where m1's visitors go next
+    assert {"type": "next", "poi": "m1"} in after[0]["reasons"]
+    # without the visit, c3 is just a little-known place farther away than m2
+    assert [r["name"] for r in rec.recommend(liked=[poi_id("m1")])][0] != "c3"
+
+    rec.next_weight = 0.0
+    assert [r["name"] for r in rec.recommend(visited=[poi_id("m1")])][0] != "c3"

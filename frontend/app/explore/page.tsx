@@ -26,11 +26,13 @@ export default function ExplorePage() {
     isHydrated,
     likedPOIs,
     dislikedPOIs,
+    visitedPOIs,
     startLocation,
     useCurrentLocation,
     like,
     dislike,
     clearFeedback,
+    toggleVisited,
   } = useUser();
 
   const [recommendations, setRecommendations] = useState<POI[]>([]);
@@ -75,6 +77,7 @@ export default function ExplorePage() {
     getRecommendations({
       liked: likedPOIs,
       disliked: dislikedPOIs,
+      visited: visitedPOIs,
       categories: profile?.preferred_categories ?? [],
       location: userLocation,
       top_n: MAX_RECOMMENDATIONS,
@@ -91,7 +94,7 @@ export default function ExplorePage() {
     return () => {
       cancelled = true;
     };
-  }, [isHydrated, onboardingComplete, likedPOIs, dislikedPOIs, profile, userLocation]);
+  }, [isHydrated, onboardingComplete, likedPOIs, dislikedPOIs, visitedPOIs, profile, userLocation]);
 
   useEffect(() => {
     const q = query.trim();
@@ -105,10 +108,15 @@ export default function ExplorePage() {
     return () => clearTimeout(timer);
   }, [query]);
 
-  const likedItems = useMemo(() => {
-    const byId = new Map([...catalog, ...recommendations].map((p) => [p.id, p]));
-    return likedPOIs.map((id) => byId.get(id)).filter((p): p is POI => Boolean(p));
-  }, [catalog, recommendations, likedPOIs]);
+  const byId = useMemo(() => new Map([...catalog, ...recommendations].map((p) => [p.id, p])), [catalog, recommendations]);
+  const likedItems = useMemo(
+    () => likedPOIs.map((id) => byId.get(id)).filter((p): p is POI => Boolean(p)),
+    [byId, likedPOIs]
+  );
+  const visitedItems = useMemo(
+    () => visitedPOIs.map((id) => byId.get(id)).filter((p): p is POI => Boolean(p)),
+    [byId, visitedPOIs]
+  );
 
   const isSearching = searchResults !== null;
   const shown = (isSearching ? searchResults : recommendations).filter(
@@ -146,6 +154,7 @@ export default function ExplorePage() {
           <RecommendationsList
             recommendations={shown}
             likedItems={likedItems}
+            visitedItems={visitedItems}
             isLoading={isLoading && !isSearching}
             activeFilter={activeFilter}
             onFilterChange={setActiveFilter}
@@ -157,6 +166,7 @@ export default function ExplorePage() {
             onLike={toggleLike}
             onDislike={(poi) => dislike(poi.id)}
             onUnlike={(poi) => clearFeedback(poi.id)}
+            onUnvisit={(poi) => toggleVisited(poi.id)}
             showMap={showMap}
             onToggleMap={() => setShowMap(!showMap)}
           />
@@ -171,6 +181,8 @@ export default function ExplorePage() {
       <POIDetailSheet
         poi={selectedPOI}
         isLiked={selectedPOI ? likedPOIs.includes(selectedPOI.id) : false}
+        isVisited={selectedPOI ? visitedPOIs.includes(selectedPOI.id) : false}
+        onToggleVisited={(poi) => toggleVisited(poi.id)}
         onClose={() => setSelectedPOI(null)}
         onLike={toggleLike}
         onDislike={(poi) => {

@@ -8,9 +8,13 @@ see research/ and docs/proposal.md):
   ranking for 9-12%.
 - Beyond the famous places, the strongest personal signal is proximity to what the
   user liked ("gravity": log popularity - distance / 0.3 km).
+- Where to go next: after a place the user has visited, the places real visitors
+  went to next get a boost (+0.05 hit@10 in Valencia, +0.08 in Milano).
 - Semantics is what works where there are no visits: the popularity of an unvisited
-  POI is predicted from its description (BehaviourModel.predicted_popularity), and
-  similarity is computed on embeddings adapted to co-visits.
+  POI is predicted from its description (BehaviourModel.predicted_popularity).
+  Similarity to the likes (embeddings adapted to co-visits) adds nothing measurable
+  to the ranking (the validation picks weight 0), so by default it only feeds the
+  explanations and the dislikes.
 - Onboarding shows the most popular places first: real tourists recognise and like
   them, so the first likes arrive quickly (recall 0.52 vs 0.23 for the previous
   exploration-first bandit).
@@ -64,7 +68,8 @@ class Recommender:
     ) -> None:
         rec = (config or {}).get("recommendation", {})
         self.distance_scale_km = float(rec.get("distance_scale_km", 0.3))
-        self.similarity_weight = float(rec.get("similarity_weight", 0.3))
+        self.similarity_weight = float(rec.get("similarity_weight", 0.0))
+        self.next_weight = float(rec.get("next_weight", 1.0))
         self.dislike_weight = float(rec.get("dislike_weight", 0.1))
         self.top_n = int(rec.get("top_n", 30))
         self.check_hours = bool(rec.get("filter_opening_hours", True))
@@ -84,6 +89,7 @@ class Recommender:
                 model = None
         self.popularity, self.popularity_source = self._popularity(model)
         self.adapted = model.adapted(self.units) if model is not None and self.ids else self.units
+        self.transitions = self._transitions(model)
         self.model_meta = model.meta if model is not None else None
 
     # ------------------------------------------------------------------ signals
@@ -107,6 +113,18 @@ class Recommender:
             if visitors.get(pid, 0) > 0:
                 pop[i], source[i] = float(np.log1p(visitors[pid])), "visits"
         return pop, source
+
+    def _transitions(self, model: BehaviourModel | None) -> np.ndarray:
+        """P(next | current) aligned with this catalog (zeros where unknown)."""
+        n = len(self.ids)
+        out = np.zeros((n, n))
+        if model is None or n == 0:
+            return out
+        at = {pid: i for i, pid in enumerate(model.ids)}
+        mine = [i for i, pid in enumerate(self.ids) if pid in at]
+        theirs = [at[self.ids[i]] for i in mine]
+        out[np.ix_(mine, mine)] = model.transitions[np.ix_(theirs, theirs)]
+        return out
 
     def _distances_km(self, lat: float, lon: float) -> np.ndarray:
         la, lo = np.radians(lat), np.radians(lon)
@@ -143,18 +161,28 @@ class Recommender:
         categories: Sequence[str] | None = None,
         top_n: int | None = None,
         at: datetime | None = None,
+        visited: Sequence[str] | None = None,
     ) -> list[dict[str, Any]]:
+        """`visited`: places the user has already been to, oldest first. They are
+        not recommended again, count as places the user is around, and the last
+        one brings up where visitors usually go next."""
         n = len(self.ids)
         if n == 0:
             return []
         liked_idx, disliked_idx = self._indices(liked), self._indices(disliked)
+        visited_idx = self._indices(visited)
+        last = visited_idx[-1] if visited_idx else None
 
-        # Proximity: distance to the nearest liked POI or to the user's position.
-        anchors = [self._distances_from(i) for i in liked_idx]
+        # Proximity: distance to the nearest liked or visited POI or to the user's position.
+        anchors = [self._distances_from(i) for i in dict.fromkeys(liked_idx + visited_idx)]
         if location and "lat" in location and "lon" in location:
             anchors.append(self._distances_km(float(location["lat"]), float(location["lon"])))
         nearest_km = np.min(anchors, axis=0) if anchors else np.zeros(n)
-        score = _minmax(self.popularity - nearest_km / self.distance_scale_km)
+        popularity = self.popularity
+        if last is not None and self.next_weight:
+            # P(next | last visited), on the scale of log popularity
+            popularity = popularity + self.next_weight * np.log1p(100 * self.transitions[last])
+        score = _minmax(popularity - nearest_km / self.distance_scale_km)
 
         similarity = np.zeros(n)
         if liked_idx:
@@ -164,7 +192,7 @@ class Recommender:
             score = score - self.dislike_weight * _minmax((self.adapted @ self.adapted[disliked_idx].T).max(axis=1))
 
         candidates = self._in_categories(categories)
-        candidates[liked_idx + disliked_idx] = False
+        candidates[liked_idx + disliked_idx + visited_idx] = False
         if self.check_hours:
             start = (at or now_local()).astimezone(LOCAL_TZ).replace(second=0, microsecond=0)
             for i in np.flatnonzero(candidates):
@@ -175,6 +203,7 @@ class Recommender:
         order = [i for i in np.argsort(-score, kind="stable") if candidates[i]][: top_n or self.top_n]
         top_popular = set(np.argsort(-self.popularity)[: max(10, n // 20)].tolist())
         similar_cut = float(np.quantile(similarity, 0.9)) if liked_idx else None
+        next_cut = self._next_cut(last)
         results = []
         for rank, i in enumerate(order, start=1):
             item = dict(self.pois[i])
@@ -184,15 +213,28 @@ class Recommender:
                 "popularity": round(float(self.popularity[i]), 3),
                 "popularitySource": self.popularity_source[i],
                 "distanceKm": round(float(nearest_km[i]), 3) if anchors else None,
-                "reasons": self._reasons(i, liked_idx, nearest_km, bool(anchors), similar_cut, top_popular),
+                "reasons": self._reasons(i, liked_idx + visited_idx, nearest_km, bool(anchors), similar_cut,
+                                         top_popular, last, next_cut),
             })
             results.append(item)
         return results
 
+    def _next_cut(self, last: int | None) -> float | None:
+        """Smallest P(next | last) that counts as "usually visited after": the five
+        most frequent next places, if at least 5% of the visitors went there."""
+        if last is None:
+            return None
+        row = self.transitions[last]
+        cut = max(float(np.sort(row)[-5]) if row.size >= 5 else 0.0, 0.05)
+        return cut if row.max() >= cut else None
+
     def _reasons(self, i: int, liked_idx: list[int], nearest_km: np.ndarray, has_anchor: bool,
-                 similar_cut: float | None, top_popular: set) -> list[dict[str, Any]]:
+                 similar_cut: float | None, top_popular: set, last: int | None = None,
+                 next_cut: float | None = None) -> list[dict[str, Any]]:
         """Why a POI is in the list, for the explanation shown to the user."""
         reasons: list[dict[str, Any]] = []
+        if last is not None and next_cut is not None and self.transitions[last, i] >= next_cut:
+            reasons.append({"type": "next", "poi": self.pois[last].get("name")})
         if i in top_popular:
             reasons.append({"type": "popular"})
         if has_anchor and nearest_km[i] <= 0.5:

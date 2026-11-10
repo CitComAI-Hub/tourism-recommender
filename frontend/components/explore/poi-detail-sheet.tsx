@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PoiCategoryBadge } from "@/components/poi-category-badge";
 import { OptimizedImage } from "@/components/ui/optimized-image";
-import { Heart, ThumbsDown, Clock, MapPin, Navigation, X } from "lucide-react";
+import { Check, Heart, ThumbsDown, Clock, MapPin, Navigation, X } from "lucide-react";
 import { PoiReasons } from "@/components/explore/poi-reasons";
 import type { POI } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -74,12 +74,22 @@ function isOpenNow(raw?: string) {
 interface POIDetailSheetProps {
   poi: POI | null;
   isLiked: boolean;
+  isVisited: boolean;
+  onToggleVisited: (poi: POI) => void;
   onClose: () => void;
   onLike: (poi: POI) => void;
   onDislike: (poi: POI) => void;
 }
 
-export function POIDetailSheet({ poi, isLiked, onClose, onLike, onDislike }: POIDetailSheetProps) {
+export function POIDetailSheet({
+  poi,
+  isLiked,
+  isVisited,
+  onToggleVisited,
+  onClose,
+  onLike,
+  onDislike,
+}: POIDetailSheetProps) {
   const isOpen = !!poi;
   const { t } = useI18n();
 
@@ -223,6 +233,15 @@ export function POIDetailSheet({ poi, isLiked, onClose, onLike, onDislike }: POI
               </div>
 
               {/* Actions */}
+              <Button
+                variant="outline"
+                aria-pressed={isVisited}
+                className={cn("w-full mb-3 rounded-full", isVisited && "border-primary text-primary")}
+                onClick={() => onToggleVisited(poi)}
+              >
+                <Check className="w-4 h-4 mr-2" />
+                {isVisited ? t("poi.visited") : t("poi.visit")}
+              </Button>
               <div className="flex gap-3">
                 <Button
                   variant="outline"

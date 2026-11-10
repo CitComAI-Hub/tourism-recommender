@@ -15,7 +15,8 @@ export interface POILocation {
 export type Reason =
   | { type: "popular" }
   | { type: "near"; km: number; poi: string | null }
-  | { type: "similar"; poi: string };
+  | { type: "similar"; poi: string }
+  | { type: "next"; poi: string };
 
 export interface POI {
   id: string;
@@ -44,6 +45,8 @@ export interface Feedback {
   liked: string[];
   disliked: string[];
   categories?: string[];
+  /** Places already visited, oldest first. */
+  visited?: string[];
 }
 
 export async function checkHealth(): Promise<boolean> {
