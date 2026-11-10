@@ -9,7 +9,8 @@ Output (one .npz file, aggregates only, no user data):
 - `visitors`: distinct visitors per POI (aligned with `ids`).
 - `pop_model`: ridge regression from the POI embedding (PCA) + category to
   log(1 + visitors). It predicts the popularity of POIs nobody photographed: the long
-  tail, new POIs or another city. Measured on Valencia: Spearman 0.52 with real
+  tail and new POIs of the same city (a model of another city does not transfer;
+  the Recommender ignores it). Measured on Valencia: Spearman 0.52 with real
   visitors vs 0.26 for Wikipedia pageviews (research/item_cold_start.py).
 - `projection`: ridge projection W of the embeddings onto the item factors of the
   co-visit matrix. Similarity in E @ W means "visited by the same people" instead of
@@ -110,7 +111,7 @@ class BehaviourModel:
     meta: Dict[str, Any]
 
     def predicted_popularity(self, pois: List[Dict[str, Any]], units: np.ndarray) -> np.ndarray:
-        """log(1 + visitors) predicted from content, for any POI (also of another city)."""
+        """log(1 + visitors) predicted from content, for POIs without visits."""
         x = np.hstack([(units - self.emb_mean) @ self.pca.T, _categories(pois, self.vocabulary)])
         return (x - self.pop_mean_x) @ self.pop_weights + self.pop_mean_y
 

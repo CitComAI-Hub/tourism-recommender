@@ -17,6 +17,7 @@ see research/ and docs/proposal.md):
 """
 from __future__ import annotations
 
+import logging
 import re
 import unicodedata
 from datetime import datetime
@@ -28,7 +29,11 @@ from pmv_turismo.behaviour import BehaviourModel
 from pmv_turismo.common import LOCAL_TZ, now_local, opening_hours_cover_duration
 from pmv_turismo.embeddings import EmbeddingIndex
 
+logger = logging.getLogger(__name__)
+
 WALKING_KMH = 4.5
+# Share of the catalog the behaviour model must have been trained on to be used.
+MIN_MODEL_OVERLAP = 0.5
 EARTH_KM = 6371.0
 
 
@@ -69,6 +74,13 @@ class Recommender:
         self.units = index.units[[index.index_of(pid) for pid in self.ids]] if self.ids else np.zeros((0, 1))
         coords = np.array([p["location"]["coordinates"] for p in self.pois], dtype=float).reshape(-1, 2)
         self.lat, self.lon = np.radians(coords[:, 1]), np.radians(coords[:, 0])
+        if model is not None and self.ids:
+            known = len(set(model.ids) & set(self.ids)) / len(self.ids)
+            if known < MIN_MODEL_OVERLAP:
+                # A model of another city does not transfer (Milano test: hit@10 0.25
+                # with Valencia's model vs 0.30 without, 0.66 with its own photos).
+                logger.warning("Behaviour model covers %.0f%% of this catalog: ignored", 100 * known)
+                model = None
         self.popularity, self.popularity_source = self._popularity(model)
         self.adapted = model.adapted(self.units) if model is not None and self.ids else self.units
         self.model_meta = model.meta if model is not None else None

@@ -134,3 +134,11 @@ def test_text_search_by_words(config, workspace):
     names = [r["name"] for r in rec.text_search("gotica belles")]
     assert names[0] == "Museu de Belles Arts" and "c1" in names
     assert rec.text_search("xy") == []
+
+
+def test_model_of_another_catalog_is_ignored(config, workspace):
+    pois, index = _catalog(config, workspace)
+    model = _model(pois, index)
+    model.ids = [f"urn:other:{i}" for i in range(len(model.ids))]
+    rec = Recommender(pois, index, model, config)
+    assert rec.model_meta is None and set(rec.popularity_source) == {"wikipedia"}
