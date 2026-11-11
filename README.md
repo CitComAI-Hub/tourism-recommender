@@ -110,13 +110,14 @@ of the schemas. Details:
 - `source`: URL of the OpenStreetMap object; `refSeeAlso`: official website,
   Wikidata and Wikipedia URLs.
 - `address`: `streetAddress`, `postalCode`, `addressLocality`, `addressCountry`.
-- `openingHours`: OSM/schema.org text (`"Tu-Su 10:00-19:00; Mo off"`).
+- `openingHours`: OSM/schema.org text (`"Tu-Su 10:00-19:00; Mo off"`), only
+  when OSM has it (never invented).
 - `relevance`: 0 = most popular in its category, high values = lesser known
   (standard semantics: 0 is the most relevant).
 
 Project extensions (not part of the standard): `subcategory` (OSM value),
-`duration` (visit minutes), `durationEstimated` and `openingHoursEstimated`
-(the value is an estimate, not from the source), `descriptionGenerated` (the
+`duration` (visit minutes), `durationEstimated` (the value is an estimate, not
+from the source), `descriptionGenerated` (the
 description was built from structured data, see below), and
 `heritageDesignation` (`BIC` or `BRL`) with `heritageInventoryId` (the
 inventory code) for protected heritage.
@@ -176,11 +177,11 @@ inventory code) for protected heritage.
    the whole catalog when the category has fewer than 5 POIs).
 10. **Duration and opening hours:** the sources have no visit duration, so it
    is estimated deterministically per subcategory (`durationEstimated: true`).
-   Without OSM opening hours a conservative schedule is generated
-   (`synthetic: true`); outdoor places (bridges, artworks, parks...) are 24/7.
+   Opening hours come only from OSM; without them the POI has none and the
+   recommendations do not filter it by time.
 
 Each run writes `data/processed/ingestion_report.json` with drops per reason
-and a quality summary (image, address and real-opening-hours coverage,
+and a quality summary (image, address and opening-hours coverage,
 description length, generated descriptions, protected heritage). To comply with the Wikimedia policy, set
 `PMV_HTTP_CONTACT` (contact URL or e-mail), which is added to the User-Agent.
 
@@ -205,7 +206,8 @@ server stores nothing about users.
   `{"results": [...]}`, each POI with
   `rank`, `score`, `popularity`, `popularitySource` (`visits`, `predicted` or
   `wikipedia`), `distanceKm` and `reasons`. `at` (ISO 8601 with timezone)
-  sets the time for the opening-hours filter; now by default.
+  sets the time for the opening-hours filter (POIs with hours from OSM);
+  now by default.
 - `GET /search?q=...`: search by words in names and descriptions.
 
 Run it with `uvicorn pmv_turismo.api:app --port 8000`. `PMV_CONFIG` selects

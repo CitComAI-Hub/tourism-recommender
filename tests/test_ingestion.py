@@ -9,7 +9,6 @@ from pmv_turismo.ingestion import (
     _osm_address,
     _osm_image,
     _shorten_to_sentence,
-    _synthetic_opening_hours,
     canonical_category,
     estimate_visit_minutes,
 )
@@ -30,8 +29,6 @@ def test_categories_are_canonical_and_keep_osm_detail():
     assert estimate_visit_minutes("bridge") == 10
     assert estimate_visit_minutes("castle") == 45
     assert estimate_visit_minutes("unknown_thing") == 20  # canonical "historic"
-    assert _synthetic_opening_hours("bridge") == "24/7"
-    assert _synthetic_opening_hours("gallery").startswith("Tu-Su")
 
 
 def test_dedup_keeps_the_monument_not_the_information_board():

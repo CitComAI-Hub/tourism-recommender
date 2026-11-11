@@ -49,7 +49,7 @@ def test_built_entity_is_valid(validator):
         "https://www.wikidata.org/wiki/Q2455550",
         "https://es.wikipedia.org/wiki/Torres_de_Serranos",
     ]
-    assert entity["openingHours"] == "Tu-Su 10:00-19:00; Mo off" and not entity["openingHoursEstimated"]
+    assert entity["openingHours"] == "Tu-Su 10:00-19:00; Mo off"
 
 
 def test_website_urls_are_ascii_uris():

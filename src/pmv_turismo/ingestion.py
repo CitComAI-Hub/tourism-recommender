@@ -323,11 +323,6 @@ _VISIT_MINUTES = {
 DEFAULT_VISIT_MINUTES = 30
 
 # Outdoor places that can be seen at any time.
-_ALWAYS_OPEN = {
-    "park", "garden", "nature_reserve", "picnic_site", "beach", "artwork", "memorial", "monument",
-    "bridge", "city_gate", "viewpoint", "peak", "waterfall",
-}
-
 # `tourism=information` worth keeping; boards, maps and guideposts are not destinations.
 _USEFUL_INFORMATION = {"office", "visitor_centre"}
 
@@ -726,22 +721,6 @@ def _merge_records(primary: dict[str, Any], secondary: dict[str, Any]) -> dict[s
         )
         merged["source"] = "+".join(sorted(sources))
     return merged
-
-
-def _synthetic_opening_hours(subcategory: Any) -> str:
-    """Return a conservative default schedule when a POI has no source hours."""
-
-    sub = str(subcategory or "").lower()
-    if sub in _ALWAYS_OPEN:
-        return "24/7"
-    category = canonical_category(sub)
-    if category == "place_of_worship":
-        return "Mo-Su 08:00-20:00"
-    if category in {"museum", "aquarium", "zoo", "arts_centre", "attraction", "information"}:
-        return "Tu-Su 10:00-19:00; Mo off"
-    if category == "marketplace":
-        return "Mo-Sa 08:00-15:00; Su off"
-    return "Mo-Su 09:00-20:00"
 
 
 def _deduplicate_pois(
@@ -1204,8 +1183,9 @@ def _build_entity(
     """Smart Data Models PointOfInterest entity (NGSI-LD, keyValues format).
 
     Standard attributes follow dataModel.PointOfInterest; `subcategory`,
-    `duration`, `durationEstimated` and `openingHoursEstimated` are project
-    extensions (see README).
+    `duration` and `durationEstimated` are project extensions (see README).
+    `openingHours` only when the source has them: an invented schedule would
+    hide open places from the recommendations and mislead whoever reads it.
     """
     subcategory = poi.get("category")
     category = canonical_category(subcategory)
@@ -1234,8 +1214,7 @@ def _build_entity(
         ),
         "refSeeAlso": list(dict.fromkeys(url for url in see_also if url)),
         "contactPoint": {"telephone": poi.get("phone")} if poi.get("phone") else None,
-        "openingHours": poi.get("opening_hours") or _synthetic_opening_hours(subcategory),
-        "openingHoursEstimated": not bool(poi.get("opening_hours")),
+        "openingHours": poi.get("opening_hours") or None,
         "subcategory": subcategory,
         "duration": estimate_visit_minutes(subcategory),
         "durationEstimated": True,
@@ -1291,9 +1270,7 @@ def _quality_summary(entities: list[dict[str, Any]]) -> dict[str, Any]:
         "with_street_address_pct": round(
             100 * sum(1 for e in entities if (e.get("address") or {}).get("streetAddress")) / n, 1
         ),
-        "real_opening_hours_pct": round(
-            100 * sum(1 for e in entities if not e.get("openingHoursEstimated")) / n, 1
-        ),
+        "opening_hours_pct": round(100 * sum(1 for e in entities if e.get("openingHours")) / n, 1),
         "description_chars_median": sorted(descriptions)[len(descriptions) // 2] if descriptions else 0,
         "short_descriptions": sum(1 for d in descriptions if d < MIN_USEFUL_DESCRIPTION_CHARS),
         "generated_descriptions": sum(1 for e in entities if e.get("descriptionGenerated")),
