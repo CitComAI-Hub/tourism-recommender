@@ -202,6 +202,7 @@ export const en = {
       near: "{km} km from a place you like",
       near_named: "{km} km from {poi}",
       similar: "People who visit {poi} also go here",
+      interest: "Matches what you are interested in",
     },
     popularity_predicted: "Few visits recorded: popularity estimated from its description",
     empty: "No recommendations found",

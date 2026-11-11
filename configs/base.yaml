@@ -102,6 +102,11 @@ recommendation:
   similarity_weight: 0.0
   next_weight: 1.0
   dislike_weight: 0.1
+  # What the user says they like in free text ("Roman ruins, baroque churches"):
+  # similarity of the descriptions to it (top quarter, 0-1), added to the score.
+  # Not measurable on photos (they show where people went, not what they asked
+  # for): a product choice, high enough that a stated interest shows up.
+  interest_weight: 1.0
   filter_opening_hours: true
 
 behaviour:

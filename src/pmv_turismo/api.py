@@ -105,6 +105,8 @@ class Location(BaseModel):
 
 
 class Feedback(BaseModel):
+    # What the user says they like, in their own words ("modernist architecture, markets")
+    interests: str | None = Field(default=None, max_length=300)
     liked: list[str] = Field(default_factory=list, max_length=MAX_IDS)
     disliked: list[str] = Field(default_factory=list, max_length=MAX_IDS)
     categories: list[str] = Field(default_factory=list, max_length=50)
@@ -173,10 +175,17 @@ def get_poi(poi_id: str) -> dict[str, Any]:
     return rec.pois[rec.position[poi_id]]
 
 
+def _interest(rec: Recommender, text: str | None):
+    if not text or not text.strip():
+        return None
+    return rec.interest_scores(text, encode_query(_config(), text))
+
+
 @app.post("/onboarding/cards", summary="Next onboarding cards: the most popular places not shown yet")
 def onboarding_cards(payload: CardsRequest) -> list[dict[str, Any]]:
-    return STATE.get().onboarding_cards(payload.limit, seen=payload.seen + payload.liked + payload.disliked,
-                                        categories=payload.categories)
+    rec = STATE.get()
+    return rec.onboarding_cards(payload.limit, seen=payload.seen + payload.liked + payload.disliked,
+                                categories=payload.categories, interest=_interest(rec, payload.interests))
 
 
 @app.post("/recommendations")
@@ -186,6 +195,7 @@ def recommendations(payload: RecommendationRequest) -> dict[str, Any]:
         liked=payload.liked, disliked=payload.disliked,
         location=payload.location.model_dump() if payload.location else None,
         categories=payload.categories, top_n=payload.top_n, at=payload.at, visited=payload.visited,
+        interest=_interest(rec, payload.interests),
     )
     return {"results": results, "behaviourModel": rec.model_meta}
 

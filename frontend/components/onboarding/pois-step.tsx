@@ -14,6 +14,7 @@ import { poiCategoryLabel } from "@/components/poi-category-badge";
 
 interface POIsStepProps {
   selectedCategories: string[];
+  interests?: string;
   likedPOIs: string[];
   onLikedPOIsChange: (pois: string[]) => void;
   onDislikedPOIsChange?: (pois: string[]) => void;
@@ -32,6 +33,7 @@ const ROUND_SIZES: readonly number[] = (() => {
 
 export function POIsStep({
   selectedCategories,
+  interests,
   likedPOIs,
   onLikedPOIsChange,
   onDislikedPOIsChange,
@@ -71,6 +73,7 @@ export function POIsStep({
         const requested = ROUND_SIZES[roundIndex] ?? 4;
         const sample = await getOnboardingCards({
           categories: selectedCategories,
+          interests: interests?.trim() || undefined,
           limit: requested,
           liked: likedPOIs,
           disliked: dislikedPOIs,
@@ -117,7 +120,7 @@ export function POIsStep({
         setDirection(null);
       }
     },
-    [selectedCategories, likedPOIs, dislikedPOIs, t]
+    [selectedCategories, interests, likedPOIs, dislikedPOIs, t]
   );
 
   // The rounds restart from scratch, so earlier answers must not steer them

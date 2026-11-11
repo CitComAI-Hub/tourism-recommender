@@ -16,7 +16,8 @@ export type Reason =
   | { type: "popular" }
   | { type: "near"; km: number; poi: string | null }
   | { type: "similar"; poi: string }
-  | { type: "next"; poi: string };
+  | { type: "next"; poi: string }
+  | { type: "interest" };
 
 export interface POI {
   id: string;
@@ -39,12 +40,15 @@ export interface POI {
 export interface UserProfile {
   name: string;
   preferred_categories: string[];
+  /** What the user says they like, in their own words. */
+  interests?: string;
 }
 
 export interface Feedback {
   liked: string[];
   disliked: string[];
   categories?: string[];
+  interests?: string;
   /** Places already visited, oldest first. */
   visited?: string[];
 }

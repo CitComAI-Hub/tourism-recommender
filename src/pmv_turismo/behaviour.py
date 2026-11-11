@@ -178,8 +178,9 @@ class BehaviourModel:
 
     def predicted_popularity(self, pois: list[dict[str, Any]], units: np.ndarray) -> np.ndarray:
         """log(1 + visitors) predicted from content, for POIs without visits."""
+        # Models saved before the features were recorded used embedding + category.
         x = content_features(pois, units, self.emb_mean, self.pca, self.vocabulary,
-                             self.meta.get("features", DEFAULT_FEATURES))
+                             self.meta.get("features", ("embedding", "category")))
         return (x - self.pop_mean_x) @ self.pop_weights + self.pop_mean_y
 
     def adapted(self, units: np.ndarray) -> np.ndarray:

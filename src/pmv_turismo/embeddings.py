@@ -97,13 +97,68 @@ _MODEL_LOCK = threading.Lock()
 _QUERY_CACHE: dict[tuple[str, str], np.ndarray] = {}
 
 
+# Query prompt of EmbeddingGemma (sentence-transformers `prompts["query"]`); the
+# ONNX export has no prompts of its own.
+DEFAULT_QUERY_PROMPT = "task: search result | query: "
+ONNX_MODEL_FILE = "onnx/model_quantized.onnx"
+
+
+class _OnnxQueryEncoder:
+    """The text model exported to ONNX (onnx-community/embeddinggemma-300m-ONNX,
+    int8): no torch in the image. Same vectors as sentence-transformers (cosine
+    >= 0.995, same top 10 for 9-10 of 10 test queries over the Valencia catalog)."""
+
+    def __init__(self, directory: Path, prompt: str) -> None:
+        import onnxruntime as ort
+        from tokenizers import Tokenizer
+
+        options = ort.SessionOptions()
+        options.intra_op_num_threads = 1
+        self.session = ort.InferenceSession(str(directory / ONNX_MODEL_FILE), options,
+                                            providers=["CPUExecutionProvider"])
+        self.tokenizer = Tokenizer.from_file(str(directory / "tokenizer.json"))
+        self.prompt = prompt
+
+    def encode(self, text: str) -> np.ndarray:
+        enc = self.tokenizer.encode(self.prompt + text)
+        feeds = {"input_ids": np.array([enc.ids], dtype=np.int64),
+                 "attention_mask": np.array([enc.attention_mask], dtype=np.int64)}
+        return np.asarray(self.session.run(["sentence_embedding"], feeds)[0][0], dtype=np.float32)
+
+
+def query_model_dir(config: dict) -> Path | None:
+    import os
+
+    configured = os.environ.get("QUERY_MODEL_DIR") or config.get("embeddings", {}).get("query_model_dir")
+    return Path(configured) if configured else None
+
+
+def _load_query_model(config: dict, model_id: str, device: str) -> Any | None:
+    """ONNX if QUERY_MODEL_DIR holds the export, else sentence-transformers, else None."""
+    directory = query_model_dir(config)
+    if directory is not None:
+        if (directory / ONNX_MODEL_FILE).exists():
+            try:
+                prompt = config.get("embeddings", {}).get("query_prompt", DEFAULT_QUERY_PROMPT)
+                return _OnnxQueryEncoder(directory, prompt)
+            except ImportError:
+                logger.warning("onnxruntime/tokenizers not installed: install the `query` extra")
+        else:
+            logger.warning("No %s in %s", ONNX_MODEL_FILE, directory)
+    try:
+        from sentence_transformers import SentenceTransformer
+    except ImportError:
+        logger.warning("No text model (QUERY_MODEL_DIR or sentence-transformers): free text matched by words")
+        return None
+    return SentenceTransformer(model_id, device=device, trust_remote_code=True)
+
+
 def encode_query(config: dict, text: str) -> np.ndarray | None:
     """Unit vector for a free-text interest, in the same space as the POIs.
 
     The model is loaded on first use and kept in memory; vectors are cached
     per text so repeated requests from the same profile are free. Returns
-    None when the optional `embeddings` extra is not installed, so callers
-    simply ignore the text.
+    None when no text model is available, so callers fall back to words.
     """
     emb_cfg = config.get("embeddings", {})
     model_id = emb_cfg.get("model_id", DEFAULT_MODEL_ID)
@@ -114,17 +169,18 @@ def encode_query(config: dict, text: str) -> np.ndarray | None:
     model_key = (model_id, emb_cfg.get("device", "cpu"))
     with _MODEL_LOCK:
         if model_key not in _MODEL_CACHE:
-            try:
-                from sentence_transformers import SentenceTransformer
-            except ImportError:
-                logger.warning("sentence-transformers not installed; free-text interests are ignored")
-                return None
-            _MODEL_CACHE[model_key] = SentenceTransformer(model_id, device=model_key[1], trust_remote_code=True)
+            _MODEL_CACHE[model_key] = _load_query_model(config, *model_key)
     model = _MODEL_CACHE[model_key]
-    encode = model.encode_query if hasattr(model, "encode_query") else model.encode
-    vec = np.asarray(encode([key[1]], convert_to_numpy=True)[0], dtype=np.float32)
+    if model is None:
+        return None
+    if isinstance(model, _OnnxQueryEncoder):
+        vec = model.encode(key[1])
+    else:
+        encode = model.encode_query if hasattr(model, "encode_query") else model.encode
+        vec = np.asarray(encode([key[1]], convert_to_numpy=True)[0], dtype=np.float32)
     vec = vec / max(float(np.linalg.norm(vec)), 1e-9)
-    _QUERY_CACHE[key] = vec
+    if len(_QUERY_CACHE) < 10_000:
+        _QUERY_CACHE[key] = vec
     return vec
 
 

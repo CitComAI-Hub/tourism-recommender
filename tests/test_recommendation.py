@@ -188,3 +188,34 @@ def test_predicted_popularity_calibration(config, workspace):
     assert np.array_equal(rec.popularity[~unvisited], np.log1p(model.visitors[~unvisited]))
     rec.set_predicted_calibration(0.0)
     assert np.allclose(rec.popularity[unvisited], raw)
+
+
+def test_stated_interests_reorder_cards_and_recommendations(config, workspace):
+    rec = Recommender(*_catalog(config, workspace), config=config)
+    churches = np.array([0.0, 0.0, 1.0, 0.0])
+    interest = rec.interest_scores("iglesias", churches)
+    assert interest is not None and interest.min() == 0.0 and interest.max() == 1.0
+    # m1 is the best known place, but a stated interest in churches puts c1 first
+    assert rec.onboarding_cards(1)[0]["name"] == "m1"
+    assert rec.onboarding_cards(1, interest=interest)[0]["name"] == "c1"
+    top = rec.recommend(liked=[poi_id("m2")], interest=interest, top_n=3)
+    assert top[0]["name"] == "c1" and top[0]["reasons"][0] == {"type": "interest"}
+    assert rec.interest_scores("  ") is None
+
+
+def test_stated_interests_without_text_model_use_words(config, workspace):
+    pois, index = _catalog(config, workspace)
+    next(p for p in pois if p["id"] == poi_id("v1"))["description"] = "Mirador con vistas"
+    rec = Recommender(pois, index, config=config)
+    interest = rec.interest_scores("miradores vistas", None)
+    assert interest is not None and rec.ids[int(np.argmax(interest))] == poi_id("v1")
+    assert rec.interest_scores("zzzz", None) is None
+
+
+def test_model_without_recorded_features_uses_embedding_and_category(config, workspace):
+    pois, index = _catalog(config, workspace)
+    units = index.units[[index.index_of(p["id"]) for p in pois]]
+    photos = [_photo(s, f"u{u}") for u in range(6) for s in ("m1", "c1")]
+    model = train(pois, units, first_visits(photos, pois), "test", features=("embedding", "category"))
+    del model.meta["features"]
+    assert model.predicted_popularity(pois, units).shape == (len(pois),)

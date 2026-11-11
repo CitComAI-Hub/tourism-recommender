@@ -8,7 +8,8 @@ is a separate service.
 ## How it recommends
 - **Popularity** per POI from real visits (geotagged photos). POIs without
   visits get a popularity **predicted from their description** (embedding +
-  category); without a behaviour model, Wikipedia page views are used.
+  category + Wikipedia page views); without a behaviour model, Wikipedia page
+  views alone are used.
 - **Proximity** to the places the user liked or to their position
   (`log popularity - distance / 0.3 km`).
 - **Similarity** on embeddings **adapted to co-visits**: a projection learnt
@@ -16,7 +17,13 @@ is a separate service.
   POI, also those nobody photographed.
 - **Onboarding:** the user picks categories and answers cards with the best
   known places first (rounds of 6, 4, 4).
-- **Free text** is a search over the descriptions, not part of the ranking.
+- **Where to go next:** after the last place the user visited, the places real
+  visitors went to next get a boost.
+- **Stated interests:** what the user writes ("Roman ruins, baroque churches")
+  is matched against the descriptions with the text model and lifts the
+  places that fit, in the onboarding cards and in the recommendations. Without
+  the text model, by words.
+- **Free text search** over the descriptions.
 - Every result carries its `reasons` (popular, near a liked place, people who
   visit X also go here) and where its popularity comes from.
 
@@ -61,9 +68,19 @@ back to Wikipedia popularity and plain embeddings.
 The Valencia model is trained on Flickr YFCC100M photos (2004-2014):
 `research/yfcc_scan.py` streams the YFCC100M metadata from AWS Open Data and
 keeps the European rows; `research/eval_service.py` exports the Valencia
-photos, pseudonymised. The data and the model are not versioned. The terms of
-use of the YFCC100M metadata for a deployed service are still to be
-confirmed.
+photos, pseudonymised. The data and the model are not versioned. YFCC100M is
+used under the Yahoo Webscope Data Sharing Agreement signed by UPV
+(non-commercial).
+
+## Text model
+Interests and search embed the user's text with the same model as the
+descriptions (`google/embeddinggemma-300m`, Gemma Terms of Use). The service
+uses its int8 ONNX export, without torch: download
+`onnx/model_quantized.onnx`, `onnx/model_quantized.onnx_data` and
+`tokenizer.json` from `onnx-community/embeddinggemma-300m-ONNX` into a
+directory and point `QUERY_MODEL_DIR` at it (`pip install ".[query]"`). The
+image does not include it: mount it. Without it, interests and search match
+words; with the `embeddings` extra installed, sentence-transformers is used.
 
 ## Configuration
 The main configuration is [configs/base.yaml](configs/base.yaml). It defines:
@@ -191,9 +208,10 @@ server stores nothing about users.
   bounding box (`min_lat`, `min_lon`, `max_lat`, `max_lon`).
 - `GET /pois/{id}`
 - `POST /onboarding/cards`: `{"limit", "seen", "liked", "disliked",
-  "categories"}` -> next cards.
-- `POST /recommendations`: `{"liked", "disliked", "categories", "location":
-  {"lat", "lon"}, "top_n", "at"}` -> `{"results": [...]}`, each POI with
+  "categories", "interests"}` -> next cards.
+- `POST /recommendations`: `{"liked", "disliked", "visited", "categories",
+  "interests", "location": {"lat", "lon"}, "top_n", "at"}` ->
+  `{"results": [...]}`, each POI with
   `rank`, `score`, `popularity`, `popularitySource` (`visits`, `predicted` or
   `wikipedia`), `distanceKm` and `reasons`. `at` (ISO 8601 with timezone)
   sets the time for the opening-hours filter; now by default.

@@ -29,6 +29,7 @@ export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState<Step>("welcome");
   const [name, setName] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [interests, setInterests] = useState("");
   const [likedPOIs, setLikedPOIs] = useState<string[]>([]);
   const [dislikedPOIs, setDislikedPOIs] = useState<string[]>([]);
   const [useCurrentLocation, setUseCurrentLocation] = useState(true);
@@ -58,7 +59,11 @@ export default function OnboardingPage() {
 
   // Everything stays in this browser: the API is stateless.
   const handleComplete = () => {
-    setProfile({ name, preferred_categories: sanitizePoiCategoryIds(selectedCategories) });
+    setProfile({
+      name,
+      preferred_categories: sanitizePoiCategoryIds(selectedCategories),
+      interests: interests.trim() || undefined,
+    });
     setFeedback(likedPOIs, dislikedPOIs);
     setLocationPreference(customLocation, useCurrentLocation);
     completeOnboarding();
@@ -103,6 +108,8 @@ export default function OnboardingPage() {
               key="categories"
               selectedCategories={selectedCategories}
               onCategoriesChange={setSelectedCategories}
+              interests={interests}
+              onInterestsChange={setInterests}
               onNext={handleNext}
               onBack={handleBack}
               isSubmitting={false}
@@ -112,6 +119,7 @@ export default function OnboardingPage() {
             <POIsStep
               key="pois"
               selectedCategories={selectedCategories}
+              interests={interests}
               likedPOIs={likedPOIs}
               onLikedPOIsChange={setLikedPOIs}
               onDislikedPOIsChange={setDislikedPOIs}

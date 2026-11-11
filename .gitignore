@@ -235,3 +235,4 @@ frontend/.next/
 
 # Manual audit answers (research/audit_app.py)
 data/audit/
+data/models/

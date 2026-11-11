@@ -20,6 +20,9 @@ dependencies = [
 [project.optional-dependencies]
 # Only needed to (re)generate embeddings: pulls in torch.
 embeddings = ["sentence-transformers>=3.1.0", "torch>=2.3"]
+# Free-text interests and search in the service, with the ONNX export of the text
+# model mounted at QUERY_MODEL_DIR (no torch)
+query = ["onnxruntime>=1.20,<2", "tokenizers>=0.20,<1"]
 # Reading the POIs from an NGSI-LD broker / data space connector
 dataspace = [
   "filip~=0.8.1",
