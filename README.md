@@ -10,8 +10,9 @@ is a separate service.
   visits get a popularity **predicted from their description** (embedding +
   category + Wikipedia page views); without a behaviour model, Wikipedia page
   views alone are used.
-- **Proximity** to the places the user liked or to their position
-  (`log popularity - distance / 0.3 km`).
+- **Proximity** to the places the user liked or visited or to their position
+  (`log popularity - log(distance + 50 m)`: steep in the first few hundred
+  metres, flat beyond; chosen over a linear penalty on held-out visits).
 - **Similarity** on embeddings **adapted to co-visits**: a projection learnt
   so that "similar" means "visited by the same people", available for every
   POI, also those nobody photographed.

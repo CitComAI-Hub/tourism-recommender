@@ -91,15 +91,23 @@ embeddings:
 recommendation:
   top_n: 30
   # score = minmax(log popularity + next_weight * log(1 + 100 P(next | last visited))
-  #                - distance_km / distance_scale_km)
+  #                - distance penalty)
   #         + similarity_weight * minmax(behaviour-adapted similarity to the likes)
+  #         + interest_weight * stated interests
   #         - dislike_weight * minmax(similarity to the dislikes)
-  # Chosen on validation splits of real tourist visits (research/protocol.py,
-  # Valencia and Milano): similarity weight 0 in 9 of 12 choices, next weight 1.0
-  # in most. Dislikes cannot be measured on photos (nobody photographs what they
-  # dislike): a small weight that only reacts to the user's explicit feedback.
+  # distance penalty: log -> distance_log_weight * log(km + 0.05); linear -> km / distance_scale_km.
+  # Chosen on validation splits of real tourist visits (research/protocol.py v4):
+  # log in 11 of 12 choices (Valencia 1.0-1.5, Milano 2-4: per city); vs linear,
+  # hit@10 +0.023 (p=0.035) Valencia users split, +0.008..0.012 n.s. elsewhere,
+  # tail +0.03..0.08 in all four splits. With log distance the validation picks
+  # similarity 0.15-0.5 in 4 of 6 Valencia choices (test effect +0.004..0.009,
+  # n.s.; 0 in most Milano choices). Next weight 1.0 in most. Dislikes cannot be
+  # measured on photos (nobody photographs what they dislike): a small weight
+  # that only reacts to the user's explicit feedback.
+  distance_form: log
+  distance_log_weight: 1.0
   distance_scale_km: 0.3
-  similarity_weight: 0.0
+  similarity_weight: 0.15
   next_weight: 1.0
   dislike_weight: 0.1
   # What the user says they like in free text ("Roman ruins, baroque churches"):

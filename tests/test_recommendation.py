@@ -66,6 +66,7 @@ def test_cards_skip_seen_and_filter_categories(config, workspace):
 
 def test_recommend_excludes_feedback_and_prefers_nearby(config, workspace):
     rec = Recommender(*_catalog(config, workspace), config=config)
+    rec.distance_form = "linear"  # strong penalty at the fixture's km scale
     results = rec.recommend(liked=[poi_id("p3")], disliked=[poi_id("m1")])
     names = [r["name"] for r in results]
     assert "p3" not in names and "m1" not in names
@@ -219,3 +220,13 @@ def test_model_without_recorded_features_uses_embedding_and_category(config, wor
     model = train(pois, units, first_visits(photos, pois), "test", features=("embedding", "category"))
     del model.meta["features"]
     assert model.predicted_popularity(pois, units).shape == (len(pois),)
+
+
+def test_log_distance_is_steep_near_and_flat_far(config, workspace):
+    rec = Recommender(*_catalog(config, workspace), config=config)
+    rec.distance_form, rec.distance_log_weight = "log", 1.0
+    p = rec._distance_penalty(np.array([0.0, 0.2, 2.0, 2.2]))
+    assert p[1] - p[0] > 5 * (p[3] - p[2])
+    rec.distance_form, rec.distance_scale_km = "linear", 0.3
+    p = rec._distance_penalty(np.array([0.0, 0.2, 2.0, 2.2]))
+    assert np.isclose(p[1] - p[0], p[3] - p[2])

@@ -7,14 +7,17 @@ see research/ and docs/proposal.md):
   held-out visit in the top 10 for 54% of cases, the previous embedding-only
   ranking for 9-12%.
 - Beyond the famous places, the strongest personal signal is proximity to what the
-  user liked ("gravity": log popularity - distance / 0.3 km).
+  user liked ("gravity": log popularity - log(distance + 50 m); a log penalty beat
+  a linear one in 11 of 12 validation choices, Valencia and Milano).
 - Where to go next: after a place the user has visited, the places real visitors
   went to next get a boost (+0.05 hit@10 in Valencia, +0.08 in Milano).
 - Semantics is what works where there are no visits: the popularity of an unvisited
   POI is predicted from its description (BehaviourModel.predicted_popularity).
-  Similarity to the likes (embeddings adapted to co-visits) adds nothing measurable
-  to the ranking (the validation picks weight 0), so by default it only feeds the
-  explanations and the dislikes.
+  Similarity to the likes (embeddings adapted to co-visits) adds little once
+  proximity is known: on photos, taste and place cannot be told apart
+  (research/semantic_ltr.py: +0.08..0.11 hit@10 without location, ~0 with it).
+  It keeps a small weight, feeds the explanations and the dislikes, and the
+  user's stated interests are matched semantically against the descriptions.
 - Onboarding shows the most popular places first: real tourists recognise and like
   them, so the first likes arrive quickly (recall 0.52 vs 0.23 for the previous
   exploration-first bandit).

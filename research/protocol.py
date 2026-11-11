@@ -43,7 +43,9 @@ from pmv_turismo.geometry import assign_photos, load_geometries
 from pmv_turismo.recommendation import Recommender
 
 K = 10
-GRID_TAU = (0.15, 0.3, 0.6, 1.0)
+# distance penalty: ("linear", km scale) or ("log", weight of log(km + 50 m))
+GRID_TAU = (("linear", 0.15), ("linear", 0.3), ("linear", 0.6), ("linear", 1.0),
+            ("log", 0.5), ("log", 1.0), ("log", 1.5), ("log", 2.0), ("log", 3.0), ("log", 4.0))
 GRID_SIM = (0.0, 0.15, 0.3, 0.5)
 GRID_SEASON = (0.0, 0.25, 0.5, 0.75)
 GRID_NEXT = (0.0, 0.25, 0.5, 1.0)
@@ -118,11 +120,16 @@ class Run(np.ndarray):
     tops: List[List[int]]
 
 
-def evaluate(city: City, rec: Recommender, cases: List[tuple], tau: float, sim: float,
+def evaluate(city: City, rec: Recommender, cases: List[tuple], tau: tuple, sim: float,
              seasonal: np.ndarray | None = None, season_w: float = 0.0, pop_only: bool = False,
              next_w: float = 0.0, cal: float = 0.0) -> Run:
     r = copy.copy(rec)
-    r.distance_scale_km, r.similarity_weight, r.next_weight = tau, sim, next_w
+    r.distance_form = tau[0]
+    if tau[0] == "log":
+        r.distance_log_weight = tau[1]
+    else:
+        r.distance_scale_km = tau[1]
+    r.similarity_weight, r.next_weight = sim, next_w
     r.set_predicted_calibration(cal)
     hits, tops = np.zeros(len(cases)), []
     base_pop = r.popularity
@@ -201,6 +208,8 @@ def run_split(city: City, train_users, test_cases, val_users, val_cases_fn, labe
     tau, sim, sw = choose(city, rec_val, val_cases, s_val)
     nw = max(GRID_NEXT, key=lambda w: evaluate(city, rec_val, val_cases, tau, sim, next_w=w).mean())
     cw = max(GRID_CAL, key=lambda w: evaluate(city, rec_val, val_cases, tau, sim, next_w=nw, cal=w).mean())
+    lin = max((t for t in GRID_TAU if t[0] == "linear"),
+              key=lambda t: evaluate(city, rec_val, val_cases, t, sim, next_w=nw).mean())
     model, seasonal = city.model(photos)
     rec = Recommender(city.pois, city.index, model, city.cfg)
     wiki = Recommender(city.pois, city.index, None, city.cfg)
@@ -210,11 +219,12 @@ def run_split(city: City, train_users, test_cases, val_users, val_cases_fn, labe
         "gravity (no similarity)": evaluate(city, rec, test_cases, tau, 0.0),
         "service": evaluate(city, rec, test_cases, tau, sim),
         "service + season": evaluate(city, rec, test_cases, tau, sim, seasonal, sw),
+        "service + next POI, linear distance": evaluate(city, rec, test_cases, lin, sim, next_w=nw),
         "service + next POI": evaluate(city, rec, test_cases, tau, sim, next_w=nw),
         "+ calibrated predicted popularity": evaluate(city, rec, test_cases, tau, sim, next_w=nw, cal=cw),
     }
     extra = {k: extra_metrics(city, rec, test_cases, h) for k, h in rows.items()}
-    return {"split": label, "chosen": {"tau_km": tau, "similarity_weight": sim, "season_weight": sw, "next_weight": nw,
+    return {"split": label, "chosen": {"distance": f"{tau[0]} {tau[1]}", "similarity_weight": sim, "season_weight": sw, "next_weight": nw,
                        "calibration": cw},
             "rows": rows, "extra": extra}
 
@@ -278,6 +288,9 @@ def main():
         tc = paired(rows["+ calibrated predicted popularity"], rows["service + next POI"])
         print(f"   calibration vs next POI: diff {tc['diff']:+.3f} CI95 [{tc['ci95'][0]:+.3f}, {tc['ci95'][1]:+.3f}] "
               f"McNemar p={tc['mcnemar_p']:.2g}")
+        tl = paired(rows["service + next POI"], rows["service + next POI, linear distance"])
+        print(f"   chosen distance vs linear: diff {tl['diff']:+.3f} CI95 [{tl['ci95'][0]:+.3f}, {tl['ci95'][1]:+.3f}] "
+              f"McNemar p={tl['mcnemar_p']:.2g}")
         tn = paired(rows["service + next POI"], rows["service"])
         print(f"   next POI vs service: diff {tn['diff']:+.3f} CI95 [{tn['ci95'][0]:+.3f}, {tn['ci95'][1]:+.3f}] McNemar p={tn['mcnemar_p']:.2g}")
         report["splits"][label] = {"cases": n, "chosen": chosen, "hit@10": {k: float(h.mean()) for k, h in rows.items()},
@@ -285,7 +298,8 @@ def main():
                                    "service_vs_popularity": paired(rows["service"], rows["popularity"]),
                                    "season_vs_service": t,
                                    "next_vs_service": paired(rows["service + next POI"], rows["service"]),
-                                   "calibration_vs_next": tc}
+                                   "calibration_vs_next": tc,
+                                   "distance_vs_linear": tl}
     out = processed_dir(city.cfg) / "protocol_report.json"
     out.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"\nreport: {out}")
