@@ -238,3 +238,20 @@ def test_diversity_spreads_categories(config, workspace):
     rec.diversity_weight = 1.0
     varied = [r["category"][0] for r in rec.recommend(location=near_museums, top_n=4)]
     assert len(set(varied)) == 4 and len(set(varied)) > len(set(plain))
+
+
+def test_wikipedia_weight_nudges_learnt_popularity(config, workspace):
+    pois, index = _catalog(config, workspace)
+    model = _model(pois, index)
+    plain = Recommender(pois, index, model, config)
+    assert plain.wikipedia_weight == 0.0
+    mixed = Recommender(pois, index, model, {**config, "recommendation": {**config["recommendation"],
+                                                                         "wikipedia_weight": 0.25}})
+    delta = mixed.popularity - plain.popularity
+    pos = plain.position
+    # better known on Wikipedia (lower relevance) -> pushed up; visits still dominate
+    assert delta[pos[poi_id("m1")]] > 0 > delta[pos[poi_id("m3")]]
+    assert np.argmax(mixed.popularity) == np.argmax(plain.popularity)
+    # the calibration of unvisited POIs keeps the Wikipedia term
+    mixed.set_predicted_calibration(0.0)
+    assert np.allclose(mixed.popularity, plain.popularity + mixed._wiki_term)

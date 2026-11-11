@@ -115,6 +115,12 @@ recommendation:
   # split); Milano 0.1-0.5, which costs -0.004..+0.004 hit@10 and gives one more
   # category per top 10 (4.1 -> 5.2). Per city: 0 here.
   diversity_weight: 0.0
+  # Wikipedia popularity mixed into the learnt one (z-score x weight x its spread).
+  # 0.25 is closer to official visitor counts (research/external_check.py,
+  # external_blend.py: Spearman 0.70 -> 0.75 Valencia, 0.86 -> 0.88 Milano) but
+  # costs hit@10 on visits (research/eval_service.py 0.754 -> 0.733), beyond the
+  # 0.01 non-inferiority margin. Off; a product choice (less photo bias).
+  wikipedia_weight: 0.0
   filter_opening_hours: true
 
 behaviour:

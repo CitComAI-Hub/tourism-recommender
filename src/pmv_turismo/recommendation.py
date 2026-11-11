@@ -22,6 +22,16 @@ see research/ and docs/proposal.md):
   place, liking famous vs lesser-known places and roaming radius added nothing.
 - Categories chosen by the user put their places first but do not hide the rest
   (the validation never picked a category weight on visits: a product choice).
+- The learnt popularity agrees with official visitor counts of museums and
+  monuments (research/external_check.py: Spearman 0.70 Valencia, 0.86 Milano).
+  Photos over-represent photogenic places (towers, squares) and under-represent
+  museums; mixing in Wikipedia popularity (`wikipedia_weight` 0.25) brings it
+  closer to the official counts (0.75, 0.88) but costs hit@10 on visits
+  (production eval 0.754 -> 0.733; research/context.py -0.004..+0.018 with next
+  POI), beyond the 0.01 non-inferiority margin: off by default.
+- Not used, measured with no gain (research/context.py, cards.py, one_config.py):
+  second-order or decayed next-POI, time of day, weekend, trip length,
+  adaptive onboarding cards, a learnt linear ranker.
 """
 from __future__ import annotations
 
@@ -82,6 +92,7 @@ class Recommender:
         self.predicted_calibration = float(rec.get("predicted_calibration", 0.0))
         self.category_weight = float(rec.get("category_weight", 0.25))
         self.diversity_weight = float(rec.get("diversity_weight", 0.0))
+        self.wikipedia_weight = float(rec.get("wikipedia_weight", 0.0))
         self.top_n = int(rec.get("top_n", 30))
         self.check_hours = bool(rec.get("filter_opening_hours", True))
 
@@ -100,7 +111,11 @@ class Recommender:
                 model = None
         self._predicted_raw: np.ndarray | None = None
         self._predicted_mapped: np.ndarray | None = None
+        self._wiki_term = np.zeros(len(self.ids))
         self.popularity, self.popularity_source = self._popularity(model)
+        if model is not None and self.ids and self.wikipedia_weight:
+            self._wiki_term = self.wikipedia_weight * self._wikipedia_z() * float(self.popularity.std())
+            self.popularity = self.popularity + self._wiki_term
         # Behaviour-adapted embeddings: not used for ranking, kept for the research scripts.
         self.adapted = model.adapted(self.units) if model is not None and self.ids else self.units
         self.transitions = self._transitions(model)
@@ -138,6 +153,12 @@ class Recommender:
             pop[unvisited] = self._blend()
         return pop, source
 
+    def _wikipedia_z(self) -> np.ndarray:
+        """Wikipedia popularity (1 - `relevance`; 0 without an article), z-scored."""
+        wiki = np.array([1.0 - float(p["relevance"]) if isinstance(p.get("relevance"), (int, float)) else 0.0
+                         for p in self.pois])
+        return (wiki - wiki.mean()) / (wiki.std() + 1e-9)
+
     def _blend(self) -> np.ndarray:
         w = self.predicted_calibration
         return (1.0 - w) * self._predicted_raw + w * self._predicted_mapped
@@ -147,7 +168,7 @@ class Recommender:
         self.predicted_calibration = float(weight)
         if self._predicted_raw is not None:
             self.popularity = self.popularity.copy()
-            self.popularity[self._unvisited] = self._blend()
+            self.popularity[self._unvisited] = self._blend() + self._wiki_term[self._unvisited]
 
     def _transitions(self, model: BehaviourModel | None) -> np.ndarray:
         """P(next | current) aligned with this catalog (zeros where unknown)."""
