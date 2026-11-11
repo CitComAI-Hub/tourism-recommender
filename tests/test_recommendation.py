@@ -217,3 +217,24 @@ def test_log_distance_is_steep_near_and_flat_far(config, workspace):
     rec.distance_form, rec.distance_scale_km = "linear", 0.3
     p = rec._distance_penalty(np.array([0.0, 0.2, 2.0, 2.2]))
     assert np.isclose(p[1] - p[0], p[3] - p[2])
+
+
+def test_one_entry_per_name(config, workspace):
+    pois, index = _catalog(config, workspace)
+    for p in pois:
+        if p["name"] in ("m2", "c2"):
+            p["name"] = "Muralla Àrab"
+    rec = Recommender(pois, index, config=config)
+    names = [r["name"] for r in rec.recommend()]
+    assert names.count("Muralla Àrab") == 1
+    # a liked part of the monument hides the other parts
+    assert "Muralla Àrab" not in [r["name"] for r in rec.recommend(liked=[poi_id("m2")])]
+
+
+def test_diversity_spreads_categories(config, workspace):
+    rec = Recommender(*_catalog(config, workspace), config=config)
+    near_museums = {"lat": 39.471, "lon": -0.377}
+    plain = [r["category"][0] for r in rec.recommend(location=near_museums, top_n=4)]
+    rec.diversity_weight = 1.0
+    varied = [r["category"][0] for r in rec.recommend(location=near_museums, top_n=4)]
+    assert len(set(varied)) == 4 and len(set(varied)) > len(set(plain))

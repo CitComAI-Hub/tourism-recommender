@@ -51,6 +51,10 @@ GRID_SIM = (0.0,)
 GRID_SEASON = (0.0, 0.25, 0.5, 0.75)
 GRID_NEXT = (0.0, 0.25, 0.5, 1.0)
 GRID_CAL = (0.0, 0.25, 0.5, 0.75, 1.0)
+# Category diversity (Recommender.diversity_weight): the largest weight whose
+# validation hit@10 is within NON_INFERIORITY of the best one.
+GRID_DIV = (0.0, 0.05, 0.1, 0.2, 0.3, 0.5)
+NON_INFERIORITY = 0.01
 TOURIST_MAX_DAYS = 21
 HEAD = 20
 
@@ -123,14 +127,14 @@ class Run(np.ndarray):
 
 def evaluate(city: City, rec: Recommender, cases: List[tuple], tau: tuple, sim: float,
              seasonal: np.ndarray | None = None, season_w: float = 0.0, pop_only: bool = False,
-             next_w: float = 0.0, cal: float = 0.0) -> Run:
+             next_w: float = 0.0, cal: float = 0.0, div: float = 0.0) -> Run:
     r = copy.copy(rec)
     r.distance_form = tau[0]
     if tau[0] == "log":
         r.distance_log_weight = tau[1]
     else:
         r.distance_scale_km = tau[1]
-    r.similarity_weight, r.next_weight = sim, next_w
+    r.next_weight, r.diversity_weight = next_w, div
     r.set_predicted_calibration(cal)
     hits, tops = np.zeros(len(cases)), []
     base_pop = r.popularity
@@ -209,6 +213,8 @@ def run_split(city: City, train_users, test_cases, val_users, val_cases_fn, labe
     tau, sim, sw = choose(city, rec_val, val_cases, s_val)
     nw = max(GRID_NEXT, key=lambda w: evaluate(city, rec_val, val_cases, tau, sim, next_w=w).mean())
     cw = max(GRID_CAL, key=lambda w: evaluate(city, rec_val, val_cases, tau, sim, next_w=nw, cal=w).mean())
+    div_hits = {w: evaluate(city, rec_val, val_cases, tau, sim, next_w=nw, div=w).mean() for w in GRID_DIV}
+    dw = max(w for w in GRID_DIV if div_hits[w] >= max(div_hits.values()) - NON_INFERIORITY)
     lin = max((t for t in GRID_TAU if t[0] == "linear"),
               key=lambda t: evaluate(city, rec_val, val_cases, t, sim, next_w=nw).mean())
     model, seasonal = city.model(photos)
@@ -223,10 +229,11 @@ def run_split(city: City, train_users, test_cases, val_users, val_cases_fn, labe
         "service + next POI, linear distance": evaluate(city, rec, test_cases, lin, sim, next_w=nw),
         "service + next POI": evaluate(city, rec, test_cases, tau, sim, next_w=nw),
         "+ calibrated predicted popularity": evaluate(city, rec, test_cases, tau, sim, next_w=nw, cal=cw),
+        "service + next POI + diversity": evaluate(city, rec, test_cases, tau, sim, next_w=nw, div=dw),
     }
     extra = {k: extra_metrics(city, rec, test_cases, h) for k, h in rows.items()}
     return {"split": label, "chosen": {"distance": f"{tau[0]} {tau[1]}", "similarity_weight": sim, "season_weight": sw, "next_weight": nw,
-                       "calibration": cw},
+                       "calibration": cw, "diversity_weight": dw},
             "rows": rows, "extra": extra}
 
 
@@ -289,6 +296,9 @@ def main():
         tc = paired(rows["+ calibrated predicted popularity"], rows["service + next POI"])
         print(f"   calibration vs next POI: diff {tc['diff']:+.3f} CI95 [{tc['ci95'][0]:+.3f}, {tc['ci95'][1]:+.3f}] "
               f"McNemar p={tc['mcnemar_p']:.2g}")
+        td = paired(rows["service + next POI + diversity"], rows["service + next POI"])
+        print(f"   diversity vs next POI: diff {td['diff']:+.3f} CI95 [{td['ci95'][0]:+.3f}, {td['ci95'][1]:+.3f}] "
+              f"McNemar p={td['mcnemar_p']:.2g}")
         tl = paired(rows["service + next POI"], rows["service + next POI, linear distance"])
         print(f"   chosen distance vs linear: diff {tl['diff']:+.3f} CI95 [{tl['ci95'][0]:+.3f}, {tl['ci95'][1]:+.3f}] "
               f"McNemar p={tl['mcnemar_p']:.2g}")
@@ -300,6 +310,7 @@ def main():
                                    "season_vs_service": t,
                                    "next_vs_service": paired(rows["service + next POI"], rows["service"]),
                                    "calibration_vs_next": tc,
+                                   "diversity_vs_next": td,
                                    "distance_vs_linear": tl}
     out = processed_dir(city.cfg) / "protocol_report.json"
     out.write_text(json.dumps(report, indent=2), encoding="utf-8")

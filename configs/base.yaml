@@ -109,6 +109,12 @@ recommendation:
   distance_scale_km: 0.3
   next_weight: 1.0
   category_weight: 0.25
+  # Penalty per place already listed with the same category (greedy MMR). Chosen
+  # on validation as the largest weight within 0.01 of the best hit@10
+  # (research/protocol.py v5): Valencia 0 in 5 of 6 splits (0.05 in the time
+  # split); Milano 0.1-0.5, which costs -0.004..+0.004 hit@10 and gives one more
+  # category per top 10 (4.1 -> 5.2). Per city: 0 here.
+  diversity_weight: 0.0
   filter_opening_hours: true
 
 behaviour:

@@ -81,6 +81,7 @@ class Recommender:
         self.next_weight = float(rec.get("next_weight", 1.0))
         self.predicted_calibration = float(rec.get("predicted_calibration", 0.0))
         self.category_weight = float(rec.get("category_weight", 0.25))
+        self.diversity_weight = float(rec.get("diversity_weight", 0.0))
         self.top_n = int(rec.get("top_n", 30))
         self.check_hours = bool(rec.get("filter_opening_hours", True))
 
@@ -239,7 +240,8 @@ class Recommender:
                 if not opening_hours_cover_duration(self.pois[i].get("openingHours"), start, minutes):
                     candidates[i] = False
 
-        order = [i for i in np.argsort(-score, kind="stable") if candidates[i]][: top_n or self.top_n]
+        blocked_names = {self._name_key(j) for j in liked_idx + disliked_idx + visited_idx}
+        order = self._select(score, candidates, top_n or self.top_n, blocked_names)
         top_popular = set(np.argsort(-self.popularity)[: max(10, n // 20)].tolist())
         next_cut = self._next_cut(last)
         results = []
@@ -256,6 +258,37 @@ class Recommender:
             })
             results.append(item)
         return results
+
+    def _name_key(self, i: int) -> str:
+        return _fold(str(self.pois[i].get("name") or self.ids[i])).strip()
+
+    def _select(self, score: np.ndarray, candidates: np.ndarray, k: int, blocked_names: set[str]) -> list[int]:
+        """Top k by score, one POI per name (OSM splits some monuments into parts:
+        "Muralla Àrab" x5) and, with `diversity_weight`, a penalty for each place
+        already listed with the same category (greedy, MMR style)."""
+        pool = [i for i in np.argsort(-score, kind="stable") if candidates[i]]
+        if self.diversity_weight > 0:
+            pool = pool[: 4 * k]
+        chosen: list[int] = []
+        names = set(blocked_names)
+        counts: dict[str, int] = {}
+        while pool and len(chosen) < k:
+            if self.diversity_weight > 0:
+                def adjusted(i: int) -> float:
+                    seen = max((counts.get(c, 0) for c in self.pois[i].get("category") or []), default=0)
+                    return float(score[i]) - self.diversity_weight * seen
+                best = max(pool, key=adjusted)
+            else:
+                best = pool[0]
+            pool.remove(best)
+            name = self._name_key(best)
+            if name in names:
+                continue
+            names.add(name)
+            chosen.append(best)
+            for c in self.pois[best].get("category") or []:
+                counts[c] = counts.get(c, 0) + 1
+        return chosen
 
     def _distance_penalty(self, km: np.ndarray) -> np.ndarray:
         """`linear`: km / distance_scale_km. `log`: distance_log_weight * log(km + 50 m),
