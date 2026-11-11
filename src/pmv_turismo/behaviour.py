@@ -25,7 +25,7 @@ from __future__ import annotations
 import json
 import logging
 import math
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -110,6 +110,54 @@ def _categories(pois: list[dict[str, Any]], vocabulary: list[str]) -> np.ndarray
     return np.array([[1.0 if c in (p.get("category") or []) else 0.0 for c in vocabulary] for p in pois])
 
 
+def _links(poi: dict[str, Any], host: str) -> int:
+    refs = poi.get("refSeeAlso") or []
+    return sum(1 for r in (refs if isinstance(refs, list) else [refs]) if host in str(r))
+
+
+def _structured(pois: list[dict[str, Any]], kinds: Sequence[str]) -> np.ndarray:
+    """Popularity cues read from the Smart Data Models entity itself (so they also
+    work when the POIs come from a broker):
+    - `wikipedia`: pageview popularity (1 - `relevance`, a percentile within the
+      category) and whether there is any Wikipedia article;
+    - `structured`: Wikipedia editions and Wikidata item linked, listed in the
+      Generalitat Valenciana heritage inventory, has an image, description
+      generated from a template, log length of the description.
+    """
+    cols: list[list[float]] = []
+    for p in pois:
+        row: list[float] = []
+        if "wikipedia" in kinds:
+            rel = p.get("relevance")
+            wiki = _links(p, "wikipedia.org")
+            row += [1.0 - float(rel) if isinstance(rel, (int, float)) and wiki else 0.0, float(wiki > 0)]
+        if "structured" in kinds:
+            provider = str(p.get("dataProvider") or "")
+            row += [float(_links(p, "wikipedia.org")), float(_links(p, "wikidata.org") > 0),
+                    float("Patrimonio" in provider or "Generalitat" in provider), float(bool(p.get("image"))),
+                    float(bool(p.get("descriptionGenerated"))), math.log10(1 + len(str(p.get("description") or "")))]
+        cols.append(row)
+    return np.array(cols, dtype=float).reshape(len(pois), -1)
+
+
+# Inputs of the popularity model, chosen on masked POIs (research/tail_popularity.py):
+# adding Wikipedia raises the Spearman with the real visits of POIs the model has
+# not seen (Valencia 0.36 -> 0.41, Milano 0.57 -> 0.59) and hit@10 on them in
+# Valencia (+0.056, p=1e-7); the other structured cues add nothing.
+DEFAULT_FEATURES = ("embedding", "category", "wikipedia")
+
+
+def content_features(pois: list[dict[str, Any]], units: np.ndarray, emb_mean: np.ndarray, pca: np.ndarray,
+                     vocabulary: list[str], features: Sequence[str]) -> np.ndarray:
+    blocks = []
+    if "embedding" in features:
+        blocks.append((units - emb_mean) @ pca.T)
+    if "category" in features:
+        blocks.append(_categories(pois, vocabulary))
+    blocks.append(_structured(pois, [f for f in features if f in ("wikipedia", "structured")]))
+    return np.hstack(blocks)
+
+
 def _ridge(x: np.ndarray, y: np.ndarray, lam: float) -> np.ndarray:
     return np.linalg.solve(x.T @ x + lam * np.eye(x.shape[1]), x.T @ y)
 
@@ -130,7 +178,8 @@ class BehaviourModel:
 
     def predicted_popularity(self, pois: list[dict[str, Any]], units: np.ndarray) -> np.ndarray:
         """log(1 + visitors) predicted from content, for POIs without visits."""
-        x = np.hstack([(units - self.emb_mean) @ self.pca.T, _categories(pois, self.vocabulary)])
+        x = content_features(pois, units, self.emb_mean, self.pca, self.vocabulary,
+                             self.meta.get("features", DEFAULT_FEATURES))
         return (x - self.pop_mean_x) @ self.pop_weights + self.pop_mean_y
 
     def adapted(self, units: np.ndarray) -> np.ndarray:
@@ -170,10 +219,19 @@ def transition_matrix(visits: dict[str, dict[int, str]], n: int) -> np.ndarray:
 
 
 def train(pois: list[dict[str, Any]], units: np.ndarray, visits: dict[str, dict[int, str]],
-          source: str) -> BehaviourModel:
+          source: str, features: Sequence[str] = DEFAULT_FEATURES,
+          unknown: Sequence[int] = ()) -> BehaviourModel:
     """Fit the popularity model, the projection and the transitions on one city's
-    visits (`first_visits`)."""
+    visits (`first_visits`).
+
+    `unknown`: POIs whose visits are hidden (evaluation of the popularity model on
+    POIs it has not seen): their visits are dropped and they are left out of the
+    regression, as if they were new POIs.
+    """
     n = len(pois)
+    hidden = set(unknown)
+    if hidden:
+        visits = {u: {j: t for j, t in v.items() if j not in hidden} for u, v in visits.items()}
     visitors = np.zeros(n)
     co = np.zeros((n, n))
     for seen in visits.values():
@@ -189,10 +247,11 @@ def train(pois: list[dict[str, Any]], units: np.ndarray, visits: dict[str, dict[
     _, _, vt = np.linalg.svd(units - emb_mean, full_matrices=False)
     pca = vt[:PCA_COMPONENTS]
     vocabulary = sorted({c for p in pois for c in p.get("category") or []})
-    x = np.hstack([(units - emb_mean) @ pca.T, _categories(pois, vocabulary)])
+    x = content_features(pois, units, emb_mean, pca, vocabulary, features)
     y = np.log1p(visitors)
-    mean_x, mean_y = x.mean(axis=0), float(y.mean())
-    pop_weights = _ridge(x - mean_x, y - mean_y, RIDGE)
+    fit = np.array([j not in hidden for j in range(n)])
+    mean_x, mean_y = x[fit].mean(axis=0), float(y[fit].mean())
+    pop_weights = _ridge(x[fit] - mean_x, y[fit] - mean_y, RIDGE)
 
     similarity = co / (np.sqrt(np.outer(visitors, visitors)) + 1e-9)
     eigval, eigvec = np.linalg.eigh(similarity)
@@ -203,7 +262,7 @@ def train(pois: list[dict[str, Any]], units: np.ndarray, visits: dict[str, dict[
 
     transitions = transition_matrix(visits, n)
     meta = {"source": source, "users": len(visits), "visited_pois": int(seen.sum()), "pois": n,
-            "transitions": int((transitions > 0).sum())}
+            "transitions": int((transitions > 0).sum()), "features": list(features)}
     logger.info("Behaviour model: %s", meta)
     return BehaviourModel([str(p["id"]) for p in pois], visitors, emb_mean, pca, vocabulary,
                           mean_x, mean_y, pop_weights, projection, transitions, meta)

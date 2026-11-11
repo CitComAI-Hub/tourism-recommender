@@ -47,6 +47,7 @@ GRID_TAU = (0.15, 0.3, 0.6, 1.0)
 GRID_SIM = (0.0, 0.15, 0.3, 0.5)
 GRID_SEASON = (0.0, 0.25, 0.5, 0.75)
 GRID_NEXT = (0.0, 0.25, 0.5, 1.0)
+GRID_CAL = (0.0, 0.25, 0.5, 0.75, 1.0)
 TOURIST_MAX_DAYS = 21
 HEAD = 20
 
@@ -119,11 +120,12 @@ class Run(np.ndarray):
 
 def evaluate(city: City, rec: Recommender, cases: List[tuple], tau: float, sim: float,
              seasonal: np.ndarray | None = None, season_w: float = 0.0, pop_only: bool = False,
-             next_w: float = 0.0) -> Run:
+             next_w: float = 0.0, cal: float = 0.0) -> Run:
     r = copy.copy(rec)
     r.distance_scale_km, r.similarity_weight, r.next_weight = tau, sim, next_w
+    r.set_predicted_calibration(cal)
     hits, tops = np.zeros(len(cases)), []
-    base_pop = rec.popularity
+    base_pop = r.popularity
     for n, (_, liked, held, ts, prev) in enumerate(cases):
         r.popularity = base_pop
         if seasonal is not None and season_w:
@@ -198,6 +200,7 @@ def run_split(city: City, train_users, test_cases, val_users, val_cases_fn, labe
     val_cases = val_cases_fn()
     tau, sim, sw = choose(city, rec_val, val_cases, s_val)
     nw = max(GRID_NEXT, key=lambda w: evaluate(city, rec_val, val_cases, tau, sim, next_w=w).mean())
+    cw = max(GRID_CAL, key=lambda w: evaluate(city, rec_val, val_cases, tau, sim, next_w=nw, cal=w).mean())
     model, seasonal = city.model(photos)
     rec = Recommender(city.pois, city.index, model, city.cfg)
     wiki = Recommender(city.pois, city.index, None, city.cfg)
@@ -208,9 +211,11 @@ def run_split(city: City, train_users, test_cases, val_users, val_cases_fn, labe
         "service": evaluate(city, rec, test_cases, tau, sim),
         "service + season": evaluate(city, rec, test_cases, tau, sim, seasonal, sw),
         "service + next POI": evaluate(city, rec, test_cases, tau, sim, next_w=nw),
+        "+ calibrated predicted popularity": evaluate(city, rec, test_cases, tau, sim, next_w=nw, cal=cw),
     }
     extra = {k: extra_metrics(city, rec, test_cases, h) for k, h in rows.items()}
-    return {"split": label, "chosen": {"tau_km": tau, "similarity_weight": sim, "season_weight": sw, "next_weight": nw},
+    return {"split": label, "chosen": {"tau_km": tau, "similarity_weight": sim, "season_weight": sw, "next_weight": nw,
+                       "calibration": cw},
             "rows": rows, "extra": extra}
 
 
@@ -270,13 +275,17 @@ def main():
             print(f"   {a} vs popularity: diff {t['diff']:+.3f} CI95 [{t['ci95'][0]:+.3f}, {t['ci95'][1]:+.3f}] McNemar p={t['mcnemar_p']:.2g}")
         t = paired(rows["service + season"], rows["service"])
         print(f"   season vs service: diff {t['diff']:+.3f} CI95 [{t['ci95'][0]:+.3f}, {t['ci95'][1]:+.3f}] McNemar p={t['mcnemar_p']:.2g}")
+        tc = paired(rows["+ calibrated predicted popularity"], rows["service + next POI"])
+        print(f"   calibration vs next POI: diff {tc['diff']:+.3f} CI95 [{tc['ci95'][0]:+.3f}, {tc['ci95'][1]:+.3f}] "
+              f"McNemar p={tc['mcnemar_p']:.2g}")
         tn = paired(rows["service + next POI"], rows["service"])
         print(f"   next POI vs service: diff {tn['diff']:+.3f} CI95 [{tn['ci95'][0]:+.3f}, {tn['ci95'][1]:+.3f}] McNemar p={tn['mcnemar_p']:.2g}")
         report["splits"][label] = {"cases": n, "chosen": chosen, "hit@10": {k: float(h.mean()) for k, h in rows.items()},
                                    "extra": extra,
                                    "service_vs_popularity": paired(rows["service"], rows["popularity"]),
                                    "season_vs_service": t,
-                                   "next_vs_service": paired(rows["service + next POI"], rows["service"])}
+                                   "next_vs_service": paired(rows["service + next POI"], rows["service"]),
+                                   "calibration_vs_next": tc}
     out = processed_dir(city.cfg) / "protocol_report.json"
     out.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"\nreport: {out}")

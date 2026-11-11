@@ -169,3 +169,22 @@ def test_transitions_follow_visit_order(config, workspace):
 
     rec.next_weight = 0.0
     assert [r["name"] for r in rec.recommend(visited=[poi_id("m1")])][0] != "c3"
+
+
+def test_predicted_popularity_calibration(config, workspace):
+    pois, index = _catalog(config, workspace)
+    model = _model(pois, index)
+    rec = Recommender(pois, index, model, config)
+    unvisited = np.array([s == "predicted" for s in rec.popularity_source])
+    raw = rec.popularity[unvisited].copy()
+    assert rec.predicted_calibration == 0.0
+    rec.set_predicted_calibration(1.0)
+    mapped = rec.popularity[unvisited]
+    # never reverses the order; spread over the real counts (zeros included)
+    assert np.all(np.diff(mapped[np.argsort(raw, kind="stable")]) >= 0)
+    real = np.log1p(model.visitors)
+    assert mapped.min() >= real.min() and mapped.max() <= real.max()
+    # visited POIs keep their real counts
+    assert np.array_equal(rec.popularity[~unvisited], np.log1p(model.visitors[~unvisited]))
+    rec.set_predicted_calibration(0.0)
+    assert np.allclose(rec.popularity[unvisited], raw)

@@ -70,6 +70,7 @@ class Recommender:
         self.distance_scale_km = float(rec.get("distance_scale_km", 0.3))
         self.similarity_weight = float(rec.get("similarity_weight", 0.0))
         self.next_weight = float(rec.get("next_weight", 1.0))
+        self.predicted_calibration = float(rec.get("predicted_calibration", 0.0))
         self.dislike_weight = float(rec.get("dislike_weight", 0.1))
         self.top_n = int(rec.get("top_n", 30))
         self.check_hours = bool(rec.get("filter_opening_hours", True))
@@ -87,6 +88,8 @@ class Recommender:
                 # with Valencia's model vs 0.30 without, 0.66 with its own photos).
                 logger.warning("Behaviour model covers %.0f%% of this catalog: ignored", 100 * known)
                 model = None
+        self._predicted_raw: np.ndarray | None = None
+        self._predicted_mapped: np.ndarray | None = None
         self.popularity, self.popularity_source = self._popularity(model)
         self.adapted = model.adapted(self.units) if model is not None and self.ids else self.units
         self.transitions = self._transitions(model)
@@ -112,7 +115,28 @@ class Recommender:
         for i, pid in enumerate(self.ids):
             if visitors.get(pid, 0) > 0:
                 pop[i], source[i] = float(np.log1p(visitors[pid])), "visits"
+        unvisited = np.array([s == "predicted" for s in source])
+        if unvisited.any():
+            # Ridge predictions shrink towards the mean, so without calibration a POI
+            # without visits almost never reaches a top 10. Quantile mapping spreads
+            # them over the distribution of the real counts (zeros included).
+            q = (_rank01(predicted[unvisited]) * (unvisited.sum() - 1) + 0.5) / unvisited.sum()
+            self._predicted_raw = predicted[unvisited]
+            self._predicted_mapped = np.quantile(np.log1p(model.visitors), q)
+            self._unvisited = unvisited
+            pop[unvisited] = self._blend()
         return pop, source
+
+    def _blend(self) -> np.ndarray:
+        w = self.predicted_calibration
+        return (1.0 - w) * self._predicted_raw + w * self._predicted_mapped
+
+    def set_predicted_calibration(self, weight: float) -> None:
+        """Blend between the raw (0) and the quantile-mapped (1) predicted popularity."""
+        self.predicted_calibration = float(weight)
+        if self._predicted_raw is not None:
+            self.popularity = self.popularity.copy()
+            self.popularity[self._unvisited] = self._blend()
 
     def _transitions(self, model: BehaviourModel | None) -> np.ndarray:
         """P(next | current) aligned with this catalog (zeros where unknown)."""
