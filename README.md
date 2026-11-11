@@ -1,9 +1,9 @@
 # Tourism recommender (Valencia)
 
-Recommends Points of Interest to tourists: a semantic model of the POI
-descriptions calibrated with what real visitors do, a short onboarding for new
-users, explanations for every result and free-text search. Itinerary planning
-is a separate service.
+Recommends Points of Interest to tourists from what real visitors do: how
+popular each place is, where the user is and wants to go, and where visitors
+go next. A short onboarding for new users, explanations for every result and
+search by words. Itinerary planning is a separate service.
 
 ## How it recommends
 - **Popularity** per POI from real visits (geotagged photos). POIs without
@@ -13,24 +13,24 @@ is a separate service.
 - **Proximity** to the places the user liked or visited or to their position
   (`log popularity - log(distance + 50 m)`: steep in the first few hundred
   metres, flat beyond; chosen over a linear penalty on held-out visits).
-- **Similarity** on embeddings **adapted to co-visits**: a projection learnt
-  so that "similar" means "visited by the same people", available for every
-  POI, also those nobody photographed.
-- **Onboarding:** the user picks categories and answers cards with the best
-  known places first (rounds of 6, 4, 4).
+- **Onboarding:** the user picks categories (their places go first, the
+  rest still appear), answers cards with the best known places first (rounds
+  of 6, 4, 4) and gives a position (GPS or address; ignored if it is more
+  than 10 km from every POI, e.g. when planning the trip from home). Likes
+  bring up the places around them; dislikes are never recommended.
 - **Where to go next:** after the last place the user visited, the places real
   visitors went to next get a boost.
-- **Stated interests:** what the user writes ("Roman ruins, baroque churches")
-  is matched against the descriptions with the text model and lifts the
-  places that fit, in the onboarding cards and in the recommendations. Without
-  the text model, by words.
-- **Free text search** over the descriptions.
-- Every result carries its `reasons` (popular, near a liked place, people who
-  visit X also go here) and where its popularity comes from.
+- **Search by words** in names and descriptions.
+- Every result carries its `reasons` (popular, near a liked place, visitors
+  of X go here next) and where its popularity comes from.
+- **No semantic ranking.** Similarity to the likes and free-text interests
+  were tried and removed: once proximity is known they add nothing on real
+  visits (`research/semantic_ltr.py`, `research/traits.py`). The embeddings
+  only predict the popularity of places without visits.
 
 Measured on real tourists (Flickr YFCC100M, Valencia; `research/eval_service.py`):
-a held-out visit lands in the top 10 for 68% of cases, against 55% for the
-most visited places and 46% for the same ranking with Wikipedia popularity.
+a held-out visit lands in the top 10 for 75% of cases, against 56% for the
+most visited places and 53% for the same ranking with Wikipedia popularity.
 
 ## Setup (Linux)
 	python3 -m venv .venv
@@ -39,8 +39,8 @@ most visited places and 46% for the same ranking with Wikipedia popularity.
 	cp .env.example .env    # optional settings
 
 The embedding dependencies (`sentence-transformers`, `torch`) are in the
-`embeddings` extra. They are needed to regenerate the POI embeddings and for
-the free-text search; without them `/search` answers 503 and the rest works.
+`embeddings` extra. They are only needed to regenerate the POI embeddings
+offline; the service does not use them.
 The repository ships the catalog (`data/processed/poi.jsonld`) and its
 embeddings.
 
@@ -62,9 +62,9 @@ allowed) of photos `{"user", "lat", "lon", "ts"}` from any source, counts a
 photo as a visit to every POI whose real OSM shape it falls in
 (`poi_geometry.json`; within 40 m for points and lines) and writes
 `data/processed/behaviour_model.npz`: per-POI visitor counts, the popularity
-regressor and the adapted projection. It holds aggregates only; user ids
-should be pseudonymised before training. Without the file the service falls
-back to Wikipedia popularity and plain embeddings.
+regressor, where visitors go next and the adapted projection (research only).
+It holds aggregates only; user ids should be pseudonymised before training.
+Without the file the service falls back to Wikipedia popularity.
 
 The Valencia model is trained on Flickr YFCC100M photos (2004-2014):
 `research/yfcc_scan.py` streams the YFCC100M metadata from AWS Open Data and
@@ -72,16 +72,6 @@ keeps the European rows; `research/eval_service.py` exports the Valencia
 photos, pseudonymised. The data and the model are not versioned. YFCC100M is
 used under the Yahoo Webscope Data Sharing Agreement signed by UPV
 (non-commercial).
-
-## Text model
-Interests and search embed the user's text with the same model as the
-descriptions (`google/embeddinggemma-300m`, Gemma Terms of Use). The service
-uses its int8 ONNX export, without torch: download
-`onnx/model_quantized.onnx`, `onnx/model_quantized.onnx_data` and
-`tokenizer.json` from `onnx-community/embeddinggemma-300m-ONNX` into a
-directory and point `QUERY_MODEL_DIR` at it (`pip install ".[query]"`). The
-image does not include it: mount it. Without it, interests and search match
-words; with the `embeddings` extra installed, sentence-transformers is used.
 
 ## Configuration
 The main configuration is [configs/base.yaml](configs/base.yaml). It defines:
@@ -209,14 +199,14 @@ server stores nothing about users.
   bounding box (`min_lat`, `min_lon`, `max_lat`, `max_lon`).
 - `GET /pois/{id}`
 - `POST /onboarding/cards`: `{"limit", "seen", "liked", "disliked",
-  "categories", "interests"}` -> next cards.
+  "categories"}` -> next cards.
 - `POST /recommendations`: `{"liked", "disliked", "visited", "categories",
-  "interests", "location": {"lat", "lon"}, "top_n", "at"}` ->
+  "location": {"lat", "lon"}, "top_n", "at"}` ->
   `{"results": [...]}`, each POI with
   `rank`, `score`, `popularity`, `popularitySource` (`visits`, `predicted` or
   `wikipedia`), `distanceKm` and `reasons`. `at` (ISO 8601 with timezone)
   sets the time for the opening-hours filter; now by default.
-- `GET /search?q=...`: free-text search over the descriptions.
+- `GET /search?q=...`: search by words in names and descriptions.
 
 Run it with `uvicorn pmv_turismo.api:app --port 8000`. `PMV_CONFIG` selects
 the configuration and `PMV_CORS_ORIGINS` the allowed origins (`*` by

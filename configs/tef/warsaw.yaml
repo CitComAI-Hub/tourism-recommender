@@ -112,7 +112,6 @@ embeddings:
 recommendation:
   top_n: 30
   distance_scale_km: 0.3
-  similarity_weight: 0.3
   dislike_weight: 0.1
   filter_opening_hours: true
 behaviour:

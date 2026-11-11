@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ArrowLeft, Check, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
@@ -11,8 +10,6 @@ import { POI_CATEGORY_META, sanitizePoiCategoryIds } from "@/lib/poi-categories"
 interface CategoriesStepProps {
   selectedCategories: string[];
   onCategoriesChange: (categories: string[]) => void;
-  interests: string;
-  onInterestsChange: (interests: string) => void;
   onNext: () => void;
   onBack: () => void;
   isSubmitting: boolean;
@@ -21,8 +18,6 @@ interface CategoriesStepProps {
 export function CategoriesStep({
   selectedCategories,
   onCategoriesChange,
-  interests,
-  onInterestsChange,
   onNext,
   onBack,
   isSubmitting,
@@ -43,7 +38,8 @@ export function CategoriesStep({
     }
   };
 
-  const canContinue = safeSelectedCategories.length >= 2;
+  // Optional: chosen categories go first, the rest still appear.
+  const canContinue = true;
 
   return (
     <motion.div
@@ -106,25 +102,10 @@ export function CategoriesStep({
         })}
       </div>
 
-      {/* Free-text interests: re-rank the cards and the recommendations */}
-      <label className="block mb-6">
-        <span className="block text-sm text-muted-foreground mb-2">
-          {t("onboarding.categories.interests_label")}
-        </span>
-        <Input
-          value={interests}
-          maxLength={300}
-          onChange={(e) => onInterestsChange(e.target.value)}
-          placeholder={t("onboarding.categories.interests_placeholder")}
-        />
-      </label>
-
       {/* Selection Count */}
       <div className="text-center mb-6">
         <span className="text-sm text-muted-foreground">
           {t("onboarding.categories.selected", { count: safeSelectedCategories.length })}
-          {safeSelectedCategories.length < 2 &&
-            t("onboarding.categories.min_hint", { min: 2 })}
         </span>
       </div>
 

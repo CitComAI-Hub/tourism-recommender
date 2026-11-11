@@ -16,13 +16,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends git \
 WORKDIR /app
 COPY pyproject.toml README.md ./
 COPY src/ src/
-RUN pip install --no-cache-dir ".[dataspace,query]"
+RUN pip install --no-cache-dir ".[dataspace]"
 COPY configs/base.yaml configs/base.yaml
-# Catalog and its embeddings. Mounted, not in the image:
-# - the behaviour model at BEHAVIOUR_MODEL_PATH (without it: Wikipedia popularity);
-# - the ONNX text model at QUERY_MODEL_DIR (onnx-community/embeddinggemma-300m-ONNX:
-#   onnx/model_quantized.onnx[_data] + tokenizer.json; Gemma Terms of Use). Without
-#   it, interests and search match words.
+# Catalog and its embeddings. The behaviour model is mounted at
+# BEHAVIOUR_MODEL_PATH, not in the image (without it: Wikipedia popularity).
 COPY data/processed/poi.jsonld data/processed/embeddings.jsonl data/processed/
 COPY --from=web /web/out /app/web
 

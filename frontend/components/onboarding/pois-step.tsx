@@ -14,7 +14,6 @@ import { poiCategoryLabel } from "@/components/poi-category-badge";
 
 interface POIsStepProps {
   selectedCategories: string[];
-  interests?: string;
   likedPOIs: string[];
   onLikedPOIsChange: (pois: string[]) => void;
   onDislikedPOIsChange?: (pois: string[]) => void;
@@ -33,7 +32,6 @@ const ROUND_SIZES: readonly number[] = (() => {
 
 export function POIsStep({
   selectedCategories,
-  interests,
   likedPOIs,
   onLikedPOIsChange,
   onDislikedPOIsChange,
@@ -55,12 +53,6 @@ export function POIsStep({
 
   const loadRound = useCallback(
     async (roundIndex: number, append: boolean, seenIds: string[]) => {
-      if (selectedCategories.length === 0) {
-        setPois([]);
-        setCurrentIndex(0);
-        return;
-      }
-
       const isFirstRound = !append;
       if (isFirstRound) {
         setIsLoading(true);
@@ -73,7 +65,6 @@ export function POIsStep({
         const requested = ROUND_SIZES[roundIndex] ?? 4;
         const sample = await getOnboardingCards({
           categories: selectedCategories,
-          interests: interests?.trim() || undefined,
           limit: requested,
           liked: likedPOIs,
           disliked: dislikedPOIs,
@@ -120,7 +111,7 @@ export function POIsStep({
         setDirection(null);
       }
     },
-    [selectedCategories, interests, likedPOIs, dislikedPOIs, t]
+    [selectedCategories, likedPOIs, dislikedPOIs, t]
   );
 
   // The rounds restart from scratch, so earlier answers must not steer them
@@ -136,7 +127,6 @@ export function POIsStep({
 
   useEffect(() => {
     if (isLoading || isLoadingMore) return;
-    if (selectedCategories.length === 0) return;
     if (currentIndex < pois.length) return;
 
     const nextRound = currentRound + 1;
@@ -269,14 +259,6 @@ export function POIsStep({
       {(isLoading || (isLoadingMore && !currentPOI)) && (
         <div className="relative h-[420px] mb-6 flex items-center justify-center">
           <Loader2 className="w-6 h-6 animate-spin text-primary" />
-        </div>
-      )}
-
-      {!isLoading && selectedCategories.length === 0 && (
-        <div className="relative h-[420px] mb-6 flex items-center justify-center">
-          <p className="text-center text-sm text-muted-foreground">
-            {t("onboarding.pois.empty")}
-          </p>
         </div>
       )}
 

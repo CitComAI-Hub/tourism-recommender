@@ -10,8 +10,6 @@ import logging
 import os
 import threading
 import time
-from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -24,7 +22,7 @@ from pmv_turismo.behaviour import load_model, model_path
 from pmv_turismo.common import poi_coordinates, processed_dir
 from pmv_turismo.config import Config
 from pmv_turismo.data_source import load_pois, refresh_seconds, source_kind
-from pmv_turismo.embeddings import embeddings_path, encode_query, load_embedding_index
+from pmv_turismo.embeddings import embeddings_path, load_embedding_index
 from pmv_turismo.recommendation import Recommender
 
 CONFIG_PATH = Path(os.environ.get("PMV_CONFIG", "configs/base.yaml"))
@@ -76,20 +74,7 @@ class _State:
 STATE = _State()
 
 
-@asynccontextmanager
-async def _lifespan(_: FastAPI) -> AsyncIterator[None]:
-    # Loading the text model takes seconds; warm it up so the first search is fast.
-    def warm_up() -> None:
-        try:
-            encode_query(_config(), "warm up")
-        except Exception as exc:
-            print(f"Query model warm-up failed: {exc}")
-
-    threading.Thread(target=warm_up, daemon=True).start()
-    yield
-
-
-app = FastAPI(title="Tourism recommender", lifespan=_lifespan)
+app = FastAPI(title="Tourism recommender")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[o.strip() for o in os.environ.get("PMV_CORS_ORIGINS", "*").split(",") if o.strip()],
@@ -105,10 +90,9 @@ class Location(BaseModel):
 
 
 class Feedback(BaseModel):
-    # What the user says they like, in their own words ("modernist architecture, markets")
-    interests: str | None = Field(default=None, max_length=300)
     liked: list[str] = Field(default_factory=list, max_length=MAX_IDS)
     disliked: list[str] = Field(default_factory=list, max_length=MAX_IDS)
+    # Kinds of place the user prefers: they go first, the rest still appear
     categories: list[str] = Field(default_factory=list, max_length=50)
 
 
@@ -175,17 +159,11 @@ def get_poi(poi_id: str) -> dict[str, Any]:
     return rec.pois[rec.position[poi_id]]
 
 
-def _interest(rec: Recommender, text: str | None):
-    if not text or not text.strip():
-        return None
-    return rec.interest_scores(text, encode_query(_config(), text))
-
-
 @app.post("/onboarding/cards", summary="Next onboarding cards: the most popular places not shown yet")
 def onboarding_cards(payload: CardsRequest) -> list[dict[str, Any]]:
     rec = STATE.get()
     return rec.onboarding_cards(payload.limit, seen=payload.seen + payload.liked + payload.disliked,
-                                categories=payload.categories, interest=_interest(rec, payload.interests))
+                                categories=payload.categories)
 
 
 @app.post("/recommendations")
@@ -195,19 +173,14 @@ def recommendations(payload: RecommendationRequest) -> dict[str, Any]:
         liked=payload.liked, disliked=payload.disliked,
         location=payload.location.model_dump() if payload.location else None,
         categories=payload.categories, top_n=payload.top_n, at=payload.at, visited=payload.visited,
-        interest=_interest(rec, payload.interests),
     )
     return {"results": results, "behaviourModel": rec.model_meta}
 
 
-@app.get("/search", summary="Free-text search: semantic with the text model, by words without it")
+@app.get("/search", summary="Search places by words in their name and description")
 def search(
     q: str = Query(min_length=2, max_length=300),
     limit: int = Query(default=20, ge=1, le=100),
     category: str | None = Query(default=None),
 ) -> list[dict[str, Any]]:
-    rec = STATE.get()
-    query = encode_query(_config(), q)
-    if query is None:  # no text model in this deployment: word search
-        return rec.text_search(q, limit=limit, categories=_csv(category))
-    return rec.search(query, limit=limit, categories=_csv(category))
+    return STATE.get().text_search(q, limit=limit, categories=_csv(category))

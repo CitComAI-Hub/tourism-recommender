@@ -1,4 +1,4 @@
-"""Recommendation: popularity x proximity, personalised with behaviour-adapted semantics.
+"""Recommendation: popularity x proximity, personalised with the user's likes, position and last visit.
 
 Every choice here was measured on real tourist visits (Flickr YFCC100M, Valencia;
 see research/ and docs/proposal.md):
@@ -13,14 +13,15 @@ see research/ and docs/proposal.md):
   went to next get a boost (+0.05 hit@10 in Valencia, +0.08 in Milano).
 - Semantics is what works where there are no visits: the popularity of an unvisited
   POI is predicted from its description (BehaviourModel.predicted_popularity).
-  Similarity to the likes (embeddings adapted to co-visits) adds little once
-  proximity is known: on photos, taste and place cannot be told apart
-  (research/semantic_ltr.py: +0.08..0.11 hit@10 without location, ~0 with it).
-  It keeps a small weight, feeds the explanations and the dislikes, and the
-  user's stated interests are matched semantically against the descriptions.
-- Onboarding shows the most popular places first: real tourists recognise and like
-  them, so the first likes arrive quickly (recall 0.52 vs 0.23 for the previous
-  exploration-first bandit).
+  It does not rank: similarity to the likes added nothing once proximity is known
+  (research/semantic_ltr.py; research/traits.py: -0.012 Valencia, -0.003 Milano),
+  and stated interests cannot be validated on photos, so both were removed.
+- Onboarding: likes are the signal that works, as places the user will be around
+  (+0.033 Valencia, +0.062 Milano over the position alone; research/traits.py).
+  Popular cards beat cards spread over kinds of place (Milano +0.042). Kinds of
+  place, liking famous vs lesser-known places and roaming radius added nothing.
+- Categories chosen by the user put their places first but do not hide the rest
+  (the validation never picked a category weight on visits: a product choice).
 """
 from __future__ import annotations
 
@@ -44,8 +45,9 @@ WALKING_KMH = 4.5
 MIN_MODEL_OVERLAP = 0.5
 EARTH_KM = 6371.0
 LOG_DISTANCE_OFFSET_KM = 0.05
-# Stated interests: POIs below this quantile of similarity to the text get no boost.
-INTEREST_QUANTILE = 0.75
+# A position farther than this from every POI is not the user's place in the city
+# (planning the trip from home): it is ignored.
+MAX_LOCATION_KM = 10.0
 
 
 def _minmax(x: np.ndarray) -> np.ndarray:
@@ -76,11 +78,9 @@ class Recommender:
         self.distance_form = str(rec.get("distance_form", "linear"))
         self.distance_scale_km = float(rec.get("distance_scale_km", 0.3))
         self.distance_log_weight = float(rec.get("distance_log_weight", 1.0))
-        self.similarity_weight = float(rec.get("similarity_weight", 0.0))
         self.next_weight = float(rec.get("next_weight", 1.0))
         self.predicted_calibration = float(rec.get("predicted_calibration", 0.0))
-        self.dislike_weight = float(rec.get("dislike_weight", 0.1))
-        self.interest_weight = float(rec.get("interest_weight", 1.0))
+        self.category_weight = float(rec.get("category_weight", 0.25))
         self.top_n = int(rec.get("top_n", 30))
         self.check_hours = bool(rec.get("filter_opening_hours", True))
 
@@ -100,6 +100,7 @@ class Recommender:
         self._predicted_raw: np.ndarray | None = None
         self._predicted_mapped: np.ndarray | None = None
         self.popularity, self.popularity_source = self._popularity(model)
+        # Behaviour-adapted embeddings: not used for ranking, kept for the research scripts.
         self.adapted = model.adapted(self.units) if model is not None and self.ids else self.units
         self.transitions = self._transitions(model)
         self.model_meta = model.meta if model is not None else None
@@ -178,38 +179,17 @@ class Recommender:
 
     # ------------------------------------------------------------------ API
 
-    def interest_scores(self, text: str | None, query_unit: np.ndarray | None = None) -> np.ndarray | None:
-        """How well each POI matches what the user says they like, in [0, 1].
-
-        With the text model (`query_unit`): cosine of the description embeddings to
-        the text, keeping only the top quarter (cosines are compressed: the median
-        POI is not "a bit" Roman because the user asked for Roman ruins), scaled to
-        [0, 1]. Without it: the word matches of `text_search`. None when there is
-        no text or nothing matches.
-        """
-        if not text or not text.strip() or not self.ids:
-            return None
-        if query_unit is not None:
-            sim = self.units @ query_unit
-            floor, top = float(np.quantile(sim, INTEREST_QUANTILE)), float(sim.max())
-            return np.clip((sim - floor) / max(top - floor, 1e-9), 0.0, 1.0)
-        found = self.text_search(text, limit=len(self.ids))
-        if not found:
-            return None
-        out = np.zeros(len(self.ids))
-        for item in found:
-            out[self.position[item["id"]]] = item["score"]
-        return out / out.max()
+    def _category_boost(self, categories: Sequence[str] | None) -> np.ndarray:
+        if not categories:
+            return np.zeros(len(self.ids))
+        return self.category_weight * self._in_categories(categories).astype(float)
 
     def onboarding_cards(self, k: int, seen: Sequence[str] | None = None,
-                         categories: Sequence[str] | None = None,
-                         interest: np.ndarray | None = None) -> list[dict[str, Any]]:
-        """The k most popular POIs not shown yet, optionally within some categories;
-        with stated interests (`interest_scores`), popular places that match them first."""
-        mask = self._in_categories(categories)
-        mask[self._indices(seen)] = False
-        key = self.popularity if interest is None else _minmax(self.popularity) + self.interest_weight * interest
-        order = [i for i in np.argsort(-key, kind="stable") if mask[i]]
+                         categories: Sequence[str] | None = None) -> list[dict[str, Any]]:
+        """The k most popular POIs not shown yet; those of the chosen categories first."""
+        key = _minmax(self.popularity) + self._category_boost(categories)
+        hidden = set(self._indices(seen))
+        order = [i for i in np.argsort(-key, kind="stable") if i not in hidden]
         return [self.pois[i] for i in order[:k]]
 
     def recommend(
@@ -221,18 +201,15 @@ class Recommender:
         top_n: int | None = None,
         at: datetime | None = None,
         visited: Sequence[str] | None = None,
-        interest: np.ndarray | None = None,
     ) -> list[dict[str, Any]]:
         """`visited`: places the user has already been to, oldest first. They are
         not recommended again, count as places the user is around, and the last
         one brings up where visitors usually go next.
 
-        `interest`: what the user says they like (`interest_scores`), added with
-        `interest_weight`. Photos cannot validate this weight (they show where people
-        went, not what they wanted): it is a product choice, set so that a stated
-        interest reorders nearby, popular places rather than replacing them. Where
-        there is no location at all, semantics was worth +0.08..0.11 hit@10
-        (research/semantic_ltr.py, SCENARIO=remote)."""
+        `liked`: places the user wants to see; the places around them come up
+        (the user will be there). `disliked`: never recommended. `categories`:
+        their places go first (`category_weight`), the rest still appear.
+        `location`: ignored if farther than MAX_LOCATION_KM from every POI."""
         n = len(self.ids)
         if n == 0:
             return []
@@ -243,24 +220,17 @@ class Recommender:
         # Proximity: distance to the nearest liked or visited POI or to the user's position.
         anchors = [self._distances_from(i) for i in dict.fromkeys(liked_idx + visited_idx)]
         if location and "lat" in location and "lon" in location:
-            anchors.append(self._distances_km(float(location["lat"]), float(location["lon"])))
+            from_user = self._distances_km(float(location["lat"]), float(location["lon"]))
+            if from_user.min() <= MAX_LOCATION_KM:
+                anchors.append(from_user)
         nearest_km = np.min(anchors, axis=0) if anchors else np.zeros(n)
         popularity = self.popularity
         if last is not None and self.next_weight:
             # P(next | last visited), on the scale of log popularity
             popularity = popularity + self.next_weight * np.log1p(100 * self.transitions[last])
-        score = _minmax(popularity - self._distance_penalty(nearest_km))
+        score = _minmax(popularity - self._distance_penalty(nearest_km)) + self._category_boost(categories)
 
-        similarity = np.zeros(n)
-        if liked_idx:
-            similarity = (self.adapted @ self.adapted[liked_idx].T).mean(axis=1)
-            score = score + self.similarity_weight * _minmax(similarity)
-        if interest is not None:
-            score = score + self.interest_weight * interest
-        if disliked_idx:
-            score = score - self.dislike_weight * _minmax((self.adapted @ self.adapted[disliked_idx].T).max(axis=1))
-
-        candidates = self._in_categories(categories)
+        candidates = np.ones(n, dtype=bool)
         candidates[liked_idx + disliked_idx + visited_idx] = False
         if self.check_hours:
             start = (at or now_local()).astimezone(LOCAL_TZ).replace(second=0, microsecond=0)
@@ -271,9 +241,7 @@ class Recommender:
 
         order = [i for i in np.argsort(-score, kind="stable") if candidates[i]][: top_n or self.top_n]
         top_popular = set(np.argsort(-self.popularity)[: max(10, n // 20)].tolist())
-        similar_cut = float(np.quantile(similarity, 0.9)) if liked_idx else None
         next_cut = self._next_cut(last)
-        interest_cut = float(np.quantile(interest, 0.9)) if interest is not None else None
         results = []
         for rank, i in enumerate(order, start=1):
             item = dict(self.pois[i])
@@ -283,11 +251,9 @@ class Recommender:
                 "popularity": round(float(self.popularity[i]), 3),
                 "popularitySource": self.popularity_source[i],
                 "distanceKm": round(float(nearest_km[i]), 3) if anchors else None,
-                "reasons": self._reasons(i, liked_idx + visited_idx, nearest_km, bool(anchors), similar_cut,
+                "reasons": self._reasons(i, liked_idx + visited_idx, nearest_km, bool(anchors),
                                          top_popular, last, next_cut),
             })
-            if interest_cut is not None and interest[i] >= interest_cut and interest[i] > 0:
-                item["reasons"].insert(0, {"type": "interest"})
             results.append(item)
         return results
 
@@ -309,7 +275,7 @@ class Recommender:
         return cut if row.max() >= cut else None
 
     def _reasons(self, i: int, liked_idx: list[int], nearest_km: np.ndarray, has_anchor: bool,
-                 similar_cut: float | None, top_popular: set, last: int | None = None,
+                 top_popular: set, last: int | None = None,
                  next_cut: float | None = None) -> list[dict[str, Any]]:
         """Why a POI is in the list, for the explanation shown to the user."""
         reasons: list[dict[str, Any]] = []
@@ -321,25 +287,11 @@ class Recommender:
             near = [j for j in liked_idx if self._distances_from(j)[i] <= 0.5]
             reasons.append({"type": "near", "km": round(float(nearest_km[i]), 2),
                             "poi": self.pois[near[0]].get("name") if near else None})
-        if liked_idx and similar_cut is not None:
-            j = max(liked_idx, key=lambda j: float(self.adapted[i] @ self.adapted[j]))
-            if float((self.adapted[i] @ self.adapted[liked_idx].T).mean()) >= similar_cut:
-                reasons.append({"type": "similar", "poi": self.pois[j].get("name")})
         return reasons
-
-    def search(self, query_unit: np.ndarray | None, limit: int = 20,
-               categories: Sequence[str] | None = None) -> list[dict[str, Any]]:
-        """Free-text search over the descriptions (plain embeddings, not the adapted ones)."""
-        if query_unit is None or not self.ids:
-            return []
-        score = self.units @ query_unit
-        mask = self._in_categories(categories)
-        order = [i for i in np.argsort(-score) if mask[i]][:limit]
-        return [{**self.pois[i], "rank": r, "score": round(float(score[i]), 4)} for r, i in enumerate(order, start=1)]
 
     def text_search(self, query: str, limit: int = 20,
                     categories: Sequence[str] | None = None) -> list[dict[str, Any]]:
-        """Word search over name and description, when the text model is not installed.
+        """Word search over name and description.
 
         Each query word (3+ letters, accents ignored) found in the name counts 3,
         in the description 1; ties go to the more popular POI.

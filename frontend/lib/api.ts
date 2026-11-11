@@ -15,9 +15,7 @@ export interface POILocation {
 export type Reason =
   | { type: "popular" }
   | { type: "near"; km: number; poi: string | null }
-  | { type: "similar"; poi: string }
-  | { type: "next"; poi: string }
-  | { type: "interest" };
+  | { type: "next"; poi: string };
 
 export interface POI {
   id: string;
@@ -39,16 +37,14 @@ export interface POI {
 
 export interface UserProfile {
   name: string;
+  /** Kinds of place that go first; the rest still appear. */
   preferred_categories: string[];
-  /** What the user says they like, in their own words. */
-  interests?: string;
 }
 
 export interface Feedback {
   liked: string[];
   disliked: string[];
   categories?: string[];
-  interests?: string;
   /** Places already visited, oldest first. */
   visited?: string[];
 }
@@ -97,10 +93,9 @@ export async function getRecommendations(
   return data.results ?? [];
 }
 
-/** Free-text search over the descriptions; [] when the text model is not available. */
+/** Search by words in names and descriptions. */
 export async function searchPOIs(q: string, limit = 20): Promise<POI[]> {
   const response = await fetch(`${API_BASE_URL}/search?${new URLSearchParams({ q, limit: String(limit) })}`);
-  if (response.status === 503) return [];
   if (!response.ok) throw new Error("Search failed");
   return response.json();
 }

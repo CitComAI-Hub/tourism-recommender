@@ -41,10 +41,6 @@ services:
       POI_SOURCE: ngsi-ld
       NGSI_LD_URL: http://orion:1026
       POI_REFRESH_SECONDS: "300"
-      # ONNX text model for interests and search (see README, "Text model")
-      QUERY_MODEL_DIR: /models/embeddinggemma-300m-onnx
-    volumes:
-      - ./data/models:/models:ro
     ports:
       - "${APP_PORT:-8000}:8000"
 

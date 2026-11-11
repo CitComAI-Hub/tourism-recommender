@@ -46,7 +46,8 @@ K = 10
 # distance penalty: ("linear", km scale) or ("log", weight of log(km + 50 m))
 GRID_TAU = (("linear", 0.15), ("linear", 0.3), ("linear", 0.6), ("linear", 1.0),
             ("log", 0.5), ("log", 1.0), ("log", 1.5), ("log", 2.0), ("log", 3.0), ("log", 4.0))
-GRID_SIM = (0.0, 0.15, 0.3, 0.5)
+# Similarity to the likes was removed from the service (research/traits.py): kept at 0.
+GRID_SIM = (0.0,)
 GRID_SEASON = (0.0, 0.25, 0.5, 0.75)
 GRID_NEXT = (0.0, 0.25, 0.5, 1.0)
 GRID_CAL = (0.0, 0.25, 0.5, 0.75, 1.0)

@@ -1,6 +1,6 @@
 "use client";
 
-import { Flame, Footprints, Heart, MapPin, Users, Sparkles } from "lucide-react";
+import { Flame, Footprints, MapPin, Sparkles } from "lucide-react";
 import type { POI } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -11,16 +11,13 @@ export function PoiReasons({ poi, className, compact = false }: { poi: POI; clas
   const reasons = poi.reasons ?? [];
   const lines = reasons.map((reason) => {
     if (reason.type === "next") return { icon: Footprints, text: t("recommendations.reasons.next", { poi: reason.poi }) };
-    if (reason.type === "interest") return { icon: Heart, text: t("recommendations.reasons.interest") };
     if (reason.type === "popular") return { icon: Flame, text: t("recommendations.reasons.popular") };
-    if (reason.type === "near")
-      return {
-        icon: MapPin,
-        text: reason.poi
-          ? t("recommendations.reasons.near_named", { km: reason.km, poi: reason.poi })
-          : t("recommendations.reasons.near", { km: reason.km }),
-      };
-    return { icon: Users, text: t("recommendations.reasons.similar", { poi: reason.poi }) };
+    return {
+      icon: MapPin,
+      text: reason.poi
+        ? t("recommendations.reasons.near_named", { km: reason.km, poi: reason.poi })
+        : t("recommendations.reasons.near", { km: reason.km }),
+    };
   });
   if (!compact && poi.popularitySource === "predicted") {
     lines.push({ icon: Sparkles, text: t("recommendations.popularity_predicted") });

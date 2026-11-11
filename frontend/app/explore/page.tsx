@@ -79,7 +79,6 @@ export default function ExplorePage() {
       disliked: dislikedPOIs,
       visited: visitedPOIs,
       categories: profile?.preferred_categories ?? [],
-      interests: profile?.interests,
       location: userLocation,
       top_n: MAX_RECOMMENDATIONS,
       at: new Date().toISOString(),

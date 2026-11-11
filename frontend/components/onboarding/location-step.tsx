@@ -13,7 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Location } from "@/lib/api";
+import { getPOIs, type Location } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 
 interface SearchResult {
@@ -21,6 +21,34 @@ interface SearchResult {
   display_name: string;
   lat: string;
   lon: string;
+}
+
+interface Bounds {
+  minLat: number;
+  maxLat: number;
+  minLon: number;
+  maxLon: number;
+}
+
+// About 10 km: the API ignores a position farther than that from every place
+// (someone planning the trip from home).
+const MARGIN_DEG = 0.09;
+
+function catalogBounds(points: [number, number][]): Bounds | null {
+  if (points.length === 0) return null;
+  const lons = points.map((p) => p[0]);
+  const lats = points.map((p) => p[1]);
+  return {
+    minLat: Math.min(...lats) - MARGIN_DEG,
+    maxLat: Math.max(...lats) + MARGIN_DEG,
+    minLon: Math.min(...lons) - MARGIN_DEG,
+    maxLon: Math.max(...lons) + MARGIN_DEG,
+  };
+}
+
+function inside(bounds: Bounds | null, lat: number, lon: number): boolean {
+  if (!bounds) return true;
+  return lat >= bounds.minLat && lat <= bounds.maxLat && lon >= bounds.minLon && lon <= bounds.maxLon;
 }
 
 interface LocationStepProps {
@@ -48,6 +76,7 @@ export function LocationStep({
   const [isSearching, setIsSearching] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
+  const [bounds, setBounds] = useState<Bounds | null>(null);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -67,10 +96,13 @@ export function LocationStep({
         }
       );
 
-      onCustomLocationChange({
-        lat: position.coords.latitude,
-        lon: position.coords.longitude,
-      });
+      const { latitude: lat, longitude: lon } = position.coords;
+      if (!inside(bounds, lat, lon)) {
+        setLocationError(t("onboarding.location.far"));
+        onUseCurrentLocationChange(false);
+        return;
+      }
+      onCustomLocationChange({ lat, lon });
       onUseCurrentLocationChange(true);
     } catch {
       setLocationError(t("onboarding.location.error"));
@@ -86,14 +118,14 @@ export function LocationStep({
       return;
     }
 
-
-      {locationError && (
-        <p className="text-sm text-destructive mb-4 text-center">{locationError}</p>
-      )}
     setIsSearching(true);
     try {
+      // viewbox = left,top,right,bottom (lon,lat): the catalog's area
+      const area = bounds
+        ? `&viewbox=${bounds.minLon},${bounds.maxLat},${bounds.maxLon},${bounds.minLat}&bounded=1`
+        : "";
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&viewbox=-0.5,-0.2,39.3,39.6&bounded=1&limit=5&addressdetails=1`,
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}${area}&limit=5&addressdetails=1`,
         {
           headers: {
             "Accept-Language": locale,
@@ -147,6 +179,12 @@ export function LocationStep({
     }
     inputRef.current?.focus();
   };
+
+  useEffect(() => {
+    getPOIs()
+      .then((pois) => setBounds(catalogBounds(pois.map((p) => p.location.coordinates))))
+      .catch(() => setBounds(null));
+  }, []);
 
   useEffect(() => {
     if (navigator.permissions) {
@@ -235,6 +273,10 @@ export function LocationStep({
           </p>
         </div>
       </motion.button>
+
+      {locationError && (
+        <p className="text-sm text-destructive mb-4 text-center">{locationError}</p>
+      )}
 
       <div className="flex items-center gap-4 my-6">
         <div className="flex-1 h-px bg-border" />

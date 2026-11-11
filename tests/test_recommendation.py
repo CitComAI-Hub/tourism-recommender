@@ -58,10 +58,14 @@ def test_without_model_popularity_comes_from_wikipedia(config, workspace):
     assert set(rec.popularity_source) == {"wikipedia"}
 
 
-def test_cards_skip_seen_and_filter_categories(config, workspace):
+def test_cards_skip_seen_and_prefer_categories(config, workspace):
     rec = Recommender(*_catalog(config, workspace), config=config)
-    cards = rec.onboarding_cards(2, seen=[poi_id("m1")], categories=["museum"])
-    assert [c["name"] for c in cards] == ["m2", "m3"]
+    plain = [c["name"] for c in rec.onboarding_cards(3, seen=[poi_id("m1")])]
+    museums = [c["name"] for c in rec.onboarding_cards(3, seen=[poi_id("m1")], categories=["museum"])]
+    assert "m1" not in plain + museums
+    # the chosen category moves up, the rest still appear
+    assert "m2" not in plain and "m2" in museums
+    assert {"p1", "c1"} & set(museums)
 
 
 def test_recommend_excludes_feedback_and_prefers_nearby(config, workspace):
@@ -79,9 +83,21 @@ def test_recommend_uses_location_and_categories(config, workspace):
     rec = Recommender(*_catalog(config, workspace), config=config)
     near_v1 = {"lat": 39.460, "lon": -0.390}
     results = rec.recommend(location=near_v1, categories=["viewpoint", "park"])
-    assert {r["name"] for r in results} <= {"v1", "p1", "p2", "p3"}
     assert results[0]["name"] == "v1"
     assert results[0]["distanceKm"] == pytest.approx(0.0, abs=1e-6)
+    # categories rank, they do not filter
+    assert len(results) == 10
+    plain = [r["name"] for r in rec.recommend(location=near_v1)]
+    parks = [r["name"] for r in results]
+    assert parks.index("p3") < plain.index("p3")
+
+
+def test_location_far_from_the_city_is_ignored(config, workspace):
+    rec = Recommender(*_catalog(config, workspace), config=config)
+    berlin = {"lat": 52.52, "lon": 13.40}
+    results = rec.recommend(location=berlin)
+    assert [r["name"] for r in results] == [r["name"] for r in rec.recommend()]
+    assert results[0]["distanceKm"] is None
 
 
 def test_opening_hours_filter(config, workspace):
@@ -117,13 +133,6 @@ def test_adapted_similarity_follows_co_visits(config, workspace):
     # m1 and c1 are described differently but visited together
     assert ad[i, j] > raw[i, j]
     assert ad[i, j] > ad[i, k]
-
-
-def test_search_ranks_by_text_similarity(config, workspace):
-    rec = Recommender(*_catalog(config, workspace), config=config)
-    churches = np.array([0.0, 0.0, 1.0, 0.0])
-    assert [r["name"] for r in rec.search(churches, limit=3)][0] == "c1"
-    assert rec.search(None) == []
 
 
 def test_text_search_by_words(config, workspace):
@@ -189,28 +198,6 @@ def test_predicted_popularity_calibration(config, workspace):
     assert np.array_equal(rec.popularity[~unvisited], np.log1p(model.visitors[~unvisited]))
     rec.set_predicted_calibration(0.0)
     assert np.allclose(rec.popularity[unvisited], raw)
-
-
-def test_stated_interests_reorder_cards_and_recommendations(config, workspace):
-    rec = Recommender(*_catalog(config, workspace), config=config)
-    churches = np.array([0.0, 0.0, 1.0, 0.0])
-    interest = rec.interest_scores("iglesias", churches)
-    assert interest is not None and interest.min() == 0.0 and interest.max() == 1.0
-    # m1 is the best known place, but a stated interest in churches puts c1 first
-    assert rec.onboarding_cards(1)[0]["name"] == "m1"
-    assert rec.onboarding_cards(1, interest=interest)[0]["name"] == "c1"
-    top = rec.recommend(liked=[poi_id("m2")], interest=interest, top_n=3)
-    assert top[0]["name"] == "c1" and top[0]["reasons"][0] == {"type": "interest"}
-    assert rec.interest_scores("  ") is None
-
-
-def test_stated_interests_without_text_model_use_words(config, workspace):
-    pois, index = _catalog(config, workspace)
-    next(p for p in pois if p["id"] == poi_id("v1"))["description"] = "Mirador con vistas"
-    rec = Recommender(pois, index, config=config)
-    interest = rec.interest_scores("miradores vistas", None)
-    assert interest is not None and rec.ids[int(np.argmax(interest))] == poi_id("v1")
-    assert rec.interest_scores("zzzz", None) is None
 
 
 def test_model_without_recorded_features_uses_embedding_and_category(config, workspace):

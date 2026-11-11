@@ -9,7 +9,6 @@ import pmv_turismo.api as api
 def client(workspace, monkeypatch):
     monkeypatch.setattr(api, "CONFIG_PATH", workspace / "config.yaml")
     monkeypatch.setattr(api, "STATE", api._State())
-    monkeypatch.setattr(api, "encode_query", lambda cfg, text: None)
     with TestClient(api.app) as c:
         yield c
 
@@ -54,8 +53,7 @@ def test_recommendations_validation(client, payload):
     assert client.post("/recommendations", json=payload).status_code == 422
 
 
-def test_search_without_text_model_falls_back_to_words(client):
-    # encode_query is patched to None (no text model): word search, nothing matches here
+def test_search_by_words(client):
     response = client.get("/search?q=gothic churches")
     assert response.status_code == 200 and response.json() == []
     assert client.get("/search?q=a").status_code == 422
