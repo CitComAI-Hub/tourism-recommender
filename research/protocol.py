@@ -172,9 +172,9 @@ def extra_metrics(city: City, rec: Recommender, cases: List[tuple], run: Run) ->
 
 
 def choose(city, rec, val_cases, seasonal=None):
-    best = (-1.0, None)
+    best = (-1.0, (GRID_TAU[0], GRID_SIM[0]))  # defaults when there are no validation cases
     for tau, sim in itertools.product(GRID_TAU, GRID_SIM):
-        h = evaluate(city, rec, val_cases, tau, sim).mean()
+        h = evaluate(city, rec, val_cases, tau, sim).mean() if val_cases else -1.0
         best = max(best, (h, (tau, sim)), key=lambda t: t[0])
     tau, sim = best[1]
     sw = 0.0
