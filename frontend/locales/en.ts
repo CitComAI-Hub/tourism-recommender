@@ -46,8 +46,8 @@ export const en = {
           desc: "Places you should not miss",
         },
         plan: {
-          title: "Plan",
-          desc: "Organize your day with optimized routes",
+          title: "Near you",
+          desc: "Places close to where you are and to what you like",
         },
       },
     },
@@ -188,9 +188,11 @@ export const en = {
     legend: {
       recommended: "Recommended",
       liked: "You like it",
+      visited: "Visited",
     },
     visited_heading: "Visited",
     liked_heading: "You like",
+    suggested_heading: "For you",
     search_placeholder: "Search places (e.g. gothic churches)",
     search_results: "Search results",
     search_empty: "No places match your search",

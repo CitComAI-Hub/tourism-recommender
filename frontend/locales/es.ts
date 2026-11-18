@@ -46,8 +46,8 @@ export const es = {
           desc: "Lugares que no te puedes perder",
         },
         plan: {
-          title: "Planifica",
-          desc: "Organiza tu dia con rutas optimizadas",
+          title: "Cerca de ti",
+          desc: "Sitios cerca de donde estás y de lo que te gusta",
         },
       },
     },
@@ -188,9 +188,11 @@ export const es = {
     legend: {
       recommended: "Recomendado",
       liked: "Te gusta",
+      visited: "Visitado",
     },
     visited_heading: "Ya visitados",
     liked_heading: "Te gustan",
+    suggested_heading: "Para ti",
     search_placeholder: "Busca lugares (p. ej. iglesias góticas)",
     search_results: "Resultados de la búsqueda",
     search_empty: "Ningún lugar coincide con tu búsqueda",

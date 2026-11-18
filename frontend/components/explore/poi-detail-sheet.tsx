@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PoiCategoryBadge } from "@/components/poi-category-badge";
 import { OptimizedImage } from "@/components/ui/optimized-image";
-import { Check, Heart, ThumbsDown, Clock, MapPin, Navigation, X } from "lucide-react";
+import { Check, Heart, Clock, MapPin, Navigation, X } from "lucide-react";
 import { PoiReasons } from "@/components/explore/poi-reasons";
 import type { POI } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -259,7 +259,7 @@ export function POIDetailSheet({
                   title={t("poi.dislike")}
                   onClick={() => onDislike(poi)}
                 >
-                  <ThumbsDown className="w-4 h-4" />
+                  <X className="w-4 h-4" />
                 </Button>
                 <Button
                   className={cn("flex-1 py-6 rounded-full", isLiked && "bg-primary text-primary-foreground")}

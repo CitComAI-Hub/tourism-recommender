@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { MapPin, Compass, Calendar } from "lucide-react";
+import { MapPin, Compass, Navigation } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 interface WelcomeStepProps {
@@ -73,7 +73,7 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
 
         <div className="p-6 rounded-xl bg-card border border-border">
           <div className="w-12 h-12 mx-auto rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-            <Calendar className="w-6 h-6 text-primary" />
+            <Navigation className="w-6 h-6 text-primary" />
           </div>
           <h3 className="font-medium text-foreground mb-2">
             {t("onboarding.welcome.features.plan.title")}

@@ -7,7 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { Input } from "@/components/ui/input";
 import { PoiReasons } from "@/components/explore/poi-reasons";
-import { Map, List, Clock, Loader2, Heart, ListFilter, Search, ThumbsDown, X } from "lucide-react";
+import { Map, List, Clock, Loader2, Heart, Check, ListFilter, Search, X } from "lucide-react";
 import type { POI } from "@/lib/api";
 import { POI_CATEGORY_FILTERS, POI_CATEGORY_META } from "@/lib/poi-categories";
 import { cn } from "@/lib/utils";
@@ -54,31 +54,58 @@ export function RecommendationsList({
 }: RecommendationsListProps) {
   const { t } = useI18n();
 
-  /** Places the user marked (liked or visited), removable one by one. */
-  const renderChips = (heading: string, items: POI[], onRemove: (poi: POI) => void) =>
+  /** Places the user marked (liked or visited): compact cards in the "added" style,
+   * with a filled button that removes the mark. */
+  const renderMarked = (
+    heading: string,
+    items: POI[],
+    Icon: typeof Heart,
+    onRemove: (poi: POI) => void
+  ) =>
     items.length > 0 && (
-      <div className="mb-2">
-        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">{heading}</p>
-        <div className="flex flex-wrap gap-2">
-          {items.map((poi) => (
-            <span
-              key={poi.id}
-              className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/5 py-1 pl-3 pr-1 text-sm"
+      <div className="space-y-2">
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{heading}</p>
+        {items.map((poi) => (
+          <div
+            key={poi.id}
+            className="flex cursor-pointer items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3 transition-all"
+            onClick={() => onSelectPOI(poi)}
+            onMouseEnter={() => onHoverPOI(poi)}
+            onMouseLeave={() => onHoverPOI(null)}
+          >
+            {poi.image && (
+              <OptimizedImage
+                src={poi.image}
+                alt={poi.name}
+                fill
+                sizes="48px"
+                className="object-cover rounded-lg"
+                wrapperClassName="relative shrink-0 w-12 h-12 rounded-lg"
+                fallbackIconSize={16}
+              />
+            )}
+            <div className="min-w-0 flex-1">
+              <h3 className="line-clamp-1 font-medium text-foreground">{poi.name}</h3>
+              <div className="mt-1 flex gap-1">
+                {(poi.category || []).slice(0, 1).map((cat) => (
+                  <PoiCategoryBadge key={cat} category={cat} />
+                ))}
+              </div>
+            </div>
+            <Button
+              size="icon"
+              className="h-9 w-9 shrink-0 rounded-full bg-primary text-primary-foreground"
+              aria-label={t("common.remove")}
+              title={t("common.remove")}
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove(poi);
+              }}
             >
-              <button type="button" className="max-w-[12rem] truncate" onClick={() => onSelectPOI(poi)}>
-                {poi.name}
-              </button>
-              <button
-                type="button"
-                className="rounded-full p-1 text-muted-foreground hover:text-foreground"
-                onClick={() => onRemove(poi)}
-                aria-label={t("common.remove")}
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </span>
-          ))}
-        </div>
+              <Icon className={cn("w-4 h-4", Icon === Heart && "fill-current")} />
+            </Button>
+          </div>
+        ))}
       </div>
     );
 
@@ -159,8 +186,13 @@ export function RecommendationsList({
         <div className="p-4 space-y-3">
           {!isSearching && (
             <>
-              {renderChips(t("recommendations.liked_heading"), likedItems, onUnlike)}
-              {renderChips(t("recommendations.visited_heading"), visitedItems, onUnvisit)}
+              {renderMarked(t("recommendations.liked_heading"), likedItems, Heart, onUnlike)}
+              {renderMarked(t("recommendations.visited_heading"), visitedItems, Check, onUnvisit)}
+              {(likedItems.length > 0 || visitedItems.length > 0) && (
+                <p className="pt-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {t("recommendations.suggested_heading")}
+                </p>
+              )}
             </>
           )}
           {isLoading ? (
@@ -266,7 +298,7 @@ export function RecommendationsList({
                           onDislike(poi);
                         }}
                       >
-                        <ThumbsDown className="w-4 h-4" />
+                        <X className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
