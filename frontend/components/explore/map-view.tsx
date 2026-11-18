@@ -5,10 +5,12 @@ import type { Location, POI } from "@/lib/api";
 import { VALENCIA_CENTER } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { TILE_URL, TILE_ATTRIBUTION } from "@/lib/map-tiles";
+import { Check } from "lucide-react";
 
 interface MapViewProps {
   pois: POI[];
   likedPOIs: POI[];
+  visitedPOIs: POI[];
   selectedPOI: POI | null;
   hoveredPOI: POI | null;
   onSelectPOI: (poi: POI) => void;
@@ -25,6 +27,7 @@ declare global {
 export function MapView({
   pois,
   likedPOIs,
+  visitedPOIs,
   selectedPOI,
   hoveredPOI,
   onSelectPOI,
@@ -189,12 +192,19 @@ export function MapView({
       if (!coords || coords.length < 2) {
         return;
       }
-      const isAccepted = likedPOIs.some((p) => p.id === poi.id);
+      const isLiked = likedPOIs.some((p) => p.id === poi.id);
+      const isVisited = visitedPOIs.some((p) => p.id === poi.id);
+      const isMarked = isLiked || isVisited;
       const isSelected = selectedPOI?.id === poi.id;
       const isHovered = hoveredPOI?.id === poi.id;
 
-      const markerColor = isAccepted ? "#2d6a4f" : poiColor;
-      const markerSize = isSelected || isHovered ? 36 : 28;
+      const markerColor = isMarked ? "#2d6a4f" : poiColor;
+      const markerSize = isSelected || isHovered ? 38 : isMarked ? 32 : 28;
+      const markIcon = isLiked
+        ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`
+        : isVisited
+          ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"></polyline></svg>`
+          : "";
 
       const icon = L.divIcon({
         className: "custom-marker",
@@ -213,21 +223,26 @@ export function MapView({
             transform: translate(-50%, -50%);
             ${isSelected ? "transform: translate(-50%, -50%) scale(1.2);" : ""}
           ">
-            ${isAccepted ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20,6 9,17 4,12"></polyline></svg>` : ""}
+            ${markIcon}
           </div>
         `,
         iconSize: [markerSize, markerSize],
         iconAnchor: [markerSize / 2, markerSize / 2],
       });
 
-      const marker = L.marker([coords[1], coords[0]], { icon }).on("click", () => onSelectPOI(poi));
+      // Marked places stay on top of the recommendations.
+      const marker = L.marker([coords[1], coords[0]], { icon, zIndexOffset: isMarked ? 1000 : 0 }).on(
+        "click",
+        () => onSelectPOI(poi)
+      );
 
       marker.bindTooltip(poi.name, {
         direction: "top",
         offset: [0, -14],
       });
 
-      const minZoom = computeMinZoom(poi);
+      // Marked places are always visible; recommendations appear by rank as you zoom in.
+      const minZoom = isMarked ? 0 : computeMinZoom(poi);
       markersRef.current.set(poi.id, { marker, minZoom });
     });
 
@@ -237,7 +252,7 @@ export function MapView({
     return () => {
       map.off("zoomend", applyVisibility);
     };
-  }, [isLoaded, safePois, likedPOIs, selectedPOI, hoveredPOI, onSelectPOI, userLocation]);
+  }, [isLoaded, safePois, likedPOIs, visitedPOIs, selectedPOI, hoveredPOI, onSelectPOI, userLocation]);
 
   // Center on selected POI
   useEffect(() => {
@@ -265,6 +280,14 @@ export function MapView({
             <div className="w-3 h-3 rounded-full bg-primary border-2 border-white shadow" />
             <span className="text-muted-foreground">{t("recommendations.legend.liked")}</span>
           </div>
+          {visitedPOIs.length > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary border-2 border-white shadow">
+                <Check className="h-2 w-2 text-white" strokeWidth={4} />
+              </div>
+              <span className="text-muted-foreground">{t("recommendations.legend.visited")}</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

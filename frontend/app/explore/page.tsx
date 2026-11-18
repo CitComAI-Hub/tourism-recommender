@@ -140,8 +140,14 @@ export default function ExplorePage() {
       <main className="flex-1 flex flex-col lg:flex-row min-h-0">
         <div className={`${showMap ? "h-[40vh] lg:h-[calc(100vh-64px)]" : "h-0"} lg:flex-1 lg:min-h-0 transition-all`}>
           <MapView
-            pois={[...shown, ...likedItems.filter((p) => !shown.some((s) => s.id === p.id))]}
+            pois={[
+              ...shown,
+              ...[...likedItems, ...visitedItems].filter((p, i, all) =>
+                !shown.some((s) => s.id === p.id) && all.findIndex((q) => q.id === p.id) === i
+              ),
+            ]}
             likedPOIs={likedItems}
+            visitedPOIs={visitedItems}
             selectedPOI={selectedPOI}
             hoveredPOI={hoveredPOI}
             onSelectPOI={setSelectedPOI}
