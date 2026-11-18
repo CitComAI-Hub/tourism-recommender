@@ -272,12 +272,13 @@ export function RecommendationsList({
                       </div>
                     </div>
 
-                    {/* Feedback: each answer re-ranks the list */}
-                    <div className="flex shrink-0 flex-col gap-2">
-                      <Button
-                        size="icon"
-                        variant={isLiked ? "default" : "outline"}
-                        className="h-9 w-9 rounded-full"
+                    {/* Feedback: heart and X as a pair of outlined circles (primary / muted); a
+                        filled button means done, as in the liked and visited cards. Each answer
+                        re-ranks the list. */}
+                    <div className="flex shrink-0 flex-col items-center gap-2">
+                      <button
+                        type="button"
+                        className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-primary bg-card text-primary shadow-sm transition-colors hover:bg-primary hover:text-primary-foreground"
                         aria-label={t("poi.like")}
                         title={t("poi.like")}
                         onClick={(e) => {
@@ -286,11 +287,10 @@ export function RecommendationsList({
                         }}
                       >
                         <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-9 w-9 rounded-full text-muted-foreground"
+                      </button>
+                      <button
+                        type="button"
+                        className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-border bg-card text-muted-foreground shadow-sm transition-colors hover:border-destructive hover:text-destructive"
                         aria-label={t("poi.dislike")}
                         title={t("poi.dislike")}
                         onClick={(e) => {
@@ -299,7 +299,7 @@ export function RecommendationsList({
                         }}
                       >
                         <X className="w-4 h-4" />
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 </div>

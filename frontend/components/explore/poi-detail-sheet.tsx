@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -15,7 +16,6 @@ import { PoiReasons } from "@/components/explore/poi-reasons";
 import type { POI } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
-import { useState } from "react";
 
 const DAY_ORDER = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"] as const;
 
@@ -111,17 +111,36 @@ export function POIDetailSheet({
     window.open(url, "_blank");
   };
 
+  // Desktop: a panel on the right, over the list, so the map stays visible.
+  // Mobile: a sheet from the bottom.
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia("(min-width: 1024px)");
+    const update = () => setIsDesktop(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <SheetContent
-        side="bottom"
-        className="h-[85vh] md:h-[72vh] rounded-t-3xl p-0 [&>button:last-child]:hidden z-[1000] overflow-y-auto"
+        side={isDesktop ? "right" : "bottom"}
+        className={cn(
+          "p-0 gap-0 [&>button:last-child]:hidden z-[1000] overflow-y-auto",
+          isDesktop ? "w-[420px] sm:max-w-[420px]" : "h-[85vh] md:h-[72vh] rounded-t-3xl"
+        )}
         {...(descriptionId ? { "aria-describedby": descriptionId } : {})}
       >
         {poi && (
           <>
             {/* Header image: provided by ingestion (Commons); fallback icon */}
-            <div className="relative h-48 min-h-[12rem] overflow-hidden rounded-t-3xl bg-gradient-to-br from-primary/20 to-accent/20">
+            <div
+              className={cn(
+                "relative h-48 min-h-[12rem] overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20",
+                isDesktop ? "h-56" : "rounded-t-3xl"
+              )}
+            >
               {heroImage ? (
                 <OptimizedImage
                   src={heroImage}
@@ -151,7 +170,7 @@ export function POIDetailSheet({
 
             {/* Content */}
             <div className="p-6 pb-24 -mt-6 bg-background rounded-t-3xl relative">
-              <SheetHeader className="text-left mb-6">
+              <SheetHeader className="text-left mb-6 p-0">
                 <div className="flex items-start justify-between gap-4">
                   <SheetTitle className="font-serif text-2xl text-foreground">
                     {poi.name}
@@ -245,24 +264,24 @@ export function POIDetailSheet({
               <div className="flex gap-3">
                 <Button
                   variant="outline"
-                  className="flex-1 py-6 rounded-full bg-transparent"
+                  className="flex-1 h-12 rounded-full bg-transparent"
                   onClick={handleGetDirections}
                 >
                   <Navigation className="w-4 h-4 mr-2" />
                   {t("poi.direction")}
                 </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-auto w-14 rounded-full"
+                {/* Same pair as the onboarding: X on a white bordered circle, heart in primary */}
+                <button
+                  type="button"
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-border bg-card text-muted-foreground shadow-sm transition-colors hover:border-destructive hover:text-destructive"
                   aria-label={t("poi.dislike")}
                   title={t("poi.dislike")}
                   onClick={() => onDislike(poi)}
                 >
-                  <X className="w-4 h-4" />
-                </Button>
+                  <X className="h-5 w-5" />
+                </button>
                 <Button
-                  className={cn("flex-1 py-6 rounded-full", isLiked && "bg-primary text-primary-foreground")}
+                  className="flex-1 h-12 rounded-full bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
                   onClick={() => onLike(poi)}
                 >
                   <Heart className={cn("w-4 h-4 mr-2", isLiked && "fill-current")} />
