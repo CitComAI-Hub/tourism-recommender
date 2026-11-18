@@ -6,7 +6,10 @@ COPY frontend/package.json frontend/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY frontend/ ./
 ARG BASE_PATH=/tourism
-ENV NEXT_PUBLIC_BASE_PATH=${BASE_PATH} NEXT_TELEMETRY_DISABLED=1
+# CARTO key for the Voyager basemap (it ends up in the browser code anyway; without
+# it the map falls back to plain OpenStreetMap tiles).
+ARG CARTO_API_KEY=
+ENV NEXT_PUBLIC_BASE_PATH=${BASE_PATH} NEXT_PUBLIC_CARTO_API_KEY=${CARTO_API_KEY} NEXT_TELEMETRY_DISABLED=1
 RUN pnpm build
 
 FROM python:3.12-slim

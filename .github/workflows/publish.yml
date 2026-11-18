@@ -40,6 +40,9 @@ jobs:
         with:
           context: .
           push: true
-          build-args: BASE_PATH=/tourism
+          # CARTO_API_KEY (repository secret): Voyager basemap; without it, OSM tiles.
+          build-args: |
+            BASE_PATH=/tourism
+            CARTO_API_KEY=${{ secrets.CARTO_API_KEY }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
