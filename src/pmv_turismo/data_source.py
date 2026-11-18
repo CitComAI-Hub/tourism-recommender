@@ -30,6 +30,9 @@ from pmv_turismo.common import load_poi_list, processed_dir
 logger = logging.getLogger(__name__)
 
 SDM_POI_CONTEXT = "https://raw.githubusercontent.com/smart-data-models/dataModel.PointOfInterest/master/context.jsonld"
+# Array attributes of the catalog. A broker returns a one-element array as a plain
+# value (JSON-LD compaction), so they are wrapped back into lists when read.
+LIST_FIELDS = ("category", "refSeeAlso")
 
 
 def source_kind() -> str:
@@ -66,12 +69,19 @@ def _broker_pois() -> list[dict[str, Any]]:
     header.set_context(os.environ.get("POI_CONTEXT", SDM_POI_CONTEXT))
     client = ContextBrokerLDClient(url=url, session=session, fiware_header=header, create_tenant=False)
     entities = client.get_entity_list(entity_type=os.environ.get("POI_TYPE", "PointOfInterest"), options="keyValues")
-    pois = [e.model_dump(exclude_none=True, by_alias=True) for e in entities]
+    pois = [_as_catalog(e.model_dump(exclude_none=True, by_alias=True)) for e in entities]
     valid = [p for p in pois if _has_point(p)]
     if len(valid) < len(pois):
         logger.warning("%d POIs without a Point location ignored", len(pois) - len(valid))
     logger.info("Read %d POIs from %s%s", len(valid), url, " through the data space" if session else "")
     return valid
+
+
+def _as_catalog(poi: dict[str, Any]) -> dict[str, Any]:
+    for key in LIST_FIELDS:
+        if key in poi and not isinstance(poi[key], list):
+            poi[key] = [poi[key]]
+    return poi
 
 
 def _has_point(poi: dict[str, Any]) -> bool:

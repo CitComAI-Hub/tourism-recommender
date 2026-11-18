@@ -107,3 +107,11 @@ def test_publish_normalizes_and_selects_sourced():
     assert n["location"]["type"] == "GeoProperty" and n["name"] == {"type": "Property", "value": "A"}
     assert "@context" not in n and "image" not in n
     assert select([poi, {"id": "urn:y"}], "sourced") == [poi]
+
+
+def test_broker_one_element_arrays_back_to_lists():
+    from pmv_turismo.data_source import _as_catalog
+
+    poi = _as_catalog({"id": "x", "category": "museum", "refSeeAlso": "https://www.wikidata.org/wiki/Q1"})
+    assert poi["category"] == ["museum"] and poi["refSeeAlso"] == ["https://www.wikidata.org/wiki/Q1"]
+    assert _as_catalog({"id": "y", "category": ["park", "garden"]})["category"] == ["park", "garden"]
